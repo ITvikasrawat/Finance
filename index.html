@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+	<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -125,36 +125,52 @@
             display: inline-block;
             white-space: nowrap;
             animation: marquee 15s linear infinite;
-            padding-left: 100%; /* Start from outside */
+            padding-left: 100%;
         }
 		
     </style>
 </head>
-<!-- ✅ BODY START -->
 <body class="font-sans text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 h-screen flex flex-col overflow-hidden">
 
-    <!-- 1. COMPACT HEADER (Fixed Top) -->
-    <header class="fixed top-0 w-full glass-header z-50 bg-white/95 dark:bg-slate-900/90 transition-all duration-300 shadow-sm">
-        <div class="flex flex-col px-5 py-3 mx-auto">
-            <!-- Top Row -->
+    <!-- HEADER -->
+    <header class="fixed top-0 w-full glass-header z-40 bg-white/95 dark:bg-slate-900/90 transition-all duration-300">
+        <div class="flex flex-col px-5 py-4 mx-auto">
+            
+            <!-- Top Row: Name (Left) & Actions (Right) -->
             <div class="flex justify-between items-end">
+                
+                <!-- Left: Greeting & Name -->
                 <div class="flex flex-col">
-                    <p id="greeting-text" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Good Afternoon 🌤️</p>
+                    <p id="greeting-text" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Welcome Back</p>
                     <div class="flex items-center gap-2">
                         <span class="text-xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight">Mr. Vikas</span>
                         <div id="sync-indicator" class="w-5 h-5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800 flex items-center justify-center"><i id="sync-icon" class="fas fa-wifi text-[9px] text-emerald-500"></i></div>
                     </div>
                 </div>
+
+                <!-- Right: Search -> Theme -> Month (Compact) -->
                 <div class="flex items-center gap-2">
-                    <button onclick="toggleSearch()" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center transition active:scale-90"><i class="fas fa-search text-sm"></i></button>
-                    <button onclick="toggleDarkMode()" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center transition active:scale-90"><i id="theme-icon" class="fas fa-moon text-sm"></i></button>
+                    
+                    <!-- Search Btn -->
+                    <button onclick="toggleSearch()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center transition active:scale-90 shadow-sm border border-transparent dark:border-slate-700">
+                        <i class="fas fa-search text-xs"></i>
+                    </button>
+                    
+                    <!-- Theme Btn -->
+                    <button onclick="toggleDarkMode()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center transition active:scale-90 shadow-sm border border-transparent dark:border-slate-700">
+                        <i id="theme-icon" class="fas fa-moon text-xs"></i>
+                    </button>
+                    
+                    <!-- Month Dropdown (Small & Cute) -->
                     <div class="relative group">
-                        <select id="monthFilter" class="appearance-none bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 text-indigo-600 dark:text-indigo-300 font-bold text-[11px] py-2 pl-3 pr-7 rounded-xl outline-none shadow-sm transition-all cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900/40" onchange="handleMonthChange()"></select>
-                        <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] text-indigo-400 pointer-events-none"></i>
+                        <select id="monthFilter" class="appearance-none bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 text-indigo-600 dark:text-indigo-300 font-bold text-[10px] py-2 pl-3 pr-6 rounded-xl outline-none shadow-sm transition-all cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900/40" onchange="handleMonthChange()"></select>
+                        <i class="fas fa-chevron-down absolute right-2 top-1/2 -translate-y-1/2 text-[8px] text-indigo-400 pointer-events-none"></i>
                     </div>
+
                 </div>
             </div>
-            <!-- Search Bar (Hidden) -->
+            
+            <!-- Search Bar (Expandable) -->
             <div id="search-container" class="hidden mt-3">
                 <div class="relative">
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
@@ -165,14 +181,47 @@
         </div>
     </header>
 	
-    <!-- 2. MAIN CONTENT (Scrollable Area) -->
-    <!-- ✅ FIX: pt-24 (Top Padding) aur pb-32 (Bottom Padding) adjust kiya taaki content na kate -->
-	<main class="flex-1 overflow-y-auto pt-20 pb-20 w-full no-scrollbar relative z-0" id="main-scroll">
+    <!-- MAIN CONTENT -->
+	<main class="flex-1 overflow-y-auto pt-24 pb-24 w-full no-scrollbar" id="main-scroll">
         
-        <!-- Pull to Refresh -->
-        <div id="pull-indicator" class="w-full bg-slate-50 dark:bg-slate-950 flex justify-center items-center h-0 overflow-hidden transition-all">
+        <!-- Pull to Refresh Spinner -->
+        <div id="pull-indicator" class="w-full bg-slate-50 dark:bg-slate-950">
             <i class="fas fa-spinner fa-spin text-indigo-500 text-xl"></i>
         </div>
+
+	<!-- FAB -->
+    <!-- Note: CSS mein .fab class ka 'bottom: 140px' kar lena taaki ye ticker ke upar dikhe -->
+    <button class="fab" onclick="vibrate(50); openModal('add')"><i class="fas fa-plus"></i></button>
+
+        <!-- 🚨 NEW BUDGET TICKER (Fixed above Nav) -->
+    <!-- 🚨 BUDGET TICKER (Fixed above Nav) -->
+    <div id="budget-ticker" class="fixed bottom-24 left-0 w-full bg-rose-50 dark:bg-rose-950/90 border-t border-b border-rose-100 dark:border-rose-900 z-40 hidden overflow-hidden h-9 flex items-center backdrop-blur-md shadow-sm">
+        <div id="ticker-text" class="animate-marquee text-xs font-black text-rose-600 dark:text-rose-400 tracking-wide uppercase"></div>
+    </div>
+
+    <!-- 💊 NEW FLOATING BOTTOM NAV (Only One) -->
+    <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[85%] max-w-[350px] h-[70px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.15)] dark:shadow-black/50 rounded-[2.5rem] z-50 flex items-center justify-between px-6 transition-all duration-300">
+        
+        <!-- Wallet Button -->
+        <button class="flex flex-col items-center justify-center gap-1 h-full w-16 transition-all active:scale-90 group" onclick="vibrate(20); switchTab('home', this)">
+            <div id="nav-wallet-icon" class="w-10 h-10 rounded-2xl bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 transition-all duration-300 shadow-sm group-hover:shadow-md">
+                <i class="fas fa-wallet text-lg"></i>
+            </div>
+            <span class="text-[10px] font-bold text-slate-600 dark:text-slate-300 group-hover:text-indigo-600 transition-colors">Wallet</span>
+        </button>
+
+        <!-- Divider -->
+        <div class="w-[1px] h-8 bg-slate-200 dark:bg-slate-700/50"></div>
+
+        <!-- Stats Button -->
+        <button class="flex flex-col items-center justify-center gap-1 h-full w-16 transition-all active:scale-90 group" onclick="vibrate(20); switchTab('stats', this)">
+            <div id="nav-stats-icon" class="w-10 h-10 rounded-2xl flex items-center justify-center text-slate-400 dark:text-slate-500 transition-all duration-300 group-hover:text-indigo-600 group-hover:bg-slate-50 dark:group-hover:bg-slate-800">
+                <i class="fas fa-chart-pie text-lg"></i>
+            </div>
+            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 group-hover:text-indigo-600 transition-colors">Stats</span>
+        </button>
+
+    </nav>
 
         <!-- HOME TAB -->
 		<div id="tab-home" class="tab-content active">
@@ -240,12 +289,13 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Back -->
-                        <div class="flip-card-back p-5 flex flex-col justify-between relative overflow-hidden rounded-2xl" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+                        <!-- BACK -->
+                        <div class="flip-card-back p-5 flex flex-col justify-between relative overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
                             <div class="flex justify-between items-center relative z-10 mb-2">
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Monthly Budget</p>
-                                <div class="text-[10px] font-bold text-white/50 bg-white/10 px-2 py-0.5 rounded">JAN 26</div>
-                            </div>
+							<p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Monthly Budget</p>
+							<!-- 👇 ID 'budget-month-label' add kar diya -->
+							<div id="budget-month-label" class="text-[10px] font-bold text-white/50 bg-white/10 px-2 py-0.5 rounded">JAN 26</div>
+						</div>
                             <div class="space-y-3 relative z-10">
                                 <div><div class="flex justify-between text-[9px] font-bold mb-1 text-indigo-200"><span>🏠 NEEDS</span><span><span id="bud-needs-spent">0</span> / 23.7k</span></div><div class="w-full h-1.5 bg-slate-700/50 rounded-full overflow-hidden"><div id="bud-needs-bar" class="h-full bg-indigo-500 rounded-full transition-all duration-1000" style="width: 0%"></div></div></div>
                                 <div><div class="flex justify-between text-[9px] font-bold mb-1 text-rose-200"><span>🎉 WANTS</span><span><span id="bud-wants-spent">0</span> / 6.1k</span></div><div class="w-full h-1.5 bg-slate-700/50 rounded-full overflow-hidden"><div id="bud-wants-bar" class="h-full bg-rose-500 rounded-full transition-all duration-1000" style="width: 0%"></div></div></div>
@@ -324,25 +374,14 @@
     </main>
 
     <!-- FAB -->
-    <button class="fab bg-indigo-600 text-white hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 dark:shadow-none" onclick="vibrate(50); openModal('add')"><i class="fas fa-plus"></i></button>
+    <button class="fab bg-indigo-600 text-white" onclick="vibrate(50); openModal('add')"><i class="fas fa-plus"></i></button>
 
-    <!-- 3. FIXED BOTTOM ELEMENTS (Ticker + Nav) -->
     
-    <!-- Budget Ticker -->
-    <div id="budget-ticker" class="fixed bottom-16 left-0 w-full bg-rose-50 dark:bg-rose-950/80 border-t border-rose-100 dark:border-rose-900 z-40 hidden overflow-hidden h-8 flex items-center backdrop-blur-sm">
-        <div id="ticker-text" class="animate-marquee text-[10px] font-black text-rose-500 dark:text-rose-400 tracking-wide uppercase"></div>
-    </div>
-
-    <!-- Bottom Nav -->
-    <nav class="fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 pb-safe z-50 h-16 flex items-center">
-        <button class="flex-1 flex flex-col items-center justify-center text-indigo-600 transition" onclick="vibrate(20); switchTab('home', this)"><i class="fas fa-wallet text-xl mb-1"></i><span class="text-[10px] font-bold">Wallet</span></button>
-        <button class="flex-1 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 transition hover:text-indigo-600" onclick="vibrate(20); switchTab('stats', this)"><i class="fas fa-chart-pie text-xl mb-1"></i><span class="text-[10px] font-bold">Stats</span></button>
-    </nav>
 
     <!-- TOAST CONTAINER -->
     <div id="toast-container"></div>
 
-    <!-- ENTRY MODAL -->
+    <!-- ENTRY MODAL (Add/Edit) -->
     <div id="entryModal" class="modal-overlay">
         <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
         <div class="modal-card bg-white dark:bg-slate-900">
@@ -367,6 +406,7 @@
                                 <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-indigo-400 text-[10px] pointer-events-none"></i>
                             </div>
                         </div>
+                        <!-- Quick Chips -->
                         <div class="flex justify-center gap-2 mt-4">
                             <button type="button" onclick="addAmount(20)" class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-xs font-bold rounded-full text-slate-600 dark:text-slate-300 hover:bg-indigo-100 transition">+20</button>
                             <button type="button" onclick="addAmount(50)" class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-xs font-bold rounded-full text-slate-600 dark:text-slate-300 hover:bg-indigo-100 transition">+50</button>
@@ -393,7 +433,7 @@
             </div>
         </div>
     </div>
-
+    
     <!-- VIEW DETAILS MODAL -->
     <div id="viewModal" class="modal-overlay">
         <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onclick="closeViewModal()"></div>
@@ -418,7 +458,7 @@
             </div>
         </div>
     </div>
-
+	
     <!-- DELETE CONFIRMATION MODAL -->
     <div id="deleteModal" class="modal-overlay">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeDeleteModal()"></div>
@@ -436,9 +476,6 @@
             </div>
         </div>
     </div>
-
-</body>
-</html>
 
 <script>
     // ********************************************
@@ -900,102 +937,164 @@
             </div>`;
     }
 
+    /* --- FIXED CALCULATE STATS (Robust Matching) --- */
     function calculateStats(data) {
-        let inc=0, exp=0, inv=0;
-        let prevMonthExp = 0; // For MoM Calc
+        let inc = 0, exp = 0, inv = 0;
+        let prevMonthExp = 0;
 
-        // Get Previous Month Filter
+        // Prev Month Dates
         const prevMonthDate = new Date(currentFilter.year, currentFilter.month - 1, 1);
         const pYear = prevMonthDate.getFullYear();
         const pMonth = prevMonthDate.getMonth();
 
-        // Calculate Totals and Prev Month Stats
-        allData.forEach(i => { 
-            let v = parseFloat(String(i.Amount).replace(/,/g, '')) || 0; 
+        allData.forEach(i => {
+            let v = parseFloat(String(i.Amount).replace(/,/g, '')) || 0;
             let d = parseDate(i.Date);
             
-            // Current Month Data
+            // ✅ Robust String Matching
+            const type = (i.Type || '').toLowerCase().trim();
+            const cat = (i.Category || '').toUpperCase();
+
+            // Current Month Totals
             if (data.includes(i)) {
-                if(i.Type === 'Income') inc += v; 
-                else if(i.Type === 'Investment' || i.Category.includes('INVEST')) inv += v; 
-                else exp += v; 
+                if (type === 'income') inc += v;
+                else if (type === 'investment' || cat.includes('INVEST')) inv += v;
+                else exp += v;
             }
 
-            // Prev Month Data (Only Expense)
+            // Prev Month Expense (For MoM)
             if (d.getFullYear() === pYear && d.getMonth() === pMonth) {
-                if(i.Type === 'Expense') prevMonthExp += v;
+                if (type === 'expense') prevMonthExp += v;
             }
         });
-        
+
+        // Update Front Card
         const fmt = n => `₹${n.toLocaleString('en-IN')}`;
         document.getElementById('net-balance').innerText = fmt(inc - exp - inv);
         document.getElementById('total-income').innerText = fmt(inc);
         document.getElementById('total-expense').innerText = fmt(exp);
         document.getElementById('total-invest').innerText = fmt(inv);
-        
+
         // Update MoM Stats
         const momVal = document.getElementById('mom-val');
         const momIcon = document.getElementById('mom-icon');
-        
-        if (prevMonthExp > 0 && exp > 0) {
-            const pct = ((exp - prevMonthExp) / prevMonthExp) * 100;
-            momVal.innerText = `${Math.abs(pct).toFixed(1)}%`;
-            if (pct > 0) {
-                momVal.className = "text-xl font-black text-rose-500";
-                momIcon.className = "fas fa-arrow-up text-rose-500 text-sm mb-1";
+        if (momVal) {
+            if (prevMonthExp > 0 && exp > 0) {
+                const pct = ((exp - prevMonthExp) / prevMonthExp) * 100;
+                momVal.innerText = `${Math.abs(pct).toFixed(1)}%`;
+                if (pct > 0) {
+                    momVal.className = "text-xl font-black text-rose-500";
+                    momIcon.className = "fas fa-arrow-up text-rose-500 text-sm mb-1";
+                } else {
+                    momVal.className = "text-xl font-black text-emerald-500";
+                    momIcon.className = "fas fa-arrow-down text-emerald-500 text-sm mb-1";
+                }
             } else {
-                momVal.className = "text-xl font-black text-emerald-500";
-                momIcon.className = "fas fa-arrow-down text-emerald-500 text-sm mb-1";
+                momVal.innerText = "N/A";
+                momVal.className = "text-xl font-black text-slate-400";
             }
-        } else {
-            momVal.innerText = "N/A";
-            momVal.className = "text-xl font-black text-slate-400";
-            momIcon.className = "fas fa-minus text-slate-300 text-sm mb-1";
         }
 
-        // Daily Avg
-        const daysInMonth = new Date(currentFilter.year, currentFilter.month + 1, 0).getDate();
-        const today = new Date().getDate();
-        const divider = (currentFilter.month === new Date().getMonth()) ? today : daysInMonth;
-        document.getElementById('daily-avg').innerText = fmt(Math.round(exp / (divider || 1)));
+        // Update Daily Avg
+        const avgEl = document.getElementById('daily-avg');
+        if(avgEl) {
+            const daysInMonth = new Date(currentFilter.year, currentFilter.month + 1, 0).getDate();
+            const today = new Date().getDate();
+            const divider = (currentFilter.month === new Date().getMonth()) ? today : daysInMonth;
+            avgEl.innerText = fmt(Math.round(exp / (divider || 1)));
+        }
 
-        // Heatmap
-        renderHeatmap(data);
+        if(typeof renderHeatmap === 'function') renderHeatmap(data);
         updateBudgetCard(data);
     }
 
-    function renderHeatmap(data) {
-        const container = document.getElementById('heatmap-container');
-        container.innerHTML = '';
-        const daysInMonth = new Date(currentFilter.year, currentFilter.month + 1, 0).getDate();
-        const dailyExp = new Array(daysInMonth + 1).fill(0);
+    /* --- FIXED UPDATE BUDGET CARD (Back Side) --- */
+    function updateBudgetCard(data) {
+        const budgetLimits = { NEEDS: 23750, WANTS: 6100, INVEST: 13500 };
+        let spent = { NEEDS: 0, WANTS: 0, INVEST: 0 };
+        
+        data.forEach(item => {
+            let val = parseFloat(String(item.Amount).replace(/,/g, '')) || 0;
+            
+            // ✅ Robust Checks (Lowercase Type, Uppercase Category)
+            const type = (item.Type || '').toLowerCase().trim();
+            const cat = (item.Category || '').toUpperCase();
 
-        data.forEach(i => {
-            if (i.Type === 'Expense') {
-                const d = parseDate(i.Date).getDate();
-                dailyExp[d] += parseFloat(String(i.Amount).replace(/,/g, '')) || 0;
+            if (type === 'expense' || type === 'investment') {
+                if (cat.includes('NEEDS')) spent.NEEDS += val;
+                else if (cat.includes('WANTS')) spent.WANTS += val;
+                else if (cat.includes('INVEST') || type === 'investment') spent.INVEST += val;
             }
         });
 
-        const maxExp = Math.max(...dailyExp) || 1;
+        // Update Month Label
+        // ✅ YE LOGIC HONA ZAROORI HAI
+        const mNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        const curMonth = mNames[currentFilter.month];
+        const curYear = currentFilter.year.toString().slice(-2);
+        
+        const labelEl = document.getElementById('budget-month-label'); // Ye ID HTML mein honi chahiye
+        if (labelEl) labelEl.innerText = `${curMonth} ${curYear}`;
 
-        for (let i = 1; i <= daysInMonth; i++) {
-            const val = dailyExp[i];
-            const div = document.createElement('div');
-            div.className = 'heatmap-day';
-            div.innerText = i;
+        // Update Bars
+        const updateBar = (type) => {
+            const limit = budgetLimits[type]; 
+            const actual = spent[type]; 
+            const pct = Math.min((actual / limit) * 100, 100);
             
-            // Color Logic
-            const intensity = val / maxExp;
-            if (val === 0) div.style.backgroundColor = '#f1f5f9'; // Empty
-            else if (intensity < 0.2) div.style.backgroundColor = '#fca5a5';
-            else if (intensity < 0.5) div.style.backgroundColor = '#f87171';
-            else if (intensity < 0.8) div.style.backgroundColor = '#ef4444';
-            else div.style.backgroundColor = '#b91c1c';
+            // Format numbers like 23.7k
+            const actualK = actual > 999 ? (actual/1000).toFixed(1) + 'k' : actual;
+            const limitK = limit > 999 ? (limit/1000).toFixed(1) + 'k' : limit;
             
-            if (val === 0) div.style.color = '#cbd5e1'; // Light text for empty
+            // Update Text
+            const textEl = document.getElementById(`bud-${type.toLowerCase()}-spent`);
+            if(textEl) textEl.innerText = `₹${actual.toLocaleString()}`; // Full amount dikhayega ab
             
-            container.appendChild(div);
+            // Update Bar
+            const bar = document.getElementById(`bud-${type.toLowerCase()}-bar`);
+            if(bar) {
+                bar.style.width = `${pct}%`;
+                bar.className = pct > 90 
+                    ? `h-full bg-red-500 rounded-full transition-all duration-1000` 
+                    : `h-full ${type==='NEEDS'?'bg-indigo-500':type==='WANTS'?'bg-rose-500':'bg-emerald-500'} rounded-full transition-all duration-1000`;
+            }
+        };
+
+        updateBar('NEEDS'); updateBar('WANTS'); updateBar('INVEST');
+        
+        // Remaining Budget
+        const totalBudget = 44635; 
+        const totalSpent = spent.NEEDS + spent.WANTS + spent.INVEST;
+        const remaining = totalBudget - totalSpent;
+        
+        const remainEl = document.getElementById('bud-remaining');
+        const statusEl = document.getElementById('bud-status');
+        
+        if(remainEl) remainEl.innerText = `₹${remaining.toLocaleString()}`;
+        
+        if (remaining < 0) { 
+            if(remainEl) remainEl.className = "text-2xl font-black text-rose-500 tracking-wide"; 
+            if(statusEl) { statusEl.innerText = "Over Budget!"; statusEl.className = "text-[10px] font-bold text-rose-500"; }
+        } else { 
+            if(remainEl) remainEl.className = "text-2xl font-black text-emerald-400 tracking-wide"; 
+            if(statusEl) { statusEl.innerText = "Safe to Spend"; statusEl.className = "text-[10px] font-bold text-emerald-400"; }
+        }
+
+        // Update Ticker
+        const ticker = document.getElementById('budget-ticker');
+        const tickerText = document.getElementById('ticker-text');
+        let alerts = [];
+        const wantsPct = Math.round((spent.WANTS / budgetLimits.WANTS) * 100);
+        const needsPct = Math.round((spent.NEEDS / budgetLimits.NEEDS) * 100);
+
+        if (wantsPct >= 80) alerts.push(`🚨 WANTS: ${wantsPct}% Used (₹${spent.WANTS.toLocaleString()} / ₹${budgetLimits.WANTS.toLocaleString()})`);
+        if (needsPct >= 80) alerts.push(`🏠 NEEDS: ${needsPct}% Used (₹${spent.NEEDS.toLocaleString()} / ₹${budgetLimits.NEEDS.toLocaleString()})`);
+
+        if (alerts.length > 0) {
+            tickerText.innerText = alerts.join("  ✦  ") + "  ✦  Control Bhai! Budget tight hai!  ✦  "; 
+            ticker.classList.remove('hidden');
+        } else {
+            ticker.classList.add('hidden');
         }
     }
 
@@ -1012,26 +1111,29 @@
             }
         });
 
-        // Update Progress Bars (Existing Logic)
         const updateBar = (type) => {
             const limit = budgetLimits[type]; 
             const actual = spent[type]; 
             const pct = Math.min((actual / limit) * 100, 100);
+            
             document.getElementById(`bud-${type.toLowerCase()}-spent`).innerText = `₹${actual.toLocaleString()}`;
             const bar = document.getElementById(`bud-${type.toLowerCase()}-bar`);
+            
             bar.style.width = `${pct}%`;
             bar.className = pct > 90 
                 ? `h-full bg-red-500 rounded-full transition-all duration-1000` 
                 : `h-full ${type==='NEEDS'?'bg-indigo-500':type==='WANTS'?'bg-rose-500':'bg-emerald-500'} rounded-full transition-all duration-1000`;
         };
+
         updateBar('NEEDS'); updateBar('WANTS'); updateBar('INVEST');
         
-        // Remaining Calculation (Existing Logic)
         const totalBudget = 44635; 
         const totalSpent = spent.NEEDS + spent.WANTS + spent.INVEST;
         const remaining = totalBudget - totalSpent;
+        
         const remainEl = document.getElementById('bud-remaining');
         const statusEl = document.getElementById('bud-status');
+        
         remainEl.innerText = `₹${remaining.toLocaleString()}`;
         
         if (remaining < 0) { 
@@ -1044,28 +1146,24 @@
             statusEl.className = "text-[10px] font-bold text-emerald-400"; 
         }
 
-        // ✅ NEW: Ticker Logic (Needs + Wants & Percentages)
+        // ✅ NEW TICKER LOGIC
         const ticker = document.getElementById('budget-ticker');
         const tickerText = document.getElementById('ticker-text');
-        let alerts = [];
+        
+        if (ticker && tickerText) {
+            let alerts = [];
+            const wantsPct = Math.round((spent.WANTS / budgetLimits.WANTS) * 100);
+            const needsPct = Math.round((spent.NEEDS / budgetLimits.NEEDS) * 100);
 
-        const wantsPct = Math.round((spent.WANTS / budgetLimits.WANTS) * 100);
-        const needsPct = Math.round((spent.NEEDS / budgetLimits.NEEDS) * 100);
+            if (wantsPct >= 80) alerts.push(`🚨 WANTS: ${wantsPct}% Used (₹${spent.WANTS.toLocaleString()} / ₹${budgetLimits.WANTS.toLocaleString()})`);
+            if (needsPct >= 80) alerts.push(`🏠 NEEDS: ${needsPct}% Used (₹${spent.NEEDS.toLocaleString()} / ₹${budgetLimits.NEEDS.toLocaleString()})`);
 
-        // Warning Logic (80% se upar hone pe)
-        if (wantsPct >= 80) {
-            alerts.push(`🚨 WANTS: ${wantsPct}% Used (₹${spent.WANTS.toLocaleString()} / ₹${budgetLimits.WANTS.toLocaleString()})`);
-        }
-        if (needsPct >= 80) {
-            alerts.push(`🏠 NEEDS: ${needsPct}% Used (₹${spent.NEEDS.toLocaleString()} / ₹${budgetLimits.NEEDS.toLocaleString()})`);
-        }
-
-        if (alerts.length > 0) {
-            // Join messages with spacing
-            tickerText.innerText = alerts.join("  ✦  ") + "  ✦  Control Bhai! Budget tight hai!  ✦  "; 
-            ticker.classList.remove('hidden');
-        } else {
-            ticker.classList.add('hidden');
+            if (alerts.length > 0) {
+                tickerText.innerText = alerts.join("  ✦  ") + "  ✦  Control Bhai! Budget tight hai!  ✦  "; 
+                ticker.classList.remove('hidden');
+            } else {
+                ticker.classList.add('hidden');
+            }
         }
     }
 
