@@ -1,44 +1,72 @@
 	<!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- 1. Meta Tags (Zaroori Settings) -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Finance Tracker Pro</title>
     
-    <!-- ✅ Favicon -->
+    <!-- 2. Favicon (Browser Tab Icon) -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>">
     
-    <!-- Dependencies -->
+    <!-- 3. Fonts & Icons (Look & Feel) -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <!-- 4. Libraries (Tailwind CSS & Chart.js) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     
+    <!-- 5. Tailwind Configuration (Ye Script Upar Kyun Hai?) -->
     <script>
         tailwind.config = {
-            darkMode: 'class', // Manual Dark Mode
+            darkMode: 'class', // Manual Dark Mode enable karne ke liye
             theme: {
                 extend: {
                     fontFamily: { 
-                        sans: ['Outfit', 'sans-serif'],
+                        sans: ['Outfit', 'sans-serif'], // Custom Fonts
                         mono: ['Roboto', 'monospace']
                     }
                 }
             }
         }
     </script>
+</head>
 
     <style>
         body { -webkit-tap-highlight-color: transparent; }
         
+        /* --- ANIMATIONS --- */
         /* Smooth Fade In */
         .tab-content { display: none; animation: fadeIn 0.2s ease-out; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* Search Overlay Animation */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .animate-fadeInDown {
+            animation: fadeInDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Marquee Ticker */
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 15s linear infinite;
+            padding-left: 100%;
+        }
+
+        /* --- UTILS --- */
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
-        /* --- Header --- */
+        /* --- HEADER --- */
         .glass-header {
             backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(0,0,0,0.05);
@@ -57,7 +85,7 @@
         .flip-card-front { background: linear-gradient(135deg, #1e293b 0%, #020617 100%); }
         .flip-card-back { transform: rotateY(180deg); background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
 
-        /* --- Pull to Refresh --- */
+        /* --- PULL TO REFRESH --- */
         #pull-indicator {
             height: 0;
             overflow: hidden;
@@ -67,66 +95,342 @@
             justify-content: center;
         }
 
-        /* --- List Styles --- */
+        /* --- LIST & ENTRY STYLES --- */
         .day-header {
             z-index: 30;
             transition: all 0.3s;
         }
+        
+        .entry-wrapper { 
+            position: relative; 
+            overflow: hidden; 
+            /* Swipe background colors removed as feature is disabled */
+        }
+
+        .entry-row {
+            position: relative; 
+            z-index: 10; 
+            transition: background-color 0.2s;
+        }
         .entry-row:active { background-color: #f8fafc; }
         .dark .entry-row:active { background-color: #1e293b; }
 
-        /* --- Stats --- */
-        .filter-bar { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0; scrollbar-width: none; }
-        .filter-chip { padding: 8px 16px; border-radius: 99px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer; transition: 0.2s; }
-        .progress-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease-out; }
+        /* --- ACCOUNT CHIPS (Horizontal Scroll) --- */
+        #account-filters {
+            -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+            padding-right: 20px; /* Thoda space end mein */
+        }
 
-        /* --- Toast Notification --- */
+        .acc-chip {
+            flex-shrink: 0; /* Chip ko sikudne se rokega */
+            white-space: nowrap; 
+            padding: 8px 16px;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .dark .acc-chip {
+            background: #1e293b;
+            border-color: #334155;
+            color: #94a3b8;
+        }
+
+        .acc-chip.active {
+            background: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        /* --- STATS & CHARTS --- */
+		.filter-bar { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0; scrollbar-width: none; }
+		.filter-chip { padding: 8px 16px; border-radius: 99px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer; transition: 0.2s; }
+
+		/* 🔥 Added Missing Card Styles */
+		.stat-card {
+			background: white;
+			padding: 16px;
+			border-radius: 20px; /* Gol kinare */
+			box-shadow: 0 4px 10px rgba(0,0,0,0.03); /* Halka shadow */
+			border: 1px solid #f1f5f9;
+			margin-bottom: 12px;
+		}
+		.dark .stat-card {
+			background: #1e293b;
+			border-color: #334155;
+		}
+
+		/* 🔥 Added Missing Progress Bar Track */
+		.progress-track {
+			height: 6px;
+			width: 100%;
+			background-color: #f1f5f9;
+			border-radius: 10px;
+			overflow: hidden;
+		}
+		.dark .progress-track {
+			background-color: #334155;
+		}
+
+		.progress-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease-out; }
+        
+        /* --- UPDATED HEATMAP STYLES --- */
+		.heatmap-grid { 
+			display: grid; 
+			grid-template-columns: repeat(7, 1fr); 
+			gap: 4px; /* Thoda gap badhaya for cleaner look */
+			width: 100%; 
+		}
+
+		.heatmap-day { 
+			aspect-ratio: 1; 
+			border-radius: 6px; /* Rounded corners thode badhaye */
+			display: flex; 
+			flex-direction: column; 
+			justify-content: space-between; 
+			padding: 3px 4px; /* Padding optimize ki */
+			position: relative; 
+			overflow: hidden; 
+			transition: transform 0.1s;
+		}
+
+		/* --- UPDATED HEATMAP TYPOGRAPHY --- */
+
+		/* 👻 The "Ghost" Date */
+		.hm-date { 
+			font-size: 8px;  /* Tiny */
+			font-weight: 600; 
+			line-height: 1; 
+			margin-bottom: auto; /* Push to top */
+		}
+
+		/* 🦸‍♂️ The "Hero" Amount */
+		.hm-amt  { 
+			font-size: 10px; /* Bada */
+			font-weight: 900; /* Extra Bold */
+			line-height: 1; 
+			text-align: right; 
+			letter-spacing: -0.3px; /* Tight & Sharp */
+			margin-top: auto; /* Push to bottom */
+		}
+
+		/* Future Date Styling */
+		.hm-future {
+			background: transparent !important;
+			border: 1px dashed #cbd5e1; /* Dotted border */
+			opacity: 0.4;
+		}
+		.dark .hm-future { border-color: #334155; }
+
+		/* Legend Strip */
+		.hm-legend {
+			display: flex;
+			justify-content: space-between;
+			margin-top: 10px;
+			padding: 8px 12px;
+			background: #f8fafc;
+			border-radius: 8px;
+			border: 1px solid #e2e8f0;
+		}
+		.dark .hm-legend { background: #1e293b; border-color: #334155; }
+		.legend-item { display: flex; align-items: center; gap: 4px; font-size: 9px; font-weight: 700; color: #64748b; }
+		.legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+        /* --- UI COMPONENTS --- */
+        
+        /* Toast Notification */
         #toast-container { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 100; pointer-events: none; }
         .toast { background: rgba(15, 23, 42, 0.9); color: white; padding: 12px 24px; border-radius: 50px; font-size: 0.85rem; font-weight: 600; margin-top: 10px; opacity: 0; transform: translateY(20px); transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; backdrop-filter: blur(4px); }
         .toast.show { opacity: 1; transform: translateY(0); }
 
-        /* --- FAB --- */
-        .fab { position: fixed; bottom: 90px; right: 20px; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4); border: none; cursor: pointer; z-index: 40; transition: transform 0.1s; }
+        /* FAB */
+        .fab { position: fixed; bottom: 100px; right: 20px; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4); border: none; cursor: pointer; z-index: 40; transition: transform 0.1s; background: #4f46e5; color: white; }
         .fab:active { transform: scale(0.95); }
         
-        /* Modal */
+        /* Modal General */
         .modal-overlay { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); position: fixed; inset: 0; z-index: 50; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; display: flex; align-items: flex-end; justify-content: center; }
         .modal-overlay.active { opacity: 1; visibility: visible; }
         .modal-card { width: 100%; border-radius: 2.5rem 2.5rem 0 0; max-height: 90vh; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1); position: relative; z-index: 20; }
         .modal-overlay.active .modal-card { transform: translateY(0); }
         
-        /* View Modal */
+        /* Specific: View Modal (Centered & Scaled) */
         #viewModal .modal-card { border-radius: 1.5rem; max-width: 350px; width: 90%; transform: scale(0.9); opacity: 0; transition: all 0.3s ease-out; }
         #viewModal.active .modal-card { transform: scale(1); opacity: 1; }
-		
-		/* --- SWIPE ACTION STYLES --- */
-		.entry-wrapper { position: relative; overflow: hidden; }
-		.swipe-action {
-			position: absolute; top: 0; bottom: 0; width: 100%; display: flex; align-items: center;
-			padding: 0 16px; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.5px; color: white; z-index: 0;
-		}
-		.swipe-edit { background-color: #4f46e5; justify-content: flex-start; left: 0; }
-		.swipe-delete { background-color: #ef4444; justify-content: flex-end; right: 0; }
-		.entry-row { position: relative; z-index: 10; transition: transform 0.2s ease-out; }
-        
-        /* Heatmap Grid */
-        .heatmap-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-        .heatmap-day { aspect-ratio: 1; border-radius: 4px; font-size: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
 
         /* Dark Mode Transitions */
         body, .modal-card, .entry-row, .day-header { transition: background-color 0.3s, color 0.3s; }
 		
-		/* --- Marquee Ticker Animation --- */
-        @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-        .animate-marquee {
-            display: inline-block;
-            white-space: nowrap;
-            animation: marquee 15s linear infinite;
-            padding-left: 100%;
-        }
+		/* --- ⚡ COMPACT ANIMATED TOGGLE (Expense/Income + Accounts) --- */
+		.radio-inputs {
+		  position: relative;
+		  display: flex;
+		  flex-wrap: wrap; /* Allows wrapping for account filters */
+		  border-radius: 99px; /* Pill shape */
+		  background: #f1f5f9; /* Light Grey BG */
+		  box-sizing: border-box;
+		  box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.05); /* Inner shadow for depth */
+		  padding: 4px;
+		  width: 100%;
+		  font-size: 12px; /* Smaller Font */
+		  gap: 4px;
+		  margin-bottom: 12px;
+		}
+
+		.dark .radio-inputs {
+			background: #0f172a;
+			border: 1px solid #1e293b;
+			box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.2);
+		}
+
+		.radio-inputs .radio {
+		  flex: 1 1 auto;
+		  text-align: center;
+		  position: relative;
+		}
+
+		/* Account filter specific: Don't stretch too much */
+		.radio-inputs.scrollable .radio {
+			flex: 0 0 auto; /* Don't stretch */
+		}
+
+		.radio-inputs .radio input { display: none; }
+
+		.radio-inputs .radio .name {
+		  display: flex;
+		  cursor: pointer;
+		  align-items: center;
+		  justify-content: center;
+		  border-radius: 99px;
+		  border: none;
+		  padding: 8px 16px; /* Compact Padding */
+		  color: #64748b;
+		  font-weight: 700;
+		  font-family: 'Outfit', sans-serif;
+		  background: transparent;
+		  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		  overflow: visible; /* 🔥 Important for particles to show outside */
+		  position: relative;
+		  z-index: 1;
+		}
+
+		/* Dark Mode Text */
+		.dark .radio-inputs .radio .name { color: #94a3b8; }
+
+		/* --- SELECTED STATE (Floating Pill) --- */
+		.radio-inputs .radio input:checked + .name {
+		  background: white;
+		  color: #4f46e5; /* Indigo Text */
+		  font-weight: 800;
+		  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15), 0 1px 2px rgba(0,0,0,0.05);
+		  transform: scale(1.02);
+		}
+
+		.dark .radio-inputs .radio input:checked + .name {
+			background: #1e293b;
+			color: #818cf8;
+			box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+			border: 1px solid #334155;
+		}
+
+		/* --- ✨ PARTICLE ANIMATION (Visible now) --- */
+		.radio-inputs .radio .name::before, .radio-inputs .radio .name::after {
+		  content: "";
+		  position: absolute;
+		  width: 4px; height: 4px;
+		  border-radius: 50%;
+		  opacity: 0;
+		  pointer-events: none;
+		  z-index: 0; /* Behind text but visible */
+		}
+
+		.radio-inputs .radio input:checked + .name::before {
+		  background: #6366f1;
+		  box-shadow: 0 0 8px #6366f1;
+		  animation: particle-up 0.6s ease-out forwards;
+		}
+
+		.radio-inputs .radio input:checked + .name::after {
+		  background: #a5b4fc;
+		  box-shadow: 0 0 8px #a5b4fc;
+		  animation: particle-down 0.6s ease-out forwards;
+		}
+
+		@keyframes particle-up {
+		  0% { opacity: 1; transform: translate(-50%, 0) scale(1); top: 0; left: 50%; }
+		  100% { opacity: 0; transform: translate(-50%, -15px) scale(0); top: -10px; left: 20%; }
+		}
+
+		@keyframes particle-down {
+		  0% { opacity: 1; transform: translate(-50%, 0) scale(1); bottom: 0; left: 50%; }
+		  100% { opacity: 0; transform: translate(-50%, 15px) scale(0); bottom: -10px; left: 80%; }
+		}
+		
+		/* --- 🌀 AI LOADER (User Provided) --- */
+		.ai-loader-wrapper {
+			position: relative;
+			height: 150px;
+			width: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.ai-loader {
+		  position: absolute;
+		  /* Centering handled by wrapper flex */
+		  border-radius: 50%;
+		  height: 96px;
+		  width: 96px;
+		  animation: rotate_3922 1.2s linear infinite;
+		  background-color: #9b59b6;
+		  background-image: linear-gradient(#9b59b6, #84cdfa, #5ad1cd);
+		}
+
+		.ai-loader span {
+		  position: absolute;
+		  border-radius: 50%;
+		  height: 100%;
+		  width: 100%;
+		  background-color: #9b59b6;
+		  background-image: linear-gradient(#9b59b6, #84cdfa, #5ad1cd);
+		}
+
+		.ai-loader span:nth-of-type(1) { filter: blur(5px); }
+		.ai-loader span:nth-of-type(2) { filter: blur(10px); }
+		.ai-loader span:nth-of-type(3) { filter: blur(25px); }
+		.ai-loader span:nth-of-type(4) { filter: blur(50px); }
+
+		.ai-loader::after {
+		  content: "";
+		  position: absolute;
+		  top: 10px; left: 10px; right: 10px; bottom: 10px;
+		  background-color: #fff; /* Dark mode fix needed via JS/CSS logic if needed */
+		  border: solid 5px #ffffff;
+		  border-radius: 50%;
+		}
+		.dark .ai-loader::after { background-color: #0f172a; border-color: #0f172a; } /* Dark mode support */
+
+		@keyframes rotate_3922 {
+		  from { transform: rotate(0deg); }
+		  to { transform: rotate(360deg); }
+		}
+
+		/* --- Compact Design Tweaks --- */
+		.habit-card {
+			display: flex; flex-direction: column; justify-content: center;
+			padding: 10px;
+			border-radius: 16px;
+			height: 100%;
+		}
 		
     </style>
 </head>
@@ -148,83 +452,94 @@
                     </div>
                 </div>
 
-                <!-- Right: Search -> Theme -> Month (Compact) -->
-                <div class="flex items-center gap-2">
+                <!-- Right: Search -> Theme -> Month -->
+                <div class="flex items-center gap-2 relative z-50">
                     
+                    <!-- 🔔 Notification Wrapper -->
+					<div class="relative z-50"> 
+						<button onclick="vibrate(20); toggleNotifications()" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center transition active:scale-90 shadow-sm border border-transparent dark:border-slate-700 relative"> <!-- 🔥 Added vibrate -->
+							<i class="fas fa-bell text-xs"></i>
+							<span id="notif-badge" class="hidden absolute top-2 right-2.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white dark:border-slate-800 animate-pulse"></span>
+						</button>
+
+                        <!-- 📩 Dropdown -->
+                        <div id="notif-dropdown" class="hidden absolute top-12 -left-28 w-72 max-w-[85vw] bg-white dark:bg-slate-900 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-slate-100 dark:border-slate-800 p-4 z-[100] transform origin-top-left transition-all">
+                            <div class="absolute -top-1.5 left-[7.5rem] w-3 h-3 bg-white dark:bg-slate-900 rotate-45 border-l border-t border-slate-100 dark:border-slate-800"></div>
+                            
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Notifications</span>
+                                <i onclick="toggleNotifications()" class="fas fa-times text-slate-400 cursor-pointer text-xs hover:text-rose-500 transition"></i>
+                            </div>
+                            
+                            <div id="notif-list" class="space-y-2 max-h-60 overflow-y-auto no-scrollbar"></div>
+                        </div>
+                    </div>
+
                     <!-- Search Btn -->
-                    <button onclick="toggleSearch()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center transition active:scale-90 shadow-sm border border-transparent dark:border-slate-700">
+                    <button onclick="toggleSearch()" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center transition active:scale-90 shadow-sm border border-transparent dark:border-slate-700">
                         <i class="fas fa-search text-xs"></i>
                     </button>
                     
                     <!-- Theme Btn -->
-                    <button onclick="toggleDarkMode()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center transition active:scale-90 shadow-sm border border-transparent dark:border-slate-700">
+                    <button onclick="toggleDarkMode()" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center transition active:scale-90 shadow-sm border border-transparent dark:border-slate-700">
                         <i id="theme-icon" class="fas fa-moon text-xs"></i>
                     </button>
                     
-                    <!-- Month Dropdown (Small & Cute) -->
+                    <!-- Month Dropdown -->
                     <div class="relative group">
-                        <select id="monthFilter" class="appearance-none bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 text-indigo-600 dark:text-indigo-300 font-bold text-[10px] py-2 pl-3 pr-6 rounded-xl outline-none shadow-sm transition-all cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900/40" onchange="handleMonthChange()"></select>
-                        <i class="fas fa-chevron-down absolute right-2 top-1/2 -translate-y-1/2 text-[8px] text-indigo-400 pointer-events-none"></i>
+                        <select id="monthFilter" class="appearance-none bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold text-xs py-2.5 pl-3 pr-8 rounded-xl outline-none shadow-sm transition-all cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900/40" onchange="handleMonthChange()"></select>
+                        <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-indigo-500 pointer-events-none"></i>
                     </div>
 
-                </div>
-            </div>
-            
-            <!-- Search Bar (Expandable) -->
-            <div id="search-container" class="hidden mt-3">
-                <div class="relative">
-                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="Search transactions..." class="w-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white text-sm font-bold rounded-xl h-10 pl-10 pr-4 outline-none focus:ring-2 focus:ring-indigo-500 transition-all border border-transparent dark:border-slate-700">
-                    <button onclick="toggleSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"><i class="fas fa-times"></i></button>
+                </div>            
+                
+                <!-- Search Bar (Floating Overlay Mode) -->
+                <div id="search-container" class="hidden absolute top-0 left-0 w-full h-full bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-xl z-[60] flex items-center justify-center px-4 transition-all duration-300">
+                    <div class="relative w-full max-w-md animate-fadeInDown">
+                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500 text-lg z-10"></i>
+                        <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="Search transactions..." 
+                               class="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-white text-base font-bold rounded-2xl h-14 pl-12 pr-12 outline-none border-2 border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 shadow-2xl transition-all placeholder-slate-400">
+                        <button onclick="clearOrCloseSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition active:scale-90 z-10">
+                            <i class="fas fa-times text-lg"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </header>
-	
+    
     <!-- MAIN CONTENT -->
-	<main class="flex-1 overflow-y-auto pt-24 pb-24 w-full no-scrollbar" id="main-scroll">
+    <main class="flex-1 overflow-y-auto pt-24 pb-24 w-full no-scrollbar" id="main-scroll">
         
         <!-- Pull to Refresh Spinner -->
         <div id="pull-indicator" class="w-full bg-slate-50 dark:bg-slate-950">
             <i class="fas fa-spinner fa-spin text-indigo-500 text-xl"></i>
         </div>
 
-	<!-- FAB -->
-    <!-- Note: CSS mein .fab class ka 'bottom: 140px' kar lena taaki ye ticker ke upar dikhe -->
-    <button class="fab" onclick="vibrate(50); openModal('add')"><i class="fas fa-plus"></i></button>
+        <!-- FAB -->
+        <button class="fab" onclick="vibrate(50); openModal('add')"><i class="fas fa-plus"></i></button>
 
-        <!-- 🚨 NEW BUDGET TICKER (Fixed above Nav) -->
-    <!-- 🚨 BUDGET TICKER (Fixed above Nav) -->
-    <div id="budget-ticker" class="fixed bottom-24 left-0 w-full bg-rose-50 dark:bg-rose-950/90 border-t border-b border-rose-100 dark:border-rose-900 z-40 hidden overflow-hidden h-9 flex items-center backdrop-blur-md shadow-sm">
-        <div id="ticker-text" class="animate-marquee text-xs font-black text-rose-600 dark:text-rose-400 tracking-wide uppercase"></div>
-    </div>
+        <!-- FLOATING BOTTOM NAV -->
+		<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[350px] h-[65px] bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.5)] rounded-full z-50 flex items-center justify-between px-2 p-1 transition-colors duration-300">
+			
+			<!-- 1. Wallet Button (Active by Default) -->
+			<!-- Added: dark:bg-indigo-500/20 dark:text-indigo-300 -->
+			<button id="nav-home" class="flex-1 h-full rounded-full flex flex-col items-center justify-center gap-0.5 transition-all duration-300 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 shadow-sm" onclick="vibrate(20); switchTab('home')">
+				<i class="fas fa-wallet text-lg mb-0.5"></i>
+				<span class="text-[10px] font-bold">Wallet</span>
+			</button>
+			
+			<!-- 2. Stats Button (Inactive by Default) -->
+			<!-- Added: dark:text-slate-500 dark:hover:text-slate-300 -->
+			<button id="nav-stats" class="flex-1 h-full rounded-full flex flex-col items-center justify-center gap-0.5 transition-all duration-300 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50" onclick="vibrate(20); switchTab('stats')">
+				<i class="fas fa-chart-pie text-lg mb-0.5"></i>
+				<span class="text-[10px] font-bold">Stats</span>
+			</button>
 
-    <!-- 💊 NEW FLOATING BOTTOM NAV (Only One) -->
-    <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[85%] max-w-[350px] h-[70px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.15)] dark:shadow-black/50 rounded-[2.5rem] z-50 flex items-center justify-between px-6 transition-all duration-300">
-        
-        <!-- Wallet Button -->
-        <button class="flex flex-col items-center justify-center gap-1 h-full w-16 transition-all active:scale-90 group" onclick="vibrate(20); switchTab('home', this)">
-            <div id="nav-wallet-icon" class="w-10 h-10 rounded-2xl bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 transition-all duration-300 shadow-sm group-hover:shadow-md">
-                <i class="fas fa-wallet text-lg"></i>
-            </div>
-            <span class="text-[10px] font-bold text-slate-600 dark:text-slate-300 group-hover:text-indigo-600 transition-colors">Wallet</span>
-        </button>
-
-        <!-- Divider -->
-        <div class="w-[1px] h-8 bg-slate-200 dark:bg-slate-700/50"></div>
-
-        <!-- Stats Button -->
-        <button class="flex flex-col items-center justify-center gap-1 h-full w-16 transition-all active:scale-90 group" onclick="vibrate(20); switchTab('stats', this)">
-            <div id="nav-stats-icon" class="w-10 h-10 rounded-2xl flex items-center justify-center text-slate-400 dark:text-slate-500 transition-all duration-300 group-hover:text-indigo-600 group-hover:bg-slate-50 dark:group-hover:bg-slate-800">
-                <i class="fas fa-chart-pie text-lg"></i>
-            </div>
-            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 group-hover:text-indigo-600 transition-colors">Stats</span>
-        </button>
-
-    </nav>
+		</nav>
 
         <!-- HOME TAB -->
-		<div id="tab-home" class="tab-content active">
+        <div id="tab-home" class="tab-content active">
             
             <!-- 3D FLIP CARD -->
             <div class="relative px-4 mb-5 perspective-1000 group">
@@ -238,35 +553,35 @@
                                 <div class="relative z-10 flex flex-col justify-between h-full p-6 text-white font-mono text-left">
                                     <div class="flex justify-between items-start">
                                         <div class="flex items-center gap-2">
-                                            <!-- 1. EMV CHIP (From your code) -->
-                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="45px" height="45px" viewBox="0 0 50 50" xml:space="preserve" class="drop-shadow-md">
-                        <image id="image0" width="50" height="50" x="0" y="0" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
-                        AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAB6VBMVEUAAACNcTiVeUKVeUOY
-                        fEaafEeUeUSYfEWZfEaykleyklaXe0SWekSZZjOYfEWYe0WXfUWXe0WcgEicfkiXe0SVekSXekSW
-                        ekKYe0a9nF67m12ZfUWUeEaXfESVekOdgEmVeUWWekSniU+VeUKVeUOrjFKYfEWliE6WeESZe0GS
-                        e0WYfES7ml2Xe0WXeESUeEOWfEWcf0eWfESXe0SXfEWYekSVeUKXfEWxklawkVaZfEWWekOUekOW
-                        ekSYfESZe0eXekWYfEWZe0WZe0eVeUSWeETAnmDCoWLJpmbxy4P1zoXwyoLIpWbjvXjivnjgu3bf
-                        u3beunWvkFWxkle/nmDivXiWekTnwXvkwHrCoWOuj1SXe0TEo2TDo2PlwHratnKZfEbQrWvPrWua
-                        fUfbt3PJp2agg0v0zYX0zYSfgkvKp2frxX7mwHrlv3rsxn/yzIPgvHfduXWXe0XuyIDzzISsjVO1
-                        lVm0lFitjVPzzIPqxX7duna0lVncuHTLqGjvyIHeuXXxyYGZfUayk1iyk1e2lln1zYTEomO2llrb
-                        tnOafkjFpGSbfkfZtXLhvHfkv3nqxH3mwXujhU3KqWizlFilh06khk2fgkqsjlPHpWXJp2erjVOh
-                        g0yWe0SliE+XekShhEvAn2D///+gx8TWAAAARnRSTlMACVCTtsRl7Pv7+vxkBab7pZv5+ZlL/UnU
-                        /f3SJCVe+Fx39naA9/75XSMh0/3SSkia+pil/KRj7Pr662JPkrbP7OLQ0JFOijI1MwAAAAFiS0dE
-                        orDd34wAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfnAg0IDx2lsiuJAAACLElEQVRIx2Ng
-                        GAXkAUYmZhZWPICFmYkRVQcbOwenmzse4MbFzc6DpIGXj8PD04sA8PbhF+CFaxEU8iWkAQT8hEVg
-                        OkTF/InR4eUVICYO1SIhCRMLDAoKDvFDVhUaEhwUFAjjSUlDdMiEhcOEItzdI6OiYxA6YqODIt3d
-                        I2DcuDBZsBY5eVTr4xMSYcyk5BRUOXkFsBZFJTQnp6alQxgZmVloUkrKYC0qqmji2WE5EEZuWB6a
-                        lKoKdi35YQUQRkFYPpFaCouKIYzi6EDitJSUlsGY5RWVRGjJLyxNy4ZxqtIqqvOxaVELQwZFZdkI
-                        JVU1RSiSalAt6rUwUBdWG1CP6pT6gNqwOrgCdQyHNYR5YQFhDXj8MiK1IAeyN6aORiyBjByVTc0F
-                        qBoKWpqwRCVSgilOaY2OaUPw29qjOzqLvTAchpos47u6EZyYnngUSRwpuTe6D+6qaFQdOPNLRzOM
-                        1dzhRZyW+CZouHk3dWLXglFcFIflQhj9YWjJGlZcaKAVSvjyPrRQ0oQVKDAQHlYFYUwIm4gqExGm
-                        BSkutaVQJeomwViTJqPK6OhCy2Q9sQBk8cY0DxjTJw0lAQWK6cOKfgNhpKK7ZMpUeF3jPa28BCET
-                        amiEqJKM+X1gxvWXpoUjVIVPnwErw71nmpgiqiQGBjNzbgs3j1nus+fMndc+Cwm0T52/oNR9lsdC
-                        S24ra7Tq1cbWjpXV3sHRCb1idXZ0sGdltXNxRateRwHRAACYHutzk/2I5QAAACV0RVh0ZGF0ZTpj
-                        cmVhdGUAMjAyMy0wMi0xM1QwODoxNToyOSswMDowMEUnN7UAAAAldEVYdGRhdGU6bW9kaWZ5ADIw
-                        MjMtMDItMTNUMDg6MTU6MjkrMDA6MDA0eo8JAAAAKHRFWHRkYXRlOnRpbWVzdGFtcAAyMDIzLTAy
-                        LTEzVDA4OjE1OjI5KzAwOjAwY2+u1gAAAABJRU5ErkJggg=="></image>
-                    </svg>
+                                            <!-- EMV CHIP -->
+                                            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="45px" height="45px" viewBox="0 0 50 50" xml:space="preserve" class="drop-shadow-md">
+                                                <image id="image0" width="50" height="50" x="0" y="0" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+                                                AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAB6VBMVEUAAACNcTiVeUKVeUOY
+                                                fEaafEeUeUSYfEWZfEaykleyklaXe0SWekSZZjOYfEWYe0WXfUWXe0WcgEicfkiXe0SVekSXekSW
+                                                ekKYe0a9nF67m12ZfUWUeEaXfESVekOdgEmVeUWWekSniU+VeUKVeUOrjFKYfEWliE6WeESZe0GS
+                                                e0WYfES7ml2Xe0WXeESUeEOWfEWcf0eWfESXe0SXfEWYekSVeUKXfEWxklawkVaZfEWWekOUekOW
+                                                ekSYfESZe0eXekWYfEWZe0WZe0eVeUSWeETAnmDCoWLJpmbxy4P1zoXwyoLIpWbjvXjivnjgu3bf
+                                                u3beunWvkFWxkle/nmDivXiWekTnwXvkwHrCoWOuj1SXe0TEo2TDo2PlwHratnKZfEbQrWvPrWua
+                                                fUfbt3PJp2agg0v0zYX0zYSfgkvKp2frxX7mwHrlv3rsxn/yzIPgvHfduXWXe0XuyIDzzISsjVO1
+                                                lVm0lFitjVPzzIPqxX7duna0lVncuHTLqGjvyIHeuXXxyYGZfUayk1iyk1e2lln1zYTEomO2llrb
+                                                tnOafkjFpGSbfkfZtXLhvHfkv3nqxH3mwXujhU3KqWizlFilh06khk2fgkqsjlPHpWXJp2erjVOh
+                                                g0yWe0SliE+XekShhEvAn2D///+gx8TWAAAARnRSTlMACVCTtsRl7Pv7+vxkBab7pZv5+ZlL/UnU
+                                                /f3SJCVe+Fx39naA9/75XSMh0/3SSkia+pil/KRj7Pr662JPkrbP7OLQ0JFOijI1MwAAAAFiS0dE
+                                                orDd34wAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfnAg0IDx2lsiuJAAACLElEQVRIx2Ng
+                                                GAXkAUYmZhZWPICFmYkRVQcbOwenmzse4MbFzc6DpIGXj8PD04sA8PbhF+CFaxEU8iWkAQT8hEVg
+                                                OkTF/InR4eUVICYO1SIhCRMLDAoKDvFDVhUaEhwUFAjjSUlDdMiEhcOEItzdI6OiYxA6YqODIt3d
+                                                I2DcuDBZsBY5eVTr4xMSYcyk5BRUOXkFsBZFJTQnp6alQxgZmVloUkrKYC0qqmji2WE5EEZuWB6a
+                                                lKoKdi35YQUQRkFYPpFaCouKIYzi6EDitJSUlsGY5RWVRGjJLyxNy4ZxqtIqqvOxaVELQwZFZdkI
+                                                JVU1RSiSalAt6rUwUBdWG1CP6pT6gNqwOrgCdQyHNYR5YQFhDXj8MiK1IAeyN6aORiyBjByVTc0F
+                                                qBoKWpqwRCVSgilOaY2OaUPw29qjOzqLvTAchpos47u6EZyYnngUSRwpuTe6D+6qaFQdOPNLRzOM
+                                                1dzhRZyW+CZouHk3dWLXglFcFIflQhj9YWjJGlZcaKAVSvjyPrRQ0oQVKDAQHlYFYUwIm4gqExGm
+                                                BSkutaVQJeomwViTJqPK6OhCy2Q9sQBk8cY0DxjTJw0lAQWK6cOKfgNhpKK7ZMpUeF3jPa28BCET
+                                                amiEqJKM+X1gxvWXpoUjVIVPnwErw71nmpgiqiQGBjNzbgs3j1nus+fMndc+Cwm0T52/oNR9lsdC
+                                                S24ra7Tq1cbWjpXV3sHRCb1idXZ0sGdltXNxRateRwHRAACYHutzk/2I5QAAACV0RVh0ZGF0ZTpj
+                                                cmVhdGUAMjAyMy0wMi0xM1QwODoxNToyOSswMDowMEUnN7UAAAAldEVYdGRhdGU6bW9kaWZ5ADIw
+                                                MjMtMDItMTNUMDg6MTU6MjkrMDA6MDA0eo8JAAAAKHRFWHRkYXRlOnRpbWVzdGFtcAAyMDIzLTAy
+                                                LTEzVDA4OjE1OjI5KzAwOjAwY2+u1gAAAABJRU5ErkJggg=="></image>
+                                            </svg>
                                             <svg class="w-8 h-8 text-white/50 rotate-90" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 0 1 7.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 0 1 1.06 0Z" /></svg>
                                         </div>
                                         <svg class="drop-shadow-md" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 48 48"><path fill="#ff9800" d="M32 10A14 14 0 1 0 32 38A14 14 0 1 0 32 10Z"></path><path fill="#d50000" d="M16 10A14 14 0 1 0 16 38A14 14 0 1 0 16 10Z"></path><path fill="#ff3d00" d="M18,24c0,4.755,2.376,8.95,6,11.48c3.624-2.53,6-6.725,6-11.48s-2.376-8.95-6-11.48 C20.376,15.05,18,19.245,18,24z"></path></svg>
@@ -292,10 +607,9 @@
                         <!-- BACK -->
                         <div class="flip-card-back p-5 flex flex-col justify-between relative overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
                             <div class="flex justify-between items-center relative z-10 mb-2">
-							<p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Monthly Budget</p>
-							<!-- 👇 ID 'budget-month-label' add kar diya -->
-							<div id="budget-month-label" class="text-[10px] font-bold text-white/50 bg-white/10 px-2 py-0.5 rounded">JAN 26</div>
-						</div>
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Monthly Budget</p>
+                                <div id="budget-month-label" class="text-[10px] font-bold text-white/50 bg-white/10 px-2 py-0.5 rounded">JAN 26</div>
+                            </div>
                             <div class="space-y-3 relative z-10">
                                 <div><div class="flex justify-between text-[9px] font-bold mb-1 text-indigo-200"><span>🏠 NEEDS</span><span><span id="bud-needs-spent">0</span> / 23.7k</span></div><div class="w-full h-1.5 bg-slate-700/50 rounded-full overflow-hidden"><div id="bud-needs-bar" class="h-full bg-indigo-500 rounded-full transition-all duration-1000" style="width: 0%"></div></div></div>
                                 <div><div class="flex justify-between text-[9px] font-bold mb-1 text-rose-200"><span>🎉 WANTS</span><span><span id="bud-wants-spent">0</span> / 6.1k</span></div><div class="w-full h-1.5 bg-slate-700/50 rounded-full overflow-hidden"><div id="bud-wants-bar" class="h-full bg-rose-500 rounded-full transition-all duration-1000" style="width: 0%"></div></div></div>
@@ -318,48 +632,112 @@
         </div>
 
         <!-- STATS TAB -->
-		<div id="tab-stats" class="tab-content px-5 py-6">
+		<div id="tab-stats" class="tab-content px-5 -mt-4 pb-24">
+			<!-- AFTER: New Power Header -->
 			<div class="flex justify-between items-center mb-6">
 				<h2 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Analytics</h2>
-                <div class="flex gap-2">
-                    <button onclick="exportToCSV()" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 flex items-center justify-center transition active:scale-95"><i class="fas fa-download"></i></button>
-				    <button id="legendBtn" onclick="toggleChartLegend()" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 flex items-center justify-center transition active:scale-95"><i class="fas fa-layer-group"></i></button>
-                </div>
-			</div>
+				
+				<div class="flex items-center gap-2 bg-white dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
+					
+					<!-- 1. Month/Year Toggle -->
+					<button id="viewModeBtn" onclick="toggleViewMode()" class="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all active:scale-95">
+						MTH
+					</button>
 
-            <!-- MoM Stats -->
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Vs Last Month</p>
-                    <div class="flex items-end gap-1">
-                        <span id="mom-val" class="text-xl font-black text-slate-800 dark:text-white">0%</span>
-                        <i id="mom-icon" class="fas fa-minus text-slate-300 text-sm mb-1"></i>
-                    </div>
-                </div>
-                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Daily Avg</p>
-                    <span id="daily-avg" class="text-xl font-black text-slate-800 dark:text-white">₹0</span>
-                </div>
-            </div>
+					<div class="w-px h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
 
-			<div class="filter-bar mb-6 items-center">
-				<button class="filter-chip active bg-indigo-600 text-white border-indigo-600" onclick="setStatsType(this, 'Expense')">Expense</button>
-				<button class="filter-chip bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700" onclick="setStatsType(this, 'Income')">Income</button>
-				<div class="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-2"></div>
-                <select id="acc-filter" onchange="renderStats()" class="bg-slate-100 dark:bg-slate-800 text-xs font-bold py-1.5 px-3 rounded-full outline-none border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
-                    <option value="all">All Accounts</option>
-                    <option value="axis">Axis Bank</option>
-                    <option value="cash">Cash</option>
-                    <option value="flipkart">Flipkart Card</option>
-                </select>
-			</div>
+					<!-- 2. Chart Switcher (Pie <-> Bar) -->
+					<button id="chartTypeBtn" onclick="toggleChartType()" class="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-indigo-500 transition-all active:scale-95">
+						<i class="fas fa-chart-bar text-xs"></i>
+					</button>
 
-			<div class="bg-white dark:bg-slate-800 p-6 rounded-[32px] shadow-xl border border-slate-100 dark:border-slate-700 mb-8 relative overflow-hidden">
-				<div class="h-64 relative z-10"><canvas id="expenseChart"></canvas></div>
-				<div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-4 z-0">
-					<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total</p>
-					<h3 class="text-2xl font-black text-slate-800 dark:text-white" id="chartTotal">₹0</h3>
+					<!-- 3. AI Insight (NEW PREMIUM) -->
+					<button onclick="showInsight()" class="group relative outline-0 [--sz-btn:25px] [--space:calc(var(--sz-btn)/5.5)] [--gen-sz:calc(var(--space)*2)] [--sz-text:calc(var(--sz-btn)-var(--gen-sz))] h-[var(--sz-btn)] w-[var(--sz-btn)] border border-solid border-transparent rounded-xl flex items-center justify-center aspect-square cursor-pointer transition-transform duration-200 active:scale-[0.95] bg-[linear-gradient(45deg,#efad21,#ffd60f)] shadow-sm hover:shadow-lg hover:shadow-amber-400/40">
+					  
+					  <!-- Star Icon (Animated) -->
+					  <svg class="animate-pulse absolute z-10 overflow-visible transition-all duration-300 text-[#ffea50] group-hover:text-white top-[calc(var(--sz-text)/7)] left-[calc(var(--sz-text)/7)] h-[var(--gen-sz)] w-[var(--gen-sz)] group-hover:h-[var(--sz-text)] group-hover:w-[var(--sz-text)] group-hover:left-[calc(var(--sz-text)/4)] group-hover:top-[calc(calc(var(--gen-sz))/2)]" stroke="none" viewBox="0 0 24 24" fill="currentColor">
+						<path fill-rule="evenodd" clip-rule="evenodd" d="M9 4.5a.75.75 0 01.721.544l.813 2.846a3.75 3.75 0 002.576 2.576l2.846.813a.75.75 0 010 1.442l-2.846.813a3.75 3.75 0 00-2.576 2.576l-.813 2.846a.75.75 0 01-1.442 0l-.813-2.846a3.75 3.75 0 00-2.576-2.576l-2.846-.813a.75.75 0 010-1.442l2.846-.813A3.75 3.75 0 007.466 7.89l.813-2.846A.75.75 0 019 4.5zM18 1.5a.75.75 0 01.728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 010 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 01-1.456 0l-.258-1.036a2.625 2.625 0 00-1.91-1.91l-1.036-.258a.75.75 0 010-1.456l1.036-.258a2.625 2.625 0 001.91-1.91l.258-1.036A.75.75 0 0118 1.5zM16.5 15a.75.75 0 01.712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 010 1.422l-1.183.395c-.447.15-.799.5-.948.948l-.395 1.183a.75.75 0 01-1.422 0l-.395-1.183a1.5 1.5 0 00-.948-.948l-1.183-.395a.75.75 0 010-1.422l1.183-.395c.447-.15.799-.5.948-.948l.395-1.183A.75.75 0 0116.5 15z"></path>
+					  </svg>
+					  
+					  <!-- Text Label -->
+					  <span class="[font-size:var(--sz-text)] font-extrabold leading-none text-white transition-all duration-200 group-hover:opacity-0 font-mono">AI</span>
+					</button>
 				</div>
+			</div>
+
+            <!-- HYBRID STATS CARDS (Trend + Smart Controller) -->
+			<div class="grid grid-cols-2 gap-3 mb-6">
+				
+				<!-- 1. Trend Analyst (Past) -->
+				<div id="card-trend" class="relative bg-white dark:bg-slate-800 p-4 rounded-[24px] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col justify-between h-[110px]">
+					<!-- Graph Background Layer -->
+					<div id="trend-bg" class="absolute bottom-0 left-0 w-full h-12 opacity-20 pointer-events-none"></div>
+					
+					<div class="relative z-10">
+						<p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Vs Last Month</p>
+						<div class="flex items-baseline gap-1">
+							<span id="trend-val" class="text-xl font-black text-slate-800 dark:text-white">--</span>
+							<i id="trend-icon" class="fas fa-minus text-[10px] text-slate-400"></i>
+						</div>
+					</div>
+					<!-- Context Text -->
+					<p id="trend-context" class="relative z-10 text-[10px] font-bold text-slate-500 truncate">Analyzing...</p>
+				</div>
+
+				<!-- 2. Smart Controller (Future) -->
+				<div id="card-safe" class="relative bg-white dark:bg-slate-800 p-4 rounded-[24px] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col justify-between h-[110px]">
+					<div>
+						<p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Safe Daily Limit</p>
+						<span id="safe-val" class="text-xl font-black text-indigo-600 dark:text-indigo-400">₹--</span>
+					</div>
+					
+					<!-- Budget Meter -->
+					<div class="w-full">
+						<div class="flex justify-between text-[8px] font-bold text-slate-400 mb-1">
+							<span>Used</span>
+							<span id="safe-status">On Track</span>
+						</div>
+						<div class="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+							<div id="safe-bar" class="h-full bg-indigo-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- ⚡ New Compact Toggle -->
+			<div class="radio-inputs">
+			<!-- EXPENSE: Subtle Red -->
+			<label class="radio">
+				<input type="radio" name="statsType" class="peer" checked onclick="vibrate(20); statsState.type='Expense'; renderStats();">
+				<span class="name peer-checked:!bg-rose-50 peer-checked:!text-rose-600 peer-checked:!border-rose-100 peer-checked:!shadow-none">Expense</span>
+			</label>
+			
+			<!-- INCOME: Subtle Green -->
+			<label class="radio">
+				<input type="radio" name="statsType" class="peer" onclick="vibrate(20); statsState.type='Income'; renderStats();">
+				<span class="name peer-checked:!bg-emerald-50 peer-checked:!text-emerald-600 peer-checked:!border-emerald-100 peer-checked:!shadow-none">Income</span>
+			</label>
+			</div>
+
+			<!-- Row 2: Account Chips (Full Width Scrollable) -->
+			<div class="relative w-full mb-6">
+				<div class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-slate-50 to-transparent dark:from-slate-950 pointer-events-none z-20"></div>
+				<div id="account-filters" class="flex gap-2 overflow-x-auto no-scrollbar pb-1 pl-1 pr-14" style="scroll-behavior: smooth;"></div>
+			</div>
+
+			<!-- STATS CHART SECTION (Single Card Overlap Fix) -->
+			<div class="bg-white dark:bg-slate-800 p-4 rounded-[32px] shadow-xl border border-slate-100 dark:border-slate-700 mb-8 relative h-72 w-full flex items-center justify-center overflow-hidden">
+				
+				<!-- Layer 1: Chart (Upar rahega click ke liye: z-10) -->
+				<div class="relative z-10 w-full h-full flex items-center justify-center">
+					<canvas id="expenseChart"></canvas>
+				</div>
+
+				<!-- Layer 2: Text (Peeche rahega: z-0, Absolute Position se Center mein) -->
+				<div id="chartCenterText" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0">
+					<!-- JS will fill this automatically -->
+				</div>
+
 			</div>
 
             <!-- Heatmap -->
@@ -372,11 +750,6 @@
 			<div id="stats-list" class="space-y-3 pb-24"></div>
 		</div>
     </main>
-
-    <!-- FAB -->
-    <button class="fab bg-indigo-600 text-white" onclick="vibrate(50); openModal('add')"><i class="fas fa-plus"></i></button>
-
-    
 
     <!-- TOAST CONTAINER -->
     <div id="toast-container"></div>
@@ -422,7 +795,16 @@
                         <div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Description <span class="normal-case opacity-50">(Optional)</span></label><input type="text" id="description" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-medium rounded-xl h-12 px-4 outline-none border border-transparent focus:bg-white dark:focus:bg-slate-700 focus:border-indigo-500 focus:shadow-sm transition-all" placeholder="Add more details..."></div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Category</label><div class="relative"><select id="category" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-xl h-12 px-4 outline-none appearance-none border border-transparent focus:bg-white dark:focus:bg-slate-700 focus:border-indigo-500 focus:shadow-sm transition-all truncate" required onchange="updateSubCategories()"><option value="">Select</option><option>🏠 NEEDS</option><option>🎉 WANTS</option><option>📈 INVESTMENT</option><option>💰 Salary & Inc</option><option>🎁 Windfall</option><option>📈 Passive</option></select><i class="fas fa-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i></div></div>
+                        <div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Category</label><div class="relative"><select id="category" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-xl h-12 px-4 outline-none appearance-none border border-transparent focus:bg-white dark:focus:bg-slate-700 focus:border-indigo-500 focus:shadow-sm transition-all truncate" required onchange="updateSubCategories()">
+    <option value="">Select Category</option>
+    <!-- Explicit values to match JS Keys -->
+    <option value="🏠 NEEDS">🏠 NEEDS</option>
+    <option value="🎉 WANTS">🎉 WANTS</option>
+    <option value="📈 INVESTMENT">📈 INVESTMENT</option>
+    <option value="💰 Salary & Income">💰 Salary & Income</option>
+    <option value="🎁 Windfall">🎁 Windfall</option>
+    <option value="📈 Passive">📈 Passive</option>
+</select><i class="fas fa-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i></div></div>
                         <div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Sub-Category</label><div class="relative"><select id="sub_category" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-xl h-12 px-4 outline-none appearance-none border border-transparent focus:bg-white dark:focus:bg-slate-700 focus:border-indigo-500 focus:shadow-sm transition-all truncate"><option value="">Select Cat</option></select><i class="fas fa-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i></div></div>
                     </div>
                 </form>
@@ -476,26 +858,89 @@
             </div>
         </div>
     </div>
+	
+	<!-- DAY DETAILS MODAL -->
+	<div id="dayModal" class="modal-overlay">
+		<div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeDayModal()"></div>
+		<div class="modal-card bg-slate-50 dark:bg-slate-900 w-full max-h-[70vh] rounded-t-3xl shadow-2xl overflow-hidden flex flex-col">
+			
+			<!-- Header -->
+			<div class="bg-white dark:bg-slate-950 p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center shrink-0">
+				<div>
+					<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Summary</p>
+					<h2 id="dayModalTitle" class="text-xl font-black text-slate-800 dark:text-white">Jan 09</h2>
+				</div>
+				<div class="text-right">
+					<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Total Spent</p>
+					<h2 id="dayModalTotal" class="text-xl font-black text-rose-500">₹0</h2>
+				</div>
+			</div>
+
+			<!-- List -->
+			<div id="dayModalList" class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar">
+				<!-- Entries will be injected here -->
+			</div>
+
+			<!-- Close Button -->
+			<div class="p-4 bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 shrink-0">
+				<button onclick="closeDayModal()" class="w-full py-3 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-white font-bold text-sm tracking-wide hover:bg-slate-300 dark:hover:bg-slate-700 transition">CLOSE</button>
+			</div>
+		</div>
+	</div>
+	
+	<!-- AI INSIGHT MODAL (Fixed Scrolling) -->
+    <div id="aiModal" class="modal-overlay">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeAiModal()"></div>
+        
+        <!-- Added max-h-[85vh] to ensure it fits screen -->
+        <div class="modal-card bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden transform transition-all scale-100 relative mb-4 mx-4 flex flex-col max-h-[85vh]" style="border-radius: 24px;">
+            
+            <!-- Header (Fixed - Shrink nahi karega) -->
+            <div class="bg-gradient-to-r from-amber-200 to-yellow-400 p-1 shrink-0">
+                <div class="bg-white dark:bg-slate-900 p-5 rounded-t-[20px] flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-500 animate-pulse">
+                            <i class="fas fa-magic text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-slate-800 dark:text-white leading-none">AI Insight</h3>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Smart Analysis</p>
+                        </div>
+                    </div>
+                    <button onclick="closeAiModal()" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-rose-500 flex items-center justify-center transition"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+			<div class="p-6 pt-2 overflow-y-auto no-scrollbar flex-1 flex flex-col"> <!-- Added flex flex-col -->
+				<div id="aiContent" class="space-y-4 text-sm font-medium text-slate-600 dark:text-slate-300 leading-relaxed pb-4 flex-1">
+					<!-- JS will inject text here -->
+				</div>
+				
+				<!-- Added ID="aiCloseBtn" and class="hidden" -->
+				<button id="aiCloseBtn" onclick="closeAiModal()" class="hidden w-full py-3 rounded-xl bg-slate-900 dark:bg-slate-700 text-white font-bold text-sm tracking-wide shadow-lg active:scale-[0.98] transition mb-2 shrink-0">
+					AWESOME! ⚡
+				</button>
+			</div>
+        </div>
+    </div>
 
 <script>
     // ********************************************
-    // CONFIGURATION
+    // 1. CONFIGURATION & STATE
     // ********************************************
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwvVpzI3NLC7Q3MgxvPQFz_yPAA40o70tJzRyscNGMPl_IYf7FSd4kzawZVI05PK1-X/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyP5LfSDcBteaExMJBsjJwX_pTOvO5JINMzOH2PnvYHFyzvA3uD_RrtWMiY-SGMIyeK/exec'; 
     const CACHE_KEY = 'finance_v3_cache';
-    
-    // Global State
+
     let allData = [];
     let currentFilter = { year: new Date().getFullYear(), month: new Date().getMonth() };
     let expenseChart = null;
     let showChartLegend = false;
     let statsState = { type: 'Expense', group: 'category' };
     let searchQuery = "";
-
-    // SWIPE VARIABLES
-    let touchStartX = 0, touchStartY = 0, touchCurrentX = 0;
-    let isSwiping = false, activeRow = null, pendingDeleteID = null;
-    let longPressTimer;
+    let currentViewItem = null;
+	let statsViewMode = 'Month'; // 'Month' or 'Year'
+	let statsChartType = 'Doughnut'; // 'Doughnut' or 'Bar'
 
     const categoryMap = {
         "🏠 NEEDS": ["🛒 Food & Groceries", "🏠 Housing & Utilities", "🛵 Transportation", "🌪️ Healthcare & Buffers", "🛡️ Insurance", "🎓 Child's Education", "🔧 Home Maintenance"],
@@ -506,13 +951,105 @@
         "🎁 Windfall": ["🎁 Gifts", "🌟 Performance Bonus", "💳 Rewards & Cashback"]
     };
 
+    let currentAccountFilter = 'All'; // Default
+
+    function renderAccountFilters() {
+        const container = document.getElementById('account-filters');
+        if(!container) return;
+
+        container.innerHTML = '';
+        
+        // 🔥 FIX: Padding badha di taaki shadow/animation kate nahi
+        container.className = "radio-inputs scrollable flex-nowrap overflow-x-auto no-scrollbar";
+        container.style.background = "transparent"; 
+        container.style.boxShadow = "none";
+        container.style.padding = "4px"; // <-- 0 se 6px kiya (Space for shadow)
+        container.style.marginBottom = "10px"; // Thoda gap neeche bhi
+
+        // 1. Unique Accounts
+        const accounts = new Set(['All']);
+        allData.forEach(item => { if(item.Account) accounts.add(item.Account); });
+
+        // 2. Generate Animated Buttons
+		accounts.forEach(acc => {
+			let icon = 'fa-wallet';
+			const lowerAcc = acc.toLowerCase();
+			
+			// --- 🏷️ RENAMING LOGIC ---
+			let displayName = acc;
+			// ... (Apka purana renaming logic same rahega) ...
+			if (acc === 'All') { displayName = 'All'; icon = 'fa-layer-group'; } 
+			else if (lowerAcc.includes('flipkart')) { displayName = 'Flipkart Credit Card'; icon = 'fa-credit-card'; } 
+			else if (lowerAcc.includes('amazon')) { displayName = 'Amazon Credit Card'; icon = 'fab fa-amazon'; } 
+			else if (lowerAcc.includes('sbi')) { displayName = 'SBI Bank'; icon = 'fa-university'; }
+			else if (lowerAcc.includes('axis')) { displayName = 'Axis Bank'; icon = 'fa-university'; }
+			else if (lowerAcc.includes('cash')) { displayName = 'Cash'; icon = 'fa-money-bill-wave'; }
+			else if (lowerAcc.includes('sunita')) { icon = 'fa-user-circle'; } // Sunita Icon
+
+			// --- 🎨 COLOR LOGIC (Subtle Backgrounds) ---
+			// Default (All): Indigo
+			let colorClass = 'peer-checked:!bg-indigo-50 peer-checked:!text-indigo-700 peer-checked:!border-indigo-100';
+
+			if (lowerAcc.includes('axis')) {
+				// Axis: Official Maroon -> Subtle Rose/Red
+				colorClass = 'peer-checked:!bg-rose-100 peer-checked:!text-rose-900 peer-checked:!border-rose-200';
+			} 
+			else if (lowerAcc.includes('flipkart')) {
+				// Flipkart: Official Blue -> Subtle Blue
+				colorClass = 'peer-checked:!bg-blue-50 peer-checked:!text-blue-700 peer-checked:!border-blue-200';
+			} 
+			else if (lowerAcc.includes('amazon')) {
+				// Amazon: Subtle Brown (Stone)
+				colorClass = 'peer-checked:!bg-orange-100 peer-checked:!text-orange-900 peer-checked:!border-orange-200';
+			} 
+			else if (lowerAcc.includes('sbi')) {
+				// SBI: Subtle Sky Blue
+				colorClass = 'peer-checked:!bg-sky-100 peer-checked:!text-sky-700 peer-checked:!border-sky-200';
+			} 
+			else if (lowerAcc.includes('cash')) {
+				// Cash: Emerald Green
+				colorClass = 'peer-checked:!bg-emerald-100 peer-checked:!text-emerald-800 peer-checked:!border-emerald-200';
+			}
+			else if (lowerAcc.includes('sunita')) {
+				// Sunita: Pink/Fuchsia
+				colorClass = 'peer-checked:!bg-fuchsia-100 peer-checked:!text-fuchsia-800 peer-checked:!border-fuchsia-200';
+			}
+
+			const label = document.createElement('label');
+			label.className = "radio";
+			
+			const isChecked = currentAccountFilter === acc ? 'checked' : '';
+			
+			// 🔥 HTML Construction with 'peer' and 'colorClass'
+			label.innerHTML = `
+				<input type="radio" name="accFilter" class="peer" ${isChecked}>
+				<span class="name gap-2 ${colorClass} peer-checked:!shadow-none">
+					<i class="fas ${icon} text-xs"></i> 
+					${displayName}
+				</span>
+			`;
+			
+			label.querySelector('input').onclick = () => {
+				vibrate(20);
+				currentAccountFilter = acc;
+				renderStats(); 
+			};
+			
+			container.appendChild(label);
+		});
+    }
+
+
     // ********************************************
-    // UTILS
+    // 2. UTILS (Vibrate & Toast)
     // ********************************************
-    function vibrate(ms = 50) { if(navigator.vibrate) navigator.vibrate(ms); }
+    function vibrate(ms = 50) { 
+        if(navigator.vibrate) navigator.vibrate(ms); 
+    }
 
     function showToast(msg, type = 'success') {
         const container = document.getElementById('toast-container');
+        if(!container) return;
         const toast = document.createElement('div');
         toast.className = 'toast';
         const icon = type === 'error' ? '<i class="fas fa-exclamation-circle text-rose-400"></i>' : '<i class="fas fa-check-circle text-emerald-400"></i>';
@@ -526,15 +1063,34 @@
         }, 3000);
     }
 
+    function parseDate(str) {
+        if(!str) return new Date();
+        if(str.toString().includes('T')) return new Date(str); 
+        // Handle DD/MM/YYYY
+        if(str.toString().includes('/')) {
+            const parts = str.split(' ')[0].split('/');
+            return new Date(parts[2], parts[1]-1, parts[0]);
+        }
+        return new Date(str);
+    }
+
     // ********************************************
-    // INITIALIZATION
+    // 3. INITIALIZATION
     // ********************************************
+    
+    // Back Button Logic
+    window.addEventListener('popstate', function(event) {
+        const modal = document.getElementById('entryModal');
+        const viewModal = document.getElementById('viewModal');
+        if (modal && modal.classList.contains('active')) modal.classList.remove('active');
+        if (viewModal && viewModal.classList.contains('active')) viewModal.classList.remove('active');
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('date').valueAsDate = new Date();
         initDarkMode();
-        initPullToRefresh();
         
-        // Greeting Logic
+        // Greeting
         const hour = new Date().getHours();
         const greetElement = document.getElementById('greeting-text');
         let greeting = "Welcome Back";
@@ -547,13 +1103,13 @@
         fetchData();
     });
 
-    // Dark Mode Logic
     function initDarkMode() {
         if(localStorage.getItem('theme') === 'dark') {
             document.documentElement.classList.add('dark');
             document.getElementById('theme-icon').className = "fas fa-sun";
         }
     }
+    
     function toggleDarkMode() {
         vibrate();
         const html = document.documentElement;
@@ -563,39 +1119,8 @@
         document.getElementById('theme-icon').className = isDark ? "fas fa-sun" : "fas fa-moon";
     }
 
-    // Pull to Refresh Logic
-    function initPullToRefresh() {
-        const main = document.getElementById('main-scroll');
-        const indicator = document.getElementById('pull-indicator');
-        let startY = 0;
-        
-        main.addEventListener('touchstart', e => {
-            if (main.scrollTop === 0) startY = e.touches[0].clientY;
-        }, {passive: true});
-
-        main.addEventListener('touchmove', e => {
-            const y = e.touches[0].clientY;
-            if (main.scrollTop === 0 && y > startY) {
-                const pull = Math.min((y - startY) * 0.5, 100); 
-                indicator.style.height = `${pull}px`;
-            }
-        }, {passive: true});
-
-        main.addEventListener('touchend', () => {
-            if (parseInt(indicator.style.height) > 60) {
-                vibrate(30);
-                fetchData().then(() => {
-                    indicator.style.height = '0px';
-                    showToast('Updated Successfully ✅');
-                });
-            } else {
-                indicator.style.height = '0px';
-            }
-        });
-    }
-
     // ********************************************
-    // DATA HANDLING
+    // 4. DATA HANDLING
     // ********************************************
     function loadFromCache() {
         const cached = localStorage.getItem(CACHE_KEY);
@@ -638,6 +1163,9 @@
         }
     }
 
+    // ********************************************
+    // 5. FILTER & RENDER LOGIC
+    // ********************************************
     function initDynamicDropdown() {
         const select = document.getElementById('monthFilter');
         const currentSelection = select.value;
@@ -692,8 +1220,9 @@
         });
 
         // Search Filter
-        if (searchQuery) {
-            const q = searchQuery.toLowerCase();
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput && searchInput.value) {
+            const q = searchInput.value.toLowerCase();
             filtered = filtered.filter(i => 
                 (i.Note && i.Note.toLowerCase().includes(q)) || 
                 (i.Category && i.Category.toLowerCase().includes(q)) ||
@@ -705,47 +1234,17 @@
         
         renderList(filtered); 
         calculateStats(filtered); 
+	    renderAccountFilters(); 
+
         
-        if(document.getElementById('tab-stats').classList.contains('active')) {
+        // 👇 FIX: Heatmap ko bhi call karo agar stats tab active hai
+        const statsTab = document.getElementById('tab-stats');
+        if(statsTab && statsTab.classList.contains('active')) {
             renderStats();
+            renderHeatmap(); // 🔥 Added this line
         }
     }
 
-    function parseDate(str) {
-        if(!str) return new Date();
-        if(str.toString().includes('T')) return new Date(str); // ISO Format handled
-        return new Date(str);
-    }
-
-    // ********************************************
-    // UI RENDERING
-    // ********************************************
-
-    function switchTab(id, btn) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.getElementById('tab-'+id).classList.add('active');
-        
-        document.querySelectorAll('nav button').forEach(b => { 
-            b.className = "flex-1 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 transition hover:text-indigo-600"; 
-        });
-        btn.className = "flex-1 flex flex-col items-center justify-center text-indigo-600 transition";
-        
-        if(id === 'stats') setTimeout(() => { renderStats(); }, 50);
-    }
-
-    function toggleSearch() {
-        const container = document.getElementById('search-container');
-        container.classList.toggle('hidden');
-        if (!container.classList.contains('hidden')) document.getElementById('searchInput').focus();
-        else { searchQuery = ""; handleSearch(); }
-    }
-
-    function handleSearch() {
-        searchQuery = document.getElementById('searchInput').value;
-        applyFilter();
-    }
-
-    /* --- RENDER LIST --- */
     function renderList(data) {
         const container = document.getElementById('transaction-container');
         container.innerHTML = '';
@@ -777,32 +1276,29 @@
             const d = group.date;
             
             const dayName = dayNames[d.getDay()];     
-            const dateNum = String(d.getDate()); 
-            
+            const dateNum = String(d.getDate()).padStart(2,'0'); 
             const monthShort = monthNames[d.getMonth()];
             const yearShort = d.getFullYear().toString().slice(-2);
             const formattedDate = `${monthShort} ${yearShort}`; 
-
             const badgeColor = (dayName === "SUN") ? "bg-rose-500" : "bg-blue-600";
             
             const groupDiv = document.createElement('div');
             groupDiv.className = 'relative mb-0';
 
-            
-	let headerHtml = `
-    <div class="day-header sticky top-[-20px] z-30 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md py-3 px-4 flex justify-between items-center border-b border-slate-200 dark:border-slate-800 shadow-sm transition-all duration-300">
-        <div class="flex items-center gap-3">
-            <span class="text-3xl font-black text-slate-700 dark:text-slate-200 leading-none tracking-tighter">${dateNum}</span>
-            <div class="flex flex-col items-start gap-0.5">
-                <span class="text-[10px] font-black text-white px-2 py-0.5 rounded ${badgeColor} uppercase tracking-wider leading-none shadow-sm">${dayName}</span>
-                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wide leading-none">${formattedDate}</span>
-            </div>
-        </div>
-        <div class="flex items-center gap-4">
-            ${group.in > 0 ? `<div class="flex flex-col items-end"><span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none mb-0.5">IN</span><span class="text-xs font-black text-emerald-500 leading-none">₹${group.in.toLocaleString()}</span></div>` : ''}
-            ${group.out > 0 ? `<div class="flex flex-col items-end"><span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none mb-0.5">OUT</span><span class="text-xs font-black text-rose-500 leading-none">₹${group.out.toLocaleString()}</span></div>` : ''}
-        </div>
-    </div>`;
+            let headerHtml = `
+            <div class="day-header sticky top-[-20px] z-30 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md py-3 px-4 flex justify-between items-center border-b border-slate-200 dark:border-slate-800 shadow-sm transition-all duration-300">
+                <div class="flex items-center gap-2">
+                    <span class="text-3xl font-black text-slate-800 dark:text-slate-200 leading-none tracking-tight">${dateNum}</span>
+                    <div class="flex flex-col items-start justify-center">
+                        <span class="text-[9px] font-black text-white px-1.5 py-0.5 rounded ${badgeColor} uppercase tracking-wider leading-none mb-0.5">${dayName}</span>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide leading-none">${formattedDate}</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    ${group.in > 0 ? `<div class="flex flex-col items-end"><span class="text-[8px] font-bold text-slate-400 uppercase tracking-wider leading-none mb-0.5">IN</span><span class="text-xs font-black text-emerald-500 leading-none">₹${group.in.toLocaleString()}</span></div>` : ''}
+                    ${group.out > 0 ? `<div class="flex flex-col items-end"><span class="text-[8px] font-bold text-slate-400 uppercase tracking-wider leading-none mb-0.5">OUT</span><span class="text-xs font-black text-rose-500 leading-none">₹${group.out.toLocaleString()}</span></div>` : ''}
+                </div>
+            </div>`;
             
             let itemsHtml = '';
             group.items.forEach(item => { itemsHtml += createEntryHTML(item); });
@@ -872,24 +1368,10 @@
 
         const safeItem = encodeURIComponent(JSON.stringify(item));
 
-        // Long Press Logic Setup
-        const startPress = `longPressTimer = setTimeout(() => openModal('add', JSON.parse(decodeURIComponent('${safeItem}'))), 800)`;
-        const endPress = `clearTimeout(longPressTimer)`;
-
-        // ✅ FIXED HTML STRUCTURE (Added 'flex' directly to ensure row layout)
         return `
-            <div class="entry-wrapper mb-0 overflow-hidden relative bg-white dark:bg-slate-900">
-                <!-- Swipe Actions -->
-                <div class="swipe-action swipe-edit"><i class="fas fa-pen mr-2"></i> Edit</div>
-                <div class="swipe-action swipe-delete">Delete <i class="fas fa-trash-alt ml-2"></i></div>
-
-                <!-- Main Row Content -->
-                <div class="entry-row relative z-10 bg-white dark:bg-slate-900 border-b border-slate-50 dark:border-slate-800 py-3 px-4 flex items-center justify-between transition-transform active:bg-slate-50 dark:active:bg-slate-800"
-                     onclick="if(!isSwiping) handleItemClick('${safeItem}')"
-                     ontouchstart="handleTouchStart(event); ${startPress}"
-                     ontouchmove="handleTouchMove(event); ${endPress}"
-                     ontouchend="handleTouchEnd(event, '${safeItem}'); ${endPress}"
-                     onmousedown="${startPress}" onmouseup="${endPress}" onmouseleave="${endPress}">
+            <div class="entry-wrapper mb-0 overflow-hidden relative bg-white dark:bg-slate-900 border-b border-slate-50 dark:border-slate-800">
+                <div class="entry-row relative z-10 bg-white dark:bg-slate-900 py-3 px-4 flex items-center justify-between transition-transform active:bg-slate-50 dark:active:bg-slate-800"
+                     onclick="handleItemClick('${safeItem}')">
                     
                     <!-- LEFT: Icon & Text Group -->
                     <div class="flex items-center gap-3 flex-1 min-w-0">
@@ -937,270 +1419,340 @@
             </div>`;
     }
 
-    /* --- FIXED CALCULATE STATS (Robust Matching) --- */
+    // ********************************************
+    // 6. CALCULATION & BUDGET
+    // ********************************************
     function calculateStats(data) {
+        // 1. Basic Totals Calculation
         let inc = 0, exp = 0, inv = 0;
-        let prevMonthExp = 0;
-
-        // Prev Month Dates
-        const prevMonthDate = new Date(currentFilter.year, currentFilter.month - 1, 1);
-        const pYear = prevMonthDate.getFullYear();
-        const pMonth = prevMonthDate.getMonth();
-
-        allData.forEach(i => {
+        data.forEach(i => {
             let v = parseFloat(String(i.Amount).replace(/,/g, '')) || 0;
-            let d = parseDate(i.Date);
-            
-            // ✅ Robust String Matching
-            const type = (i.Type || '').toLowerCase().trim();
-            const cat = (i.Category || '').toUpperCase();
+            let type = (i.Type || '').toLowerCase().trim();
+            let cat = (i.Category || '').toUpperCase();
 
-            // Current Month Totals
-            if (data.includes(i)) {
-                if (type === 'income') inc += v;
-                else if (type === 'investment' || cat.includes('INVEST')) inv += v;
-                else exp += v;
-            }
-
-            // Prev Month Expense (For MoM)
-            if (d.getFullYear() === pYear && d.getMonth() === pMonth) {
-                if (type === 'expense') prevMonthExp += v;
-            }
+            if (type === 'income') inc += v;
+            else if (type === 'investment' || cat.includes('INVEST')) inv += v;
+            else exp += v;
         });
 
-        // Update Front Card
+        // 2. Update Header Cards
         const fmt = n => `₹${n.toLocaleString('en-IN')}`;
         document.getElementById('net-balance').innerText = fmt(inc - exp - inv);
         document.getElementById('total-income').innerText = fmt(inc);
         document.getElementById('total-expense').innerText = fmt(exp);
         document.getElementById('total-invest').innerText = fmt(inv);
 
-        // Update MoM Stats
-        const momVal = document.getElementById('mom-val');
-        const momIcon = document.getElementById('mom-icon');
-        if (momVal) {
-            if (prevMonthExp > 0 && exp > 0) {
-                const pct = ((exp - prevMonthExp) / prevMonthExp) * 100;
-                momVal.innerText = `${Math.abs(pct).toFixed(1)}%`;
-                if (pct > 0) {
-                    momVal.className = "text-xl font-black text-rose-500";
-                    momIcon.className = "fas fa-arrow-up text-rose-500 text-sm mb-1";
-                } else {
-                    momVal.className = "text-xl font-black text-emerald-500";
-                    momIcon.className = "fas fa-arrow-down text-emerald-500 text-sm mb-1";
-                }
-            } else {
-                momVal.innerText = "N/A";
-                momVal.className = "text-xl font-black text-slate-400";
-            }
-        }
+       // ********************************************
+    // 🧪 HYBRID CARDS LOGIC (Trend + Safe Spend)
+    // ********************************************
 
-        // Update Daily Avg
-        const avgEl = document.getElementById('daily-avg');
-        if(avgEl) {
-            const daysInMonth = new Date(currentFilter.year, currentFilter.month + 1, 0).getDate();
-            const today = new Date().getDate();
-            const divider = (currentFilter.month === new Date().getMonth()) ? today : daysInMonth;
-            avgEl.innerText = fmt(Math.round(exp / (divider || 1)));
+    // --- 1. TREND ANALYST (Compare with Last Month) ---
+    const today = new Date();
+    // Pichla mahina calculate karo
+    const prevDate = new Date(currentFilter.year, currentFilter.month - 1, 1);
+    let prevExp = 0;
+    
+    // Global data se pichle mahine ka kharcha jodo
+    allData.forEach(item => {
+        const d = parseDate(item.Date);
+        if (d.getMonth() === prevDate.getMonth() && d.getFullYear() === prevDate.getFullYear() && item.Type === 'Expense') {
+            prevExp += parseFloat(String(item.Amount).replace(/,/g, '')) || 0;
         }
+    });
 
-        if(typeof renderHeatmap === 'function') renderHeatmap(data);
+    const trendVal = document.getElementById('trend-val');
+    const trendIcon = document.getElementById('trend-icon');
+    const trendCtx = document.getElementById('trend-context');
+    const trendBg = document.getElementById('trend-bg');
+
+    if (prevExp === 0) {
+        trendVal.innerText = "N/A";
+        trendCtx.innerText = "No past data";
+    } else {
+        const diff = exp - prevExp; // 'exp' is current month expense (already calculated in this function)
+        const pct = Math.round((diff / prevExp) * 100);
+        const absDiff = Math.abs(diff).toLocaleString('en-IN');
+
+        if (diff > 0) {
+            // 🔴 Bad News: Kharcha Badha Hai
+            trendVal.innerText = `${pct}% ⬆`;
+            trendVal.className = "text-xl font-black text-rose-500";
+            trendIcon.className = "fas fa-arrow-up text-rose-500 text-xs";
+            trendCtx.innerText = `Spent ₹${absDiff} more`;
+            trendCtx.className = "relative z-10 text-[10px] font-bold text-rose-400";
+            // Red Graph SVG
+            trendBg.innerHTML = `<svg viewBox="0 0 100 40" class="w-full h-full fill-rose-500"><path d="M0,40 Q20,30 40,35 T100,10 V40 H0 Z"></path></svg>`;
+        } else {
+            // 🟢 Good News: Savings Hui Hai
+            trendVal.innerText = `${Math.abs(pct)}% ⬇`;
+            trendVal.className = "text-xl font-black text-emerald-500";
+            trendIcon.className = "fas fa-arrow-down text-emerald-500 text-xs";
+            trendCtx.innerText = `Saved ₹${absDiff} vs last mo.`;
+            trendCtx.className = "relative z-10 text-[10px] font-bold text-emerald-500";
+            // Green Graph SVG
+            trendBg.innerHTML = `<svg viewBox="0 0 100 40" class="w-full h-full fill-emerald-500"><path d="M0,40 Q30,35 50,20 T100,30 V40 H0 Z"></path></svg>`;
+        }
+    }
+
+    // --- 2. SMART CONTROLLER (Safe to Spend) ---
+    // Total Budget Limit (Jo Flip Card ke peeche use ho raha hai)
+    const totalBudgetLimit = 44635; 
+    
+    // Din calculate karo
+    const daysInMonth = new Date(currentFilter.year, currentFilter.month + 1, 0).getDate();
+    const daysPassed = Math.min(Math.max(1, today.getDate()), daysInMonth); // 1 se 31 ke beech
+    const daysLeft = daysInMonth - daysPassed;
+
+    const remainingBudget = totalBudgetLimit - exp;
+    
+    // Safe Daily Limit Formula
+    let safeDaily = 0;
+    if (daysLeft > 0 && remainingBudget > 0) {
+        safeDaily = Math.round(remainingBudget / daysLeft);
+    }
+
+    document.getElementById('safe-val').innerText = `₹${safeDaily.toLocaleString()}`;
+
+    // Meter Logic (Time vs Money)
+    const timePct = (daysPassed / daysInMonth) * 100;
+    const moneyPct = Math.min((exp / totalBudgetLimit) * 100, 100);
+    
+    const progressBar = document.getElementById('safe-bar');
+    const statusText = document.getElementById('safe-status');
+
+    if(progressBar) {
+        progressBar.style.width = `${moneyPct}%`;
+
+        if (moneyPct > timePct + 5) {
+            // Paisa time se tez ud raha hai 🚨
+            progressBar.className = "h-full bg-rose-500 rounded-full transition-all duration-500";
+            statusText.innerText = "Slow Down! 🚨";
+            statusText.className = "text-rose-500 font-black";
+        } else {
+            // Sab control mein hai ✅
+            progressBar.className = "h-full bg-emerald-500 rounded-full transition-all duration-500";
+            statusText.innerText = "You are Safe 🛡️";
+            statusText.className = "text-emerald-500 font-black";
+        }
+    }
+
         updateBudgetCard(data);
     }
 
-    /* --- FIXED UPDATE BUDGET CARD (Back Side) --- */
-    function updateBudgetCard(data) {
-        const budgetLimits = { NEEDS: 23750, WANTS: 6100, INVEST: 13500 };
-        let spent = { NEEDS: 0, WANTS: 0, INVEST: 0 };
-        
-        data.forEach(item => {
-            let val = parseFloat(String(item.Amount).replace(/,/g, '')) || 0;
-            
-            // ✅ Robust Checks (Lowercase Type, Uppercase Category)
-            const type = (item.Type || '').toLowerCase().trim();
-            const cat = (item.Category || '').toUpperCase();
-
-            if (type === 'expense' || type === 'investment') {
-                if (cat.includes('NEEDS')) spent.NEEDS += val;
-                else if (cat.includes('WANTS')) spent.WANTS += val;
-                else if (cat.includes('INVEST') || type === 'investment') spent.INVEST += val;
-            }
-        });
-
-        // Update Month Label
-        // ✅ YE LOGIC HONA ZAROORI HAI
-        const mNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-        const curMonth = mNames[currentFilter.month];
-        const curYear = currentFilter.year.toString().slice(-2);
-        
-        const labelEl = document.getElementById('budget-month-label'); // Ye ID HTML mein honi chahiye
-        if (labelEl) labelEl.innerText = `${curMonth} ${curYear}`;
-
-        // Update Bars
-        const updateBar = (type) => {
-            const limit = budgetLimits[type]; 
-            const actual = spent[type]; 
-            const pct = Math.min((actual / limit) * 100, 100);
-            
-            // Format numbers like 23.7k
-            const actualK = actual > 999 ? (actual/1000).toFixed(1) + 'k' : actual;
-            const limitK = limit > 999 ? (limit/1000).toFixed(1) + 'k' : limit;
-            
-            // Update Text
-            const textEl = document.getElementById(`bud-${type.toLowerCase()}-spent`);
-            if(textEl) textEl.innerText = `₹${actual.toLocaleString()}`; // Full amount dikhayega ab
-            
-            // Update Bar
-            const bar = document.getElementById(`bud-${type.toLowerCase()}-bar`);
-            if(bar) {
-                bar.style.width = `${pct}%`;
-                bar.className = pct > 90 
-                    ? `h-full bg-red-500 rounded-full transition-all duration-1000` 
-                    : `h-full ${type==='NEEDS'?'bg-indigo-500':type==='WANTS'?'bg-rose-500':'bg-emerald-500'} rounded-full transition-all duration-1000`;
-            }
-        };
-
-        updateBar('NEEDS'); updateBar('WANTS'); updateBar('INVEST');
-        
-        // Remaining Budget
-        const totalBudget = 44635; 
-        const totalSpent = spent.NEEDS + spent.WANTS + spent.INVEST;
-        const remaining = totalBudget - totalSpent;
-        
-        const remainEl = document.getElementById('bud-remaining');
-        const statusEl = document.getElementById('bud-status');
-        
-        if(remainEl) remainEl.innerText = `₹${remaining.toLocaleString()}`;
-        
-        if (remaining < 0) { 
-            if(remainEl) remainEl.className = "text-2xl font-black text-rose-500 tracking-wide"; 
-            if(statusEl) { statusEl.innerText = "Over Budget!"; statusEl.className = "text-[10px] font-bold text-rose-500"; }
-        } else { 
-            if(remainEl) remainEl.className = "text-2xl font-black text-emerald-400 tracking-wide"; 
-            if(statusEl) { statusEl.innerText = "Safe to Spend"; statusEl.className = "text-[10px] font-bold text-emerald-400"; }
+    /* --- UPDATED BUDGET LOGIC (Notification Bell) --- */
+function updateBudgetCard(data) {
+    const budgetLimits = { NEEDS: 23750, WANTS: 6100, INVEST: 13500 };
+    let spent = { NEEDS: 0, WANTS: 0, INVEST: 0 };
+    
+    // ... (Calculation part same rahega) ...
+    // ... (Yahan tak same code rakho) ...
+    data.forEach(item => {
+        let val = parseFloat(String(item.Amount).replace(/,/g, '')) || 0;
+        const type = (item.Type || '').toLowerCase().trim();
+        const cat = (item.Category || '').toUpperCase();
+        if (type === 'expense' || type === 'investment') {
+            if (cat.includes('NEEDS')) spent.NEEDS += val;
+            else if (cat.includes('WANTS')) spent.WANTS += val;
+            else if (cat.includes('INVEST') || type === 'investment') spent.INVEST += val;
         }
+    });
+    
+    // ... (Month label update same rahega) ...
+    const mNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    const curMonth = mNames[currentFilter.month];
+    const curYear = currentFilter.year.toString().slice(-2);
+    const labelEl = document.getElementById('budget-month-label');
+    if (labelEl) labelEl.innerText = `${curMonth} ${curYear}`;
 
-        // Update Ticker
-        const ticker = document.getElementById('budget-ticker');
-        const tickerText = document.getElementById('ticker-text');
-        let alerts = [];
-        const wantsPct = Math.round((spent.WANTS / budgetLimits.WANTS) * 100);
-        const needsPct = Math.round((spent.NEEDS / budgetLimits.NEEDS) * 100);
-
-        if (wantsPct >= 80) alerts.push(`🚨 WANTS: ${wantsPct}% Used (₹${spent.WANTS.toLocaleString()} / ₹${budgetLimits.WANTS.toLocaleString()})`);
-        if (needsPct >= 80) alerts.push(`🏠 NEEDS: ${needsPct}% Used (₹${spent.NEEDS.toLocaleString()} / ₹${budgetLimits.NEEDS.toLocaleString()})`);
-
-        if (alerts.length > 0) {
-            tickerText.innerText = alerts.join("  ✦  ") + "  ✦  Control Bhai! Budget tight hai!  ✦  "; 
-            ticker.classList.remove('hidden');
-        } else {
-            ticker.classList.add('hidden');
-        }
-    }
-
-    function updateBudgetCard(data) {
-        const budgetLimits = { NEEDS: 23750, WANTS: 6100, INVEST: 13500 };
-        let spent = { NEEDS: 0, WANTS: 0, INVEST: 0 };
-        
-        data.forEach(item => {
-            let val = parseFloat(String(item.Amount).replace(/,/g, '')) || 0;
-            if (item.Type === 'Expense' || item.Type === 'Investment') {
-                if (item.Category.includes('NEEDS')) spent.NEEDS += val;
-                else if (item.Category.includes('WANTS')) spent.WANTS += val;
-                else if (item.Category.includes('INVEST') || item.Type === 'Investment') spent.INVEST += val;
-            }
-        });
-
-        const updateBar = (type) => {
-            const limit = budgetLimits[type]; 
-            const actual = spent[type]; 
-            const pct = Math.min((actual / limit) * 100, 100);
-            
-            document.getElementById(`bud-${type.toLowerCase()}-spent`).innerText = `₹${actual.toLocaleString()}`;
-            const bar = document.getElementById(`bud-${type.toLowerCase()}-bar`);
-            
+    // ... (Bar Update Logic Same) ...
+    const updateBar = (type) => {
+        // ... same inner logic ...
+        const limit = budgetLimits[type]; 
+        const actual = spent[type]; 
+        const pct = Math.min((actual / limit) * 100, 100);
+        const textEl = document.getElementById(`bud-${type.toLowerCase()}-spent`);
+        if(textEl) textEl.innerText = `₹${actual.toLocaleString()}`;
+        const bar = document.getElementById(`bud-${type.toLowerCase()}-bar`);
+        if(bar) {
             bar.style.width = `${pct}%`;
             bar.className = pct > 90 
                 ? `h-full bg-red-500 rounded-full transition-all duration-1000` 
                 : `h-full ${type==='NEEDS'?'bg-indigo-500':type==='WANTS'?'bg-rose-500':'bg-emerald-500'} rounded-full transition-all duration-1000`;
-        };
-
-        updateBar('NEEDS'); updateBar('WANTS'); updateBar('INVEST');
-        
-        const totalBudget = 44635; 
-        const totalSpent = spent.NEEDS + spent.WANTS + spent.INVEST;
-        const remaining = totalBudget - totalSpent;
-        
-        const remainEl = document.getElementById('bud-remaining');
-        const statusEl = document.getElementById('bud-status');
-        
-        remainEl.innerText = `₹${remaining.toLocaleString()}`;
-        
-        if (remaining < 0) { 
-            remainEl.className = "text-2xl font-black text-rose-500 tracking-wide"; 
-            statusEl.innerText = "Over Budget!"; 
-            statusEl.className = "text-[10px] font-bold text-rose-500"; 
-        } else { 
-            remainEl.className = "text-2xl font-black text-emerald-400 tracking-wide"; 
-            statusEl.innerText = "Safe to Spend"; 
-            statusEl.className = "text-[10px] font-bold text-emerald-400"; 
         }
+    };
+    updateBar('NEEDS'); updateBar('WANTS'); updateBar('INVEST');
 
-        // ✅ NEW TICKER LOGIC
-        const ticker = document.getElementById('budget-ticker');
-        const tickerText = document.getElementById('ticker-text');
-        
-        if (ticker && tickerText) {
-            let alerts = [];
-            const wantsPct = Math.round((spent.WANTS / budgetLimits.WANTS) * 100);
-            const needsPct = Math.round((spent.NEEDS / budgetLimits.NEEDS) * 100);
-
-            if (wantsPct >= 80) alerts.push(`🚨 WANTS: ${wantsPct}% Used (₹${spent.WANTS.toLocaleString()} / ₹${budgetLimits.WANTS.toLocaleString()})`);
-            if (needsPct >= 80) alerts.push(`🏠 NEEDS: ${needsPct}% Used (₹${spent.NEEDS.toLocaleString()} / ₹${budgetLimits.NEEDS.toLocaleString()})`);
-
-            if (alerts.length > 0) {
-                tickerText.innerText = alerts.join("  ✦  ") + "  ✦  Control Bhai! Budget tight hai!  ✦  "; 
-                ticker.classList.remove('hidden');
-            } else {
-                ticker.classList.add('hidden');
-            }
-        }
+    // ... (Remaining Budget Logic Same) ...
+    const totalBudget = 44635; 
+    const totalSpent = spent.NEEDS + spent.WANTS + spent.INVEST;
+    const remaining = totalBudget - totalSpent;
+    const remainEl = document.getElementById('bud-remaining');
+    const statusEl = document.getElementById('bud-status');
+    if(remainEl) remainEl.innerText = `₹${remaining.toLocaleString()}`;
+    if (remaining < 0) { 
+        if(remainEl) remainEl.className = "text-2xl font-black text-rose-500 tracking-wide"; 
+        if(statusEl) { statusEl.innerText = "Over Budget!"; statusEl.className = "text-[10px] font-bold text-rose-500"; }
+    } else { 
+        if(remainEl) remainEl.className = "text-2xl font-black text-emerald-400 tracking-wide"; 
+        if(statusEl) { statusEl.innerText = "Safe to Spend"; statusEl.className = "text-[10px] font-bold text-emerald-400"; }
     }
+	
+	
 
-    function exportToCSV() {
-        if (!allData.length) return showToast("No data to export", "error");
-        
-        let csv = "Date,Type,Category,Sub-Category,Account,Amount,Description,Note\n";
-        allData.forEach(row => {
-            csv += `${row.Date},${row.Type},${row.Category},${row['Sub-Category']},${row.Account},${row.Amount},${row.Description},${row.Note}\n`;
+    // ✅ UPDATED: PREMIUM NOTIFICATION LOGIC (Better Math)
+    const badge = document.getElementById('notif-badge');
+    const list = document.getElementById('notif-list');
+    let alerts = [];
+
+    // Calculate Percentages
+    const wantsPct = Math.round((spent.WANTS / budgetLimits.WANTS) * 100);
+    const needsPct = Math.round((spent.NEEDS / budgetLimits.NEEDS) * 100);
+    const investPct = Math.round((spent.INVEST / budgetLimits.INVEST) * 100);
+
+    // 1. WANTS ALERTS
+    if (wantsPct >= 100) {
+        let extra = spent.WANTS - budgetLimits.WANTS;
+        alerts.push({ 
+            title: "Wants Limit Broken! 🚨", 
+            msg: `Used ${wantsPct}% of budget. (Over by ₹${extra.toLocaleString()})`, 
+            type: "danger", 
+            icon: "fas fa-fire" 
         });
-
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Finance_Backup_${new Date().toISOString().slice(0,10)}.csv`;
-        a.click();
-        showToast("Backup Downloaded 📥");
+    } else if (wantsPct >= 80) {
+        let left = budgetLimits.WANTS - spent.WANTS;
+        alerts.push({ 
+            title: "Wants Warning ⚠️", 
+            msg: `80% used. Only ₹${left.toLocaleString()} left.`, 
+            type: "warning", 
+            icon: "fas fa-exclamation-triangle" 
+        });
     }
 
-    // ********************************************
-    // STATS & CHARTS
-    // ********************************************
+    // 2. NEEDS ALERTS
+    if (needsPct >= 100) {
+        let extra = spent.NEEDS - budgetLimits.NEEDS;
+        alerts.push({ 
+            title: "Needs Overflow 🏠", 
+            msg: `Used ${needsPct}% of budget. (Over by ₹${extra.toLocaleString()})`, 
+            type: "danger", 
+            icon: "fas fa-file-invoice-dollar" 
+        });
+    } else if (needsPct >= 80) {
+        let left = budgetLimits.NEEDS - spent.NEEDS;
+        alerts.push({ 
+            title: "Needs Alert ⚠️", 
+            msg: `Bills piling up! Only ₹${left.toLocaleString()} left.`, 
+            type: "warning", 
+            icon: "fas fa-info-circle" 
+        });
+    }
+    
+    // 3. INVESTMENT ALERTS
+    // Only show if month is ending (Date > 20)
+    if (investPct < 50 && new Date().getDate() > 20) {
+        let pending = budgetLimits.INVEST - spent.INVEST;
+        alerts.push({ 
+            title: "Investment Lagging 📉", 
+            msg: `Month end near! ₹${pending.toLocaleString()} more to invest.`, 
+            type: "info", 
+            icon: "fas fa-chart-line" 
+        });
+    }
 
+    // RENDER LOGIC (Same as before)
+    if (alerts.length > 0) {
+        badge.classList.remove('hidden');
+        list.innerHTML = alerts.map(a => {
+            let colors = a.type === 'danger' ? 'bg-rose-50 border-rose-100 text-rose-800' : 
+                         a.type === 'warning' ? 'bg-amber-50 border-amber-100 text-amber-800' : 
+                         'bg-indigo-50 border-indigo-100 text-indigo-800';
+            let iconBg = a.type === 'danger' ? 'bg-white text-rose-500' : 
+                         a.type === 'warning' ? 'bg-white text-amber-500' : 
+                         'bg-white text-indigo-500';
+
+            return `
+            <div class="flex items-start gap-3 p-3 rounded-xl border ${colors} shadow-sm transition-transform active:scale-95">
+                <div class="w-8 h-8 rounded-full ${iconBg} flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                    <i class="${a.icon} text-xs"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-xs font-black mb-0.5 leading-tight">${a.title}</p>
+                    <p class="text-[10px] font-medium opacity-80 leading-relaxed">${a.msg}</p>
+                </div>
+            </div>`;
+        }).join('');
+    } else {
+        badge.classList.add('hidden');
+        list.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-6 text-center">
+                <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-3 animate-bounce">
+                    <i class="fas fa-check text-emerald-500 text-lg"></i>
+                </div>
+                <p class="text-xs font-bold text-slate-600">All caught up!</p>
+                <p class="text-[10px] text-slate-400 mt-1">Your budget looks healthy today.</p>
+            </div>
+        `;
+    }
+}
+	
+	function toggleNotifications() {
+    const dropdown = document.getElementById('notif-dropdown');
+    dropdown.classList.toggle('hidden');
+}
+
+function updateSubCategories() {
+    const catSelect = document.getElementById('category');
+    const subSelect = document.getElementById('sub_category');
+    
+    // Get Selected Value
+    const selectedCat = catSelect.value;
+    
+    // Reset Sub-Category
+    subSelect.innerHTML = '<option value="">Select Sub-Category</option>';
+    
+    // Get List from Map
+    const list = categoryMap[selectedCat];
+
+    if (list && list.length > 0) {
+        list.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item;
+            opt.innerText = item;
+            subSelect.appendChild(opt);
+        });
+    } else {
+        // Fallback agar list nahi mili
+        const opt = document.createElement('option');
+        opt.value = "General";
+        opt.innerText = "General";
+        subSelect.appendChild(opt);
+    }
+}
+
+
+    // ********************************************
+    // 7. STATS & CHARTS
+    // ********************************************
     function setStatsType(btn, type) {
-        const parent = btn.parentElement;
-        Array.from(parent.children).forEach(child => { 
-            if(child.classList.contains('filter-chip')) {
-                child.classList.remove('active', 'bg-indigo-600', 'text-white', 'border-indigo-600');
-                child.classList.add('bg-white', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300', 'border-slate-200', 'dark:border-slate-700');
-            }
-        });
-        btn.classList.remove('bg-white', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300', 'border-slate-200', 'dark:border-slate-700');
-        btn.classList.add('active', 'bg-indigo-600', 'text-white', 'border-indigo-600');
-        statsState.type = type;
-        renderStats();
-    }
+    // 1. Reset all buttons in the same container
+    const parent = btn.parentElement;
+    const buttons = parent.getElementsByTagName('button');
+    
+    Array.from(buttons).forEach(b => {
+        // Reset to Inactive Style
+        b.className = "flex-1 py-2.5 text-xs font-bold rounded-lg transition-all duration-300 text-slate-500 dark:text-slate-400 hover:bg-white/50";
+    });
+
+    // 2. Set Active Style for clicked button
+    btn.className = "flex-1 py-2.5 text-xs font-black rounded-lg transition-all duration-300 bg-white dark:bg-slate-700 text-indigo-600 shadow-sm";
+    
+    // 3. Update State & Re-render
+    statsState.type = type;
+    renderStats();
+    
+    // Optional: Heatmap refresh if needed
+    if(typeof renderHeatmap === 'function') renderHeatmap();
+}
 
     function toggleStatsGroup() {
         const btn = document.getElementById('group-toggle');
@@ -1208,128 +1760,250 @@
             statsState.group = 'sub_category'; 
             btn.innerText = 'By Sub-Cat'; 
             btn.classList.add('bg-indigo-600', 'text-white'); 
-            btn.classList.remove('bg-indigo-50', 'dark:bg-slate-800', 'text-indigo-600', 'dark:text-slate-300'); 
+            btn.classList.remove('bg-indigo-50', 'text-indigo-600'); 
         } else { 
             statsState.group = 'category'; 
             btn.innerText = 'By Category'; 
             btn.classList.remove('bg-indigo-600', 'text-white'); 
-            btn.classList.add('bg-indigo-50', 'dark:bg-slate-800', 'text-indigo-600', 'dark:text-slate-300'); 
+            btn.classList.add('bg-indigo-50', 'text-indigo-600'); 
         }
         renderStats();
     }
 
     function toggleChartLegend() { 
         showChartLegend = !showChartLegend; 
+        const btn = document.getElementById('legendBtn');
+        if (showChartLegend) {
+            btn.className = "w-10 h-10 rounded-full bg-indigo-600 border border-indigo-600 flex items-center justify-center text-white shadow-md transition transform scale-105";
+        } else {
+            btn.className = "w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-indigo-600 shadow-sm transition";
+        }
         renderStats(); 
     }
 
     function renderStats() {
         const { type, group } = statsState;
-        const accFilter = document.getElementById('acc-filter').value;
         
-        const filtered = allData.filter(item => {
+        // --- 1. FILTER LOGIC (Global Scope Fix) ---
+        window.currentStatsFilter = (item) => {
             const d = parseDate(item.Date);
             const itemType = (item.Type || '').toLowerCase().trim();
-            const targetType = type.toLowerCase().trim();
-            const dateMatch = d.getFullYear() === currentFilter.year && d.getMonth() === currentFilter.month;
+            const targetType = statsState.type.toLowerCase().trim();
             
-            // Type Match
-            let typeMatch = false;
-            if (targetType.includes('invest')) typeMatch = itemType.includes('invest'); 
-            else typeMatch = itemType === targetType;
-
-            // Account Match
-            let accMatch = true;
-            if (accFilter !== 'all') {
-                accMatch = item.Account.toLowerCase().includes(accFilter);
+            // A. Date Check
+            let dateMatch = false;
+            if (statsViewMode === 'Year') {
+                dateMatch = d.getFullYear() === currentFilter.year;
+            } else {
+                dateMatch = d.getFullYear() === currentFilter.year && d.getMonth() === currentFilter.month;
             }
             
-            return dateMatch && typeMatch && accMatch;
-        });
+            // B. Type Check
+            let typeMatch = false;
+            if (targetType.includes('invest')) typeMatch = itemType.includes('invest');
+            else typeMatch = itemType === targetType;
 
-        const totals = {}; let total = 0;
+            // C. Account Check
+            let accountMatch = true;
+            if (typeof currentAccountFilter !== 'undefined' && currentAccountFilter !== 'All') {
+                accountMatch = item.Account === currentAccountFilter;
+            }
+            
+            return dateMatch && typeMatch && accountMatch;
+        };
+
+        // Apply filter
+        const filtered = allData.filter(window.currentStatsFilter);
+
+        // --- 2. AGGREGATION (Total jodna) ---
+        const totals = {}; 
+        let total = 0;
+        const dailyTrend = {}; // For Bar Chart
         
         filtered.forEach(i => {
             let v = parseFloat(String(i.Amount).replace(/,/g, '')) || 0;
-            let key = '';
             
-            if (group === 'sub_category') key = i['Sub-Category'] ? i['Sub-Category'] : i.Category; 
-            else key = i.Category;
-            
-            key = key.replace(/[\p{Emoji}\u200d]+/u, '').trim(); 
-            
-            if(!totals[key]) totals[key] = 0; 
+            // Category Totals
+            let key = (group === 'sub_category' ? (i['Sub-Category'] || i.Category) : i.Category).replace(/[\p{Emoji}\u200d]+/u, '').trim();
+            if(!totals[key]) totals[key] = 0;
             totals[key] += v; 
+            
+            // Daily Trend (Day key generation)
+            const d = parseDate(i.Date);
+            let dayKey;
+            if (statsViewMode === 'Year') {
+                // Year mode: "Jan", "Feb"
+                dayKey = d.toLocaleString('default', { month: 'short' });
+            } else {
+                // Month mode: 1, 2, 3...
+                dayKey = d.getDate();
+            }
+            
+            dailyTrend[dayKey] = (dailyTrend[dayKey] || 0) + v;
             total += v;
         });
 
-        const totalEl = document.getElementById('chartTotal');
-        if(totalEl) totalEl.innerText = `₹${total.toLocaleString()}`;
-        
+        // --- 3. UI RESET ---
         const chartCanvas = document.getElementById('expenseChart');
+        const centerTextDiv = document.getElementById('chartCenterText'); 
         const listDiv = document.getElementById('stats-list'); 
         listDiv.innerHTML = '';
 
+        // Handle No Data
         if (total === 0) {
             chartCanvas.style.display = 'none';
+            if(centerTextDiv) centerTextDiv.innerHTML = ''; 
             if(expenseChart) { expenseChart.destroy(); expenseChart = null; }
-            listDiv.innerHTML = `<div class="flex flex-col items-center justify-center py-12 opacity-50"><div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3"><i class="fas fa-chart-pie text-2xl text-slate-300"></i></div><p class="text-sm font-bold text-slate-400">No ${type} data found</p></div>`;
+            listDiv.innerHTML = `<div class="text-center py-12 opacity-50"><i class="fas fa-chart-pie text-2xl text-slate-300 mb-2"></i><p class="text-sm font-bold text-slate-400">No data found</p></div>`;
             return;
         }
 
+        // --- 4. RENDER CHART ---
         chartCanvas.style.display = 'block';
         if(expenseChart) expenseChart.destroy();
-        
         const ctx = chartCanvas.getContext('2d');
-        const labels = Object.keys(totals); 
-        const data = Object.values(totals);
-        const colors = ['#4f46e5', '#ef4444', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
-        
-        expenseChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: { 
-                labels: labels, 
-                datasets: [{ 
-                    data: data, 
-                    backgroundColor: colors, 
-                    borderWidth: 0, 
-                    hoverOffset: 10 
-                }] 
-            },
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: false, 
-                cutout: '75%', 
-                plugins: { 
-                    legend: { 
-                        display: showChartLegend, 
-                        position: 'bottom', 
-                        labels: { usePointStyle: true, padding: 20, boxWidth: 8, font: { size: 11, family: "'Outfit', sans-serif" } } 
-                    } 
-                } 
-            }
-        });
 
+        // 🔥 LOGIC SWITCHER: Bar vs Doughnut
+        if (statsChartType === 'Bar') {
+            // --- 📊 BAR CHART (Updated Logic) ---
+            if(centerTextDiv) centerTextDiv.style.display = 'none'; // Center text chhupao
+            
+            let chartLabels = Object.keys(dailyTrend);
+            
+            // Sorting Logic
+            if (statsViewMode === 'Month') {
+                // Numbers sort karo (1, 2, 3...)
+                chartLabels.sort((a,b) => parseInt(a) - parseInt(b));
+            } else {
+                // Months sort karo (Jan, Feb...)
+                const monthsOrder = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                chartLabels.sort((a,b) => {
+                    const m1 = a.split(' ')[0]; 
+                    const m2 = b.split(' ')[0];
+                    return monthsOrder.indexOf(m1) - monthsOrder.indexOf(m2);
+                });
+            }
+
+            const chartData = chartLabels.map(k => dailyTrend[k]);
+
+            expenseChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Spent',
+                        data: chartData,
+                        backgroundColor: '#6366f1', // Indigo Color
+                        borderRadius: 6,
+                        barThickness: 'flex',
+                        maxBarThickness: 30
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 20, bottom: 10, left: 5, right: 5 } },
+                    scales: {
+                        x: { 
+                            grid: { display: false, drawBorder: false }, 
+                            ticks: { 
+                                font: { size: 10, family: "'Outfit', sans-serif", weight: 'bold' },
+                                color: '#94a3b8',
+                                autoSkip: true,
+                                maxTicksLimit: 8 
+                            } 
+                        },
+                        y: { display: false } 
+                    },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            titleFont: { family: "'Outfit', sans-serif" },
+                            bodyFont: { family: "'Outfit', sans-serif", weight: 'bold', size: 14 },
+                            padding: 12,
+                            cornerRadius: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return '₹' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+        } else {
+            // --- 🍩 DOUGHNUT CHART (Iron Man Logic) ---
+            if(centerTextDiv) centerTextDiv.style.display = 'flex'; // Show center text
+            
+            const labels = Object.keys(totals); 
+            const dataValues = Object.values(totals);
+
+            // Gradients
+            const createGradient = (ctx, c1, c2) => {
+                const g = ctx.createLinearGradient(0, 0, 0, 400);
+                g.addColorStop(0, c1); g.addColorStop(1, c2); return g;
+            };
+            const colorPairs = [['#4f46e5', '#818cf8'], ['#ef4444', '#f87171'], ['#f59e0b', '#fbbf24'], ['#10b981', '#34d399'], ['#8b5cf6', '#a78bfa'], ['#ec4899', '#f472b6'], ['#06b6d4', '#22d3ee']];
+            const gradients = dataValues.map((_, i) => createGradient(ctx, colorPairs[i%7][0], colorPairs[i%7][1]));
+
+            expenseChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: { 
+                    labels: labels, 
+                    datasets: [{ 
+                        data: dataValues, 
+                        backgroundColor: gradients, 
+                        borderWidth: 0, 
+                        borderRadius: 20, 
+                        spacing: 5, 
+                        hoverOffset: 15 
+                    }] 
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    cutout: '75%', 
+                    layout: { padding: 10 },
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    onHover: (event, activeElements) => {
+                        if (activeElements.length > 0) {
+                            const i = activeElements[0].index;
+                            const pct = ((dataValues[i] / total) * 100).toFixed(1);
+                            centerTextDiv.innerHTML = `
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 animate-fadeInDown">Category</p>
+                                <h3 class="text-2xl font-black text-indigo-600 dark:text-indigo-400 drop-shadow-sm">₹${dataValues[i].toLocaleString()}</h3>
+                                <div class="mt-1 px-2 py-0.5 bg-indigo-50 dark:bg-slate-700 rounded text-[10px] font-bold text-slate-500 border border-indigo-100 dark:border-slate-600">
+                                    ${labels[i]} (${pct}%)
+                                </div>
+                            `;
+                        } else {
+                            resetCenterText(centerTextDiv, total);
+                        }
+                    }
+                }
+            });
+            resetCenterText(centerTextDiv, total);
+        }
+
+        // --- 5. LIST GENERATION ---
+        const listColors = ['#4f46e5', '#ef4444', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899', '#06b6d4'];
         Object.entries(totals).sort((a,b) => b[1]-a[1]).forEach(([k,v], i) => {
             const pct = total > 0 ? ((v/total)*100).toFixed(1) : 0;
-            const col = colors[i % colors.length];
-            const uniqueID = `detail-${i}`;
+            const col = listColors[i % listColors.length];
             const safeKey = encodeURIComponent(k);
+            const uniqueID = `detail-${i}`;
 
             listDiv.innerHTML += `
                 <div class="stat-card cursor-pointer transition active:scale-[0.99] dark:bg-slate-800 dark:border-slate-700" onclick="toggleStatDetails('${safeKey}', '${uniqueID}')">
                     <div class="flex justify-between items-center mb-2">
                         <div class="flex items-center gap-3">
                             <div class="w-3 h-3 rounded-full shadow-sm" style="background:${col}"></div>
-                            <div>
-                                <p class="text-sm font-bold text-slate-700 dark:text-slate-200 truncate w-36">${k}</p>
-                                <p class="text-[10px] font-bold text-slate-400">${pct}% of Total</p>
-                            </div>
+                            <div><p class="text-sm font-bold text-slate-700 dark:text-slate-200 truncate w-36">${k}</p><p class="text-[10px] font-bold text-slate-400">${pct}% of Total</p></div>
                         </div>
-                        <div class="text-right">
-                            <p class="text-sm font-black text-slate-800 dark:text-white">₹${v.toLocaleString()}</p>
-                            <p class="text-[10px] text-indigo-500 font-bold">View <i class="fas fa-chevron-down ml-0.5"></i></p>
-                        </div>
+                        <div class="text-right"><p class="text-sm font-black text-slate-800 dark:text-white">₹${v.toLocaleString()}</p><p class="text-[10px] text-indigo-500 font-bold">View <i class="fas fa-chevron-down ml-0.5"></i></p></div>
                     </div>
                     <div class="progress-track mb-1 dark:bg-slate-700"><div class="progress-fill" style="width:${pct}%; background:${col}"></div></div>
                     <div id="${uniqueID}" class="hidden mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 space-y-2 bg-slate-50 dark:bg-slate-900/50 rounded-xl p-2"></div>
@@ -1337,30 +2011,47 @@
         });
     }
 
+		// --- Helper Function: Reset Center Text (FIXED) ---
+		function resetCenterText(element, amount) {
+			if(!element) return;
+			
+			// ✅ FIX: Define safeAmount correctly
+			const safeAmount = amount || 0; 
+
+			const currentMonthName = new Date(currentFilter.year, currentFilter.month)
+				.toLocaleString('default', { month: 'short', year: '2-digit' });
+
+			element.innerHTML = `
+				<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Spent</p>
+				<h3 class="text-3xl font-black text-slate-800 dark:text-white drop-shadow-sm leading-tight">₹${safeAmount.toLocaleString()}</h3>
+				<div class="mt-1 px-3 py-1 bg-slate-100 dark:bg-slate-900 rounded-full border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
+					<i class="far fa-calendar-alt"></i> ${currentMonthName}
+				</div>
+			`;
+		}
+
     function toggleStatDetails(encodedCategory, containerId) {
         const container = document.getElementById(containerId);
         const categoryName = decodeURIComponent(encodedCategory);
         
-        if (!container.classList.contains('hidden')) { container.classList.add('hidden'); return; }
+        if (!container.classList.contains('hidden')) { 
+            container.classList.add('hidden'); 
+            return; 
+        }
         container.classList.remove('hidden');
         
-        const { type, group } = statsState;
-        const targetType = type.toLowerCase().trim();
+        const { group } = statsState;
+        
+        // Use Global Filter from renderStats
         const items = allData.filter(item => {
-            const d = parseDate(item.Date);
-            const itemType = (item.Type || '').toLowerCase().trim();
-            const dateMatch = d.getFullYear() === currentFilter.year && d.getMonth() === currentFilter.month;
-            
-            let typeMatch = false;
-            if (targetType.includes('invest')) typeMatch = itemType.includes('invest'); 
-            else typeMatch = itemType === targetType;
-            
+            if (!window.currentStatsFilter(item)) return false;
+
             let itemKey = '';
             if (group === 'sub_category') itemKey = item['Sub-Category'] ? item['Sub-Category'] : item.Category; 
             else itemKey = item.Category;
             
             itemKey = itemKey.replace(/[\p{Emoji}\u200d]+/u, '').trim(); 
-            return dateMatch && typeMatch && (itemKey.toLowerCase() === categoryName.toLowerCase());
+            return itemKey === categoryName;
         });
 
         if (items.length === 0) { 
@@ -1372,12 +2063,14 @@
                 let desc = item.Description ? item.Description : '';
                 let dateObj = parseDate(item.Date);
                 let dateStr = isNaN(dateObj) ? 'N/A' : dateObj.toLocaleDateString('en-GB', {day: 'numeric', month: 'short'});
+                let timeStr = isNaN(dateObj) ? '' : dateObj.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
                 let catStr = item.Category;
                 if(item['Sub-Category']) catStr += ` • ${item['Sub-Category']}`;
+                
                 const safeItem = encodeURIComponent(JSON.stringify(item));
 
                 html += `
-                    <div class="relative bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm mb-3 last:mb-0 cursor-pointer active:scale-95 transition" onclick="openViewModal(JSON.parse(decodeURIComponent('${safeItem}')))">
+                    <div class="relative bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm mb-3 last:mb-0 cursor-pointer active:scale-95 transition" onclick="handleItemClick('${safeItem}')">
                         <div class="flex justify-between items-start mb-1">
                             <span class="text-sm font-bold text-slate-800 dark:text-slate-200 leading-tight pr-2">${note}</span>
                             <span class="text-sm font-black text-indigo-600 whitespace-nowrap">₹${parseFloat(item.Amount).toLocaleString()}</span>
@@ -1394,175 +2087,7 @@
     }
 
     // ********************************************
-    // MODAL & FORM LOGIC
-    // ********************************************
-
-    function openModal(mode, data) {
-        const modal = document.getElementById('entryModal');
-        modal.classList.add('active'); 
-        try { if (window.location.hash !== "#modal") { history.pushState({modalOpen: true}, "", "#modal"); } } catch(e) {}
-
-        if (mode === 'edit' && data) {
-            document.getElementById('modalTitle').innerText = 'Edit Transaction';
-            document.getElementById('saveBtn').innerText = 'UPDATE ENTRY';
-            document.getElementById('deleteBtn').classList.remove('hidden');
-            
-            document.getElementById('entryId').value = data.ID || '';
-            document.getElementById('amount').value = data.Amount || '';
-            document.getElementById('type').value = data.Type || 'Expense';
-            document.getElementById('account').value = data.Account || 'Cash';
-            document.getElementById('category').value = data.Category || '';
-            updateSubCategories(); 
-            document.getElementById('sub_category').value = data['Sub-Category'] || '';
-            document.getElementById('note').value = data.Note || '';
-            document.getElementById('description').value = data.Description || '';
-            
-            try {
-                const d = parseDate(data.Date);
-                const y = d.getFullYear(); 
-                const m = String(d.getMonth()+1).padStart(2,'0'); 
-                const day = String(d.getDate()).padStart(2,'0');
-                document.getElementById('date').value = `${y}-${m}-${day}`;
-            } catch(e) { document.getElementById('date').valueAsDate = new Date(); }
-            
-            applyTheme(data.Type || 'Expense');
-        } else if (mode === 'add' && data) {
-            // DUPLICATE MODE
-            document.getElementById('modalTitle').innerText = 'Duplicate Entry';
-            document.getElementById('saveBtn').innerText = 'SAVE ENTRY';
-            document.getElementById('deleteBtn').classList.add('hidden');
-            
-            document.getElementById('entryId').value = ''; // New ID
-            document.getElementById('amount').value = data.Amount || '';
-            document.getElementById('type').value = data.Type || 'Expense';
-            document.getElementById('account').value = data.Account || 'Cash';
-            document.getElementById('category').value = data.Category || '';
-            updateSubCategories();
-            document.getElementById('sub_category').value = data['Sub-Category'] || '';
-            document.getElementById('note').value = data.Note || '';
-            document.getElementById('description').value = data.Description || '';
-            document.getElementById('date').valueAsDate = new Date(); // Current date
-            
-            applyTheme(data.Type);
-            showToast("Copied Details 📋");
-        } else {
-            // NEW MODE
-            document.getElementById('modalTitle').innerText = 'New Transaction';
-            document.getElementById('saveBtn').innerText = 'SAVE ENTRY';
-            document.getElementById('deleteBtn').classList.add('hidden');
-            document.getElementById('entryForm').reset();
-            
-            document.getElementById('type').value = 'Expense';
-            document.getElementById('account').selectedIndex = 0; 
-            document.getElementById('category').selectedIndex = 0; 
-            document.getElementById('sub_category').innerHTML = '<option value="">Select</option>';
-            document.getElementById('date').valueAsDate = new Date();
-            
-            applyTheme('Expense');
-        }
-    }
-
-    function addAmount(val) {
-        const input = document.getElementById('amount');
-        input.value = (parseInt(input.value || 0) + val);
-    }
-
-    function closeModal() {
-        const modal = document.getElementById('entryModal');
-        if (window.location.hash === "#modal") { try { history.back(); } catch(e) { modal.classList.remove('active'); } } 
-        else { modal.classList.remove('active'); }
-    }
-
-    function applyTheme(type) {
-        const header = document.getElementById('modalHeader');
-        const saveBtn = document.getElementById('saveBtn');
-        const typeSelect = document.getElementById('type');
-        
-        if (type === 'Income') { 
-            saveBtn.className = "flex-1 h-14 rounded-xl text-white font-bold text-base tracking-wide shadow-lg hover:bg-emerald-700 active:scale-[0.98] transition flex items-center justify-center gap-2 bg-emerald-600"; 
-            typeSelect.className = "appearance-none font-bold text-xs py-2 pl-4 pr-8 rounded-full outline-none border bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-100 dark:border-emerald-800";
-        } else if (type === 'Investment') { 
-            saveBtn.className = "flex-1 h-14 rounded-xl text-white font-bold text-base tracking-wide shadow-lg hover:bg-blue-700 active:scale-[0.98] transition flex items-center justify-center gap-2 bg-blue-600"; 
-            typeSelect.className = "appearance-none font-bold text-xs py-2 pl-4 pr-8 rounded-full outline-none border bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 border-blue-100 dark:border-blue-800";
-        } else { 
-            saveBtn.className = "flex-1 h-14 rounded-xl text-white font-bold text-base tracking-wide shadow-lg hover:bg-rose-700 active:scale-[0.98] transition flex items-center justify-center gap-2 bg-rose-600"; 
-            typeSelect.className = "appearance-none font-bold text-xs py-2 pl-4 pr-8 rounded-full outline-none border bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-300 border-rose-100 dark:border-rose-800";
-        }
-    }
-
-    function updateSubCategories() {
-        const cat = document.getElementById('category').value;
-        const sub = document.getElementById('sub_category');
-        sub.innerHTML = '<option value="">Select</option>';
-        const list = categoryMap[cat] || ["Other"];
-        list.forEach(i => { 
-            const opt = document.createElement('option'); 
-            opt.value = i; 
-            opt.innerText = i; 
-            sub.appendChild(opt); 
-        });
-    }
-
-    document.getElementById('entryForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('saveBtn'); 
-        const originalText = btn.innerText; 
-        btn.innerText = 'SAVING...'; 
-        btn.disabled = true;
-
-        const rDate = document.getElementById('date').value;
-        const dObj = new Date(rDate); 
-        // Add current time
-        const now = new Date();
-        dObj.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
-        
-        // Format for Sheet
-        const hh = dObj.getHours().toString().padStart(2,'0'); 
-        const mm = dObj.getMinutes().toString().padStart(2,'0');
-        const ss = dObj.getSeconds().toString().padStart(2,'0');
-        const fDate = `${dObj.getFullYear()}-${String(dObj.getMonth()+1).padStart(2,'0')}-${String(dObj.getDate()).padStart(2,'0')}T${hh}:${mm}:${ss}`;
-
-        const payload = {
-            action: document.getElementById('entryId').value ? 'edit' : 'add',
-            ID: document.getElementById('entryId').value,
-            Date: fDate,
-            Type: document.getElementById('type').value,
-            Category: document.getElementById('category').value,
-            "Sub-Category": document.getElementById('sub_category').value,
-            Account: document.getElementById('account').value,
-            Amount: document.getElementById('amount').value,
-            Description: document.getElementById('description').value,
-            Note: document.getElementById('note').value
-        };
-
-        try { 
-            await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); 
-            closeModal(); 
-            fetchData(); 
-            showToast("Saved Successfully ✅");
-        } catch(e) { 
-            showToast("Error saving data!", "error"); 
-        } finally { 
-            btn.innerText = originalText; 
-            btn.disabled = false; 
-        }
-    });
-
-    async function deleteEntry() {
-        if(!confirm("Delete this?")) return;
-        try { 
-            const id = document.getElementById('entryId').value; 
-            await fetch(API_URL, { method: 'POST', body: JSON.stringify({action:'delete', ID: id}) }); 
-            closeModal(); 
-            fetchData(); 
-            showToast("Entry Deleted 🗑️");
-        } catch(e) { 
-            showToast("Delete failed", "error"); 
-        }
-    }
-
-    // ********************************************
-    // VIEW DETAILS MODAL HANDLERS
+    // MODAL & FORM HANDLERS
     // ********************************************
 
     function handleItemClick(encodedItem) {
@@ -1631,126 +2156,544 @@
             showToast("Entry Deleted 🗑️");
         } catch(e) { showToast("Delete failed", "error"); }
     }
-
-    // ********************************************
-    // SWIPE GESTURE LOGIC (Fixed Sensitivity)
-    // ********************************************
-    function handleTouchStart(e) {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-        activeRow = e.currentTarget;
-        activeRow.style.transition = 'none'; 
-        isSwiping = false;
+    
+    // Tab Switcher
+    function switchTab(id) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-' + id).classList.add('active');
+        const homeBtn = document.getElementById('nav-home');
+        const statsBtn = document.getElementById('nav-stats');
+        const baseClass = "flex-1 h-full rounded-full flex flex-col items-center justify-center gap-0.5 transition-all duration-300";
+        const activeClass = "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 shadow-sm"; 
+		const inactiveClass = "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50";
+        if (id === 'home') {
+            homeBtn.className = `${baseClass} ${activeClass}`;
+            statsBtn.className = `${baseClass} ${inactiveClass}`;
+        } else {
+            homeBtn.className = `${baseClass} ${inactiveClass}`;
+            statsBtn.className = `${baseClass} ${activeClass}`;
+            // 👇 FIX: Added renderHeatmap() here
+            setTimeout(() => { 
+                renderStats(); 
+                renderHeatmap(); // 🔥 Added this line
+            }, 50);
+        }
     }
+    
+    // 1. Toggle Search Bar (Open/Close Logic)
+	function toggleSearch() {
+		const container = document.getElementById('search-container');
+		const input = document.getElementById('searchInput');
+		
+		// Check Current State
+		if (container.classList.contains('hidden')) {
+			// OPEN IT
+			container.classList.remove('hidden');
+			vibrate(20);
+			setTimeout(() => input.focus(), 100); // Thoda delay focus ke liye taaki keyboard smooth aaye
+		} else {
+			// CLOSE IT
+			container.classList.add('hidden');
+			input.blur(); // Keyboard hatao
+			
+			// Cleanup
+			input.value = ""; 
+			searchQuery = "";
+			handleSearch(); // List reset karo
+		}
+	}
 
-    function handleTouchMove(e) {
-        if (!activeRow) return;
+	// 2. Smart 'X' Button (The Brain 🧠)
+	function clearOrCloseSearch() {
+		const input = document.getElementById('searchInput');
+		
+		if (input.value.length > 0) {
+			// CASE A: Text likha hai -> Sirf Text Hatao
+			vibrate(20);
+			input.value = '';
+			searchQuery = "";
+			handleSearch(); // List refresh
+			input.focus();  // Focus mat hurne do
+		} else {
+			// CASE B: Box khali hai -> Search Bar Band Karo
+			toggleSearch();
+		}
+	}
 
-        touchCurrentX = e.touches[0].clientX;
-        let touchCurrentY = e.touches[0].clientY;
+    function handleSearch() {
+        searchQuery = document.getElementById('searchInput').value;
+        applyFilter();
+    }
+    
+    function addAmount(val) {
+        const input = document.getElementById('amount');
+        input.value = (parseInt(input.value || 0) + val);
+    }
+    
+    function openModal(mode, data) {
+    const modal = document.getElementById('entryModal');
+    const viewModal = document.getElementById('viewModal');
+    
+    // View modal khula hai to band karo
+    if (viewModal.classList.contains('active')) viewModal.classList.remove('active');
+    
+    modal.classList.add('active'); 
+    try { if (window.location.hash !== "#modal") { history.pushState({modalOpen: true}, "", "#modal"); } } catch(e) {}
+    
+    // Reset Form
+    document.getElementById('entryForm').reset();
+
+    if (mode === 'edit' && data) {
+        // --- EDIT MODE ---
+        document.getElementById('modalTitle').innerText = 'Edit Transaction';
+        document.getElementById('saveBtn').innerText = 'UPDATE ENTRY';
+        document.getElementById('deleteBtn').classList.remove('hidden');
+
+        document.getElementById('entryId').value = data.ID || '';
+        document.getElementById('amount').value = data.Amount || '';
+        document.getElementById('type').value = data.Type || 'Expense';
+        document.getElementById('account').value = data.Account || 'Cash';
+        document.getElementById('category').value = data.Category || '';
         
-        let diffX = touchCurrentX - touchStartX;
-        let diffY = touchCurrentY - touchStartY;
-
-        if (Math.abs(diffY) > Math.abs(diffX)) return;
-        if (Math.abs(diffX) < 30) return;
-
-        if (diffX > 100) diffX = 100;
-        if (diffX < -100) diffX = -100;
-
-        isSwiping = true;
-        if (e.cancelable) e.preventDefault(); 
-
-        activeRow.style.transform = `translateX(${diffX}px)`;
+        updateSubCategories(); 
+        document.getElementById('sub_category').value = data['Sub-Category'] || '';
+        document.getElementById('note').value = data.Note || '';
+        document.getElementById('description').value = data.Description || '';
         
-        if(diffX > 0) { 
-            activeRow.parentElement.querySelector('.swipe-edit').style.zIndex = 1;
-            activeRow.parentElement.querySelector('.swipe-delete').style.zIndex = 0;
+        try {
+            const d = parseDate(data.Date);
+            const y = d.getFullYear();
+            const m = String(d.getMonth()+1).padStart(2,'0');
+            const day = String(d.getDate()).padStart(2,'0');
+            document.getElementById('date').value = `${y}-${m}-${day}`;
+        } catch(e) {
+            document.getElementById('date').valueAsDate = new Date();
+        }
+
+        applyTheme(data.Type);
+
+    } else {
+        // --- ADD NEW MODE ---
+        document.getElementById('modalTitle').innerText = 'New Transaction';
+        document.getElementById('saveBtn').innerText = 'SAVE ENTRY';
+        document.getElementById('deleteBtn').classList.add('hidden');
+        
+        document.getElementById('entryId').value = '';
+        document.getElementById('type').value = 'Expense';
+        document.getElementById('account').selectedIndex = 0; 
+        document.getElementById('category').selectedIndex = 0; 
+        document.getElementById('sub_category').innerHTML = '<option value="">Select</option>';
+
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').value = today;
+        
+        applyTheme('Expense');
+    }
+}
+
+    function applyTheme(type) {
+        const saveBtn = document.getElementById('saveBtn');
+        const typeSelect = document.getElementById('type');
+        
+        if (type === 'Income') { 
+            saveBtn.className = "flex-1 h-14 rounded-xl text-white font-bold text-base tracking-wide shadow-lg hover:bg-emerald-700 active:scale-[0.98] transition flex items-center justify-center gap-2 bg-emerald-600"; 
+            typeSelect.className = "appearance-none font-bold text-xs py-2 pl-4 pr-8 rounded-full outline-none border bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-100 dark:border-emerald-800";
+        } else if (type === 'Investment') { 
+            saveBtn.className = "flex-1 h-14 rounded-xl text-white font-bold text-base tracking-wide shadow-lg hover:bg-blue-700 active:scale-[0.98] transition flex items-center justify-center gap-2 bg-blue-600"; 
+            typeSelect.className = "appearance-none font-bold text-xs py-2 pl-4 pr-8 rounded-full outline-none border bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 border-blue-100 dark:border-blue-800";
         } else { 
-            activeRow.parentElement.querySelector('.swipe-edit').style.zIndex = 0;
-            activeRow.parentElement.querySelector('.swipe-delete').style.zIndex = 1;
+            saveBtn.className = "flex-1 h-14 rounded-xl text-white font-bold text-base tracking-wide shadow-lg hover:bg-rose-700 active:scale-[0.98] transition flex items-center justify-center gap-2 bg-rose-600"; 
+            typeSelect.className = "appearance-none font-bold text-xs py-2 pl-4 pr-8 rounded-full outline-none border bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-300 border-rose-100 dark:border-rose-800";
         }
     }
 
-    function handleTouchEnd(e, safeItem) {
-        if (!activeRow) return;
-        
-        let diff = touchCurrentX - touchStartX;
-        activeRow.style.transition = 'transform 0.2s ease-out';
+	function closeModal() {
+		const modal = document.getElementById('entryModal');
+		if (window.location.hash === "#modal") { try { history.back(); } catch(e) { modal.classList.remove('active'); } } 
+		else { modal.classList.remove('active'); }
+	}
 
-        if (!isSwiping) {
-            activeRow.style.transform = 'translateX(0)';
-            return;
+	function renderHeatmap() {
+    const container = document.getElementById('heatmap-container');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    // 1. Setup Data
+    const year = currentFilter.year;
+    const month = currentFilter.month;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDayIndex = new Date(year, month, 1).getDay(); 
+    const todayObj = new Date();
+    const isCurrentMonth = todayObj.getMonth() === month && todayObj.getFullYear() === year;
+    const todayDate = todayObj.getDate();
+
+    // 2. Data Calculation
+    const dailyData = {};
+    allData.forEach(item => {
+        const d = parseDate(item.Date);
+        if (d.getFullYear() === year && d.getMonth() === month && item.Type === 'Expense') {
+            const day = d.getDate();
+            let val = parseFloat(String(item.Amount).replace(/,/g, '')) || 0;
+            dailyData[day] = (dailyData[day] || 0) + val;
         }
+    });
 
-        if (diff < -80) {
-            // DELETE ACTION
-            vibrate(50);
-            activeRow.style.transform = `translateX(-100px)`; 
-            const item = JSON.parse(decodeURIComponent(safeItem));
-            openDeleteModal(item.ID);
+    // 3. Render Headers
+    const days = ['M','T','W','T','F','S','S'];
+    days.forEach((d, i) => {
+        const colorClass = (i >= 5) ? 'text-rose-500 dark:text-rose-400' : 'text-slate-400';
+        container.innerHTML += `<div class="heatmap-header ${colorClass}">${d}</div>`;
+    });
+
+    // 4. Spacers
+    let paddingDays = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
+    for(let i=0; i<paddingDays; i++) {
+        container.innerHTML += `<div class="heatmap-spacer"></div>`;
+    }
+
+    // 5. Render Days Loop
+    for (let i = 1; i <= daysInMonth; i++) {
+        const spend = dailyData[i] || 0;
+        const isToday = isCurrentMonth && i === todayDate;
+        const isFuture = isCurrentMonth && i > todayDate;
+        
+        let bgClass = "";
+        let dateColor = "";
+        let amtColor = "";
+        let amtHTML = "";
+
+        if (isFuture) {
+             // Future: Invisible
+             bgClass = "hm-future"; 
+             dateColor = "text-slate-300 opacity-50";
         } 
-        else if (diff > 80) {
-            // EDIT ACTION
-            vibrate(50);
-            activeRow.style.transform = 'translateX(0)'; 
-            const item = JSON.parse(decodeURIComponent(safeItem));
-            openModal('edit', item);
+        else if (spend === 0) {
+            // Empty: Very Light
+            bgClass = "bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800";
+            dateColor = "text-slate-300 dark:text-slate-600";
         } 
         else {
-            activeRow.style.transform = 'translateX(0)';
+            // Spending Days: Formatted HTML with Rupee
+            const val = Math.round(spend).toLocaleString('en-IN');
+            amtHTML = `₹${val}`; 
+            
+            if (spend <= 500) {
+                // 🔵 Low: Light BG -> Dark Text (High Contrast)
+                bgClass = "bg-blue-100 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-800";
+                
+                // Ghost Date (Greyish)
+                dateColor = "text-slate-400 dark:text-slate-500"; 
+                // Hero Amount (Dark/Black)
+                amtColor = "text-slate-900 dark:text-white"; 
+            } 
+            else {
+                // Dark BGs -> White Text
+                if (spend <= 2000) bgClass = "bg-indigo-500 shadow-sm shadow-indigo-200"; // 🟣
+                else if (spend <= 5000) bgClass = "bg-orange-500 shadow-sm shadow-orange-200"; // 🟧
+                else bgClass = "bg-rose-600 shadow-sm shadow-rose-200"; // 🟥
+
+                // Ghost Date (White transparent)
+                dateColor = "text-white/50"; 
+                // Hero Amount (Pure White)
+                amtColor = "text-white"; 
+            }
         }
 
-        touchStartX = 0;
-        touchCurrentX = 0;
-        setTimeout(() => { isSwiping = false; }, 100);
+        const todayStyle = isToday ? 'ring-2 ring-offset-1 ring-indigo-600 z-10 scale-[1.05]' : '';
+        
+        // HTML Structure
+        const boxHtml = `
+            <div class="heatmap-day ${bgClass} ${todayStyle} cursor-pointer active:scale-95" onclick="openDayDetails(${i})">
+                <div class="hm-date ${dateColor}">${i}</div>
+                <div class="hm-amt ${amtColor}">${amtHTML}</div>
+            </div>
+        `;
+        container.innerHTML += boxHtml;
     }
 
-    // ********************************************
-    // DELETE MODAL LOGIC
-    // ********************************************
+    // 6. Legend Logic (Same as before, ensures it exists)
+    let legend = document.getElementById('heatmap-legend-box');
+    if(!legend) {
+        legend = document.createElement('div');
+        legend.id = 'heatmap-legend-box';
+        container.parentNode.appendChild(legend);
+    }
+    legend.className = "hm-legend";
+    legend.innerHTML = `
+        <div class="legend-item"><div class="legend-dot bg-blue-200"></div>&lt;500</div>
+        <div class="legend-item"><div class="legend-dot bg-indigo-500"></div>2k</div>
+        <div class="legend-item"><div class="legend-dot bg-orange-500"></div>5k</div>
+        <div class="legend-item"><div class="legend-dot bg-rose-600"></div>&gt;5k</div>
+    `;
+}
+
+	// ✨ Interaction Feature: Toast on Click
+	function showHeatmapToast(day, amount) {
+		if(amount > 0) {
+			vibrate(20);
+			showToast(`📅 Day ${day}: ₹${amount.toLocaleString()} Spent`);
+		} else {
+			showToast(`📅 Day ${day}: No Spending`, 'info');
+		}
+	}
+
+	// Open Modal Logic
+	function openDayDetails(day) {
+		const year = currentFilter.year;
+		const month = currentFilter.month;
+
+		// 1. Filter Transactions for this specific Date
+		const dayTransactions = allData.filter(item => {
+			const d = parseDate(item.Date);
+			// Match Year, Month, Day AND ensure it's an Expense
+			return d.getFullYear() === year && 
+				   d.getMonth() === month && 
+				   d.getDate() === day && 
+				   item.Type === 'Expense';
+		});
+
+		if (dayTransactions.length === 0) return; // Empty day pe kuch mat kholo
+
+		vibrate(30);
+
+		// 2. Calculate Total
+		const total = dayTransactions.reduce((sum, item) => sum + (parseFloat(String(item.Amount).replace(/,/g, '')) || 0), 0);
+
+		// 3. Update Header
+		const dateObj = new Date(year, month, day);
+		document.getElementById('dayModalTitle').innerText = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
+		document.getElementById('dayModalTotal').innerText = `₹${total.toLocaleString()}`;
+
+		// 4. Generate List HTML
+		const listContainer = document.getElementById('dayModalList');
+		listContainer.innerHTML = '';
+
+		dayTransactions.forEach(item => {
+			let emoji = '🛒';
+			// Simple Emoji Logic (reuse existing logic ideally)
+			if (item['Sub-Category']) { const match = item['Sub-Category'].match(/[\p{Emoji}\u200d]+/u); if (match) emoji = match[0]; }
+			
+			const note = item.Note || item.Description || 'Expense';
+			const amount = parseFloat(item.Amount).toLocaleString();
+
+			const html = `
+				<div class="flex items-center gap-3 bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
+					<div class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-lg shrink-0">
+						${emoji}
+					</div>
+					<div class="flex-1 min-w-0">
+						<p class="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">${note}</p>
+						<p class="text-[10px] font-bold text-slate-400 uppercase truncate">${item.Category}</p>
+					</div>
+					<div class="text-right">
+						<p class="text-sm font-black text-slate-800 dark:text-white">₹${amount}</p>
+					</div>
+				</div>
+			`;
+			listContainer.innerHTML += html;
+		});
+
+		// 5. Show Modal
+		document.getElementById('dayModal').classList.add('active');
+	}
+
+	// Close Logic
+	function closeDayModal() {
+		document.getElementById('dayModal').classList.remove('active');
+	}
+	// --- 1. View Mode Toggle (Month vs Year) ---
+	function toggleViewMode() {
+    vibrate(20); // 📳 Haptics ON
+    const btn = document.getElementById('viewModeBtn');
     
-    function openDeleteModal(id) {
-        pendingDeleteID = id;
-        const modal = document.getElementById('deleteModal');
-        modal.classList.add('active');
-        const card = modal.querySelector('.modal-card');
-        setTimeout(() => { card.style.transform = 'scale(1)'; card.style.opacity = '1'; }, 10);
+    if (statsViewMode === 'Month') {
+        statsViewMode = 'Year';
+        btn.innerText = 'YTD';
+        btn.className = "px-3 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-xl bg-indigo-600 text-white shadow-md transition-all active:scale-95";
+    } else {
+        statsViewMode = 'Month';
+        btn.innerText = 'MTH';
+        btn.className = "px-3 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all active:scale-95";
     }
+    renderStats(); 
+}
 
-    function closeDeleteModal() {
-        const modal = document.getElementById('deleteModal');
-        const card = modal.querySelector('.modal-card');
-        card.style.transform = 'scale(0.95)';
-        card.style.opacity = '0';
-        setTimeout(() => { modal.classList.remove('active'); }, 200);
-        if(activeRow) activeRow.style.transform = 'translateX(0)';
-        pendingDeleteID = null;
+	// --- 2. Chart Type Toggle (Doughnut vs Bar) ---
+	function toggleChartType() {
+    vibrate(20); // 📳 Haptics ON
+    const btn = document.getElementById('chartTypeBtn');
+    const icon = btn.querySelector('i');
+    
+    if (statsChartType === 'Doughnut') {
+        statsChartType = 'Bar';
+        icon.className = "fas fa-chart-pie text-xs"; 
+        btn.className = "w-8 h-8 rounded-xl flex items-center justify-center text-white bg-indigo-500 shadow-md transition-all active:scale-95";
+    } else {
+        statsChartType = 'Doughnut';
+        icon.className = "fas fa-chart-bar text-xs";
+        btn.className = "w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-indigo-500 transition-all active:scale-95";
     }
+    
+    renderStats();
+}
 
-    async function confirmDelete() {
-        if(!pendingDeleteID) return;
-        const modal = document.getElementById('deleteModal');
-        modal.classList.remove('active');
+	function showInsight() {
+    vibrate(30);
+    
+    const aiModal = document.getElementById('aiModal');
+    const contentDiv = document.getElementById('aiContent');
+    const closeBtn = document.getElementById('aiCloseBtn'); // Get the button
+    
+    // 1. Reset UI: Hide Button & Show Centered Loader
+    closeBtn.classList.add('hidden'); // HIDE BUTTON
+    
+    // Loader HTML with 'h-full', 'flex-col', 'justify-center' for perfect centering
+    contentDiv.innerHTML = `
+        <div class="flex flex-col items-center justify-center h-full min-h-[300px]">
+            <div class="ai-loader-wrapper scale-75"> <!-- Added scale-75 to fit better -->
+                <div class="ai-loader">
+                    <span></span><span></span><span></span><span></span>
+                </div>
+            </div>
+            <p class="text-xs font-bold text-slate-400 mt-6 animate-pulse uppercase tracking-wider">AI is crunching your numbers...</p>
+        </div>
+    `;
+    
+    aiModal.classList.add('active');
 
-        if(activeRow) {
-            activeRow.style.transition = 'transform 0.3s ease-out, height 0.3s ease-out';
-            activeRow.style.transform = 'translateX(-100%)';
-            setTimeout(() => {
-                activeRow.parentElement.style.height = '0px';
-                activeRow.parentElement.style.opacity = '0';
-            }, 300);
+    // 2. DATA CALCULATION (Behind the scenes)
+    const type = statsState.type;
+    const filterFunc = window.currentStatsFilter || (() => true);
+    const filtered = allData.filter(filterFunc);
+    
+    setTimeout(() => {
+        if(filtered.length === 0) { 
+            contentDiv.innerHTML = `<p class="text-center text-rose-500 font-bold py-10">No data found to analyze!</p>`;
+            closeBtn.classList.remove('hidden'); // Show button even if error
+            return; 
         }
 
-        try {
-            await fetch(API_URL, { method: 'POST', body: JSON.stringify({action:'delete', ID: pendingDeleteID}) });
-            fetchData(); 
-            showToast("Entry Deleted 🗑️");
-        } catch(e) {
-            showToast("Delete failed on server", "error");
-            fetchData(); 
-        }
-    }
+        // ... (KEEP YOUR EXISTING CALCULATION LOGIC HERE: total, count, maxTxn etc...) ...
+        // ... (Paste lines 1450 to 1480 from your original file here) ...
+        // Recalculating variables for context of this snippet:
+        const today = new Date();
+        const daysInMonth = new Date(currentFilter.year, currentFilter.month + 1, 0).getDate();
+        let total = 0; let count = 0; let maxTxn = { amount: 0, note: '-' };
+        let weekendSpend = 0; let smallLeaks = 0; let cashSpend = 0;
+        const catTotals = {}; const accCounts = {}; const dayWiseMap = {}; const dateSet = new Set();
+        
+        filtered.forEach(i => {
+            let val = parseFloat(String(i.Amount).replace(/,/g, '')) || 0;
+            let cat = i.Category.replace(/[\p{Emoji}\u200d]+/u, '').trim();
+            let acc = i.Account;
+            let d = parseDate(i.Date);
+            let dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+
+            total += val; count++; dateSet.add(d.toDateString());
+            if(val > maxTxn.amount) maxTxn = { amount: val, note: i.Note || cat };
+            if(d.getDay() === 0 || d.getDay() === 6) weekendSpend += val;
+            if(val < 100) smallLeaks += val;
+            catTotals[cat] = (catTotals[cat] || 0) + val;
+            accCounts[acc] = (accCounts[acc] || 0) + 1;
+            dayWiseMap[dayName] = (dayWiseMap[dayName] || 0) + val;
+        });
+
+        const daysPassed = dateSet.size || 1; 
+        const dailyAvg = total / daysPassed;
+        const zeroSpendDays = daysInMonth - dateSet.size; // Estimate
+        const avgTicket = count > 0 ? Math.round(total / count) : 0;
+        const topCat = Object.entries(catTotals).sort((a,b) => b[1]-a[1])[0] || ['-', 0];
+        const topAcc = Object.entries(accCounts).sort((a,b) => b[1]-a[1])[0] || ['-', 0];
+        const busyDay = Object.entries(dayWiseMap).sort((a,b) => b[1]-a[1])[0] || ['-', 0];
+        const fmt = (n) => '₹' + Math.round(n).toLocaleString('en-IN');
+
+        // 3. GENERATE UI
+        contentDiv.innerHTML = `
+            <!-- HEADER -->
+            <div class="flex items-center justify-between bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800/50 p-4 rounded-2xl border border-indigo-100 dark:border-slate-700 mb-3 shadow-sm animate-fadeInDown">
+                <div>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Total Spent</p>
+                    <p class="text-2xl font-black text-slate-800 dark:text-white leading-none mt-0.5">${fmt(total)}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Daily Avg</p>
+                    <p class="text-lg font-black text-indigo-500 dark:text-indigo-400 leading-none mt-0.5">${fmt(dailyAvg)}</p>
+                </div>
+            </div>
+
+            <!-- HABITS GRID -->
+            <div class="grid grid-cols-2 gap-2 mb-3 animate-fadeInDown" style="animation-delay: 0.1s">
+                <div class="habit-card bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/50">
+                    <div class="flex justify-between items-start">
+                        <i class="fas fa-couch text-purple-500 text-xs"></i>
+                        <span class="text-[10px] font-black text-purple-700 dark:text-purple-300">${Math.round((weekendSpend/total)*100)}%</span>
+                    </div>
+                    <p class="text-[9px] text-purple-400 font-bold mt-1 uppercase">Weekend</p>
+                </div>
+                
+                <div class="habit-card bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/50">
+                    <div class="flex justify-between items-start">
+                        <i class="fas fa-ban text-emerald-500 text-xs"></i>
+                        <span class="text-[10px] font-black text-emerald-700 dark:text-emerald-300">${zeroSpendDays} Days</span>
+                    </div>
+                    <p class="text-[9px] text-emerald-400 font-bold mt-1 uppercase">No-Spend</p>
+                </div>
+
+                <div class="habit-card bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50">
+                    <div class="flex justify-between items-start">
+                        <i class="fas fa-receipt text-blue-500 text-xs"></i>
+                        <span class="text-[10px] font-black text-blue-700 dark:text-blue-300">${fmt(avgTicket)}</span>
+                    </div>
+                    <p class="text-[9px] text-blue-400 font-bold mt-1 uppercase">Avg Bill</p>
+                </div>
+
+                <div class="habit-card bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50">
+                    <div class="flex justify-between items-start">
+                        <i class="fas fa-coffee text-amber-500 text-xs"></i>
+                        <span class="text-[10px] font-black text-amber-700 dark:text-amber-300">${fmt(smallLeaks)}</span>
+                    </div>
+                    <p class="text-[9px] text-amber-400 font-bold mt-1 uppercase">Small Leaks</p>
+                </div>
+            </div>
+
+            <!-- LIST -->
+            <div class="space-y-2 animate-fadeInDown" style="animation-delay: 0.2s">
+                <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 text-[10px]"><i class="fas fa-crown"></i></div>
+                        <div><p class="text-[9px] font-bold text-slate-400 uppercase">Top Category</p><p class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate w-24">${topCat[0]}</p></div>
+                    </div>
+                    <span class="text-xs font-black text-slate-800 dark:text-white">${Math.round((topCat[1]/total)*100)}%</span>
+                </div>
+
+                <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 text-[10px]"><i class="fas fa-arrow-up"></i></div>
+                        <div><p class="text-[9px] font-bold text-slate-400 uppercase">Biggest Txn</p><p class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate w-24">${maxTxn.note}</p></div>
+                    </div>
+                    <span class="text-xs font-black text-slate-800 dark:text-white">${fmt(maxTxn.amount)}</span>
+                </div>
+            </div>
+        `;
+        
+        // 4. SHOW BUTTON NOW ⚡
+        closeBtn.classList.remove('hidden'); 
+        
+        vibrate(50);
+        
+    }, 3000); 
+}
+	
+	// --- AI MODAL CLOSE LOGIC ---
+	function closeAiModal() {
+		const modal = document.getElementById('aiModal');
+		if (modal) {
+			modal.classList.remove('active');
+			vibrate(20); // Haptic feedback bhi de dete hain
+		}
+	}
+
 </script>
 </body>
 </html>
