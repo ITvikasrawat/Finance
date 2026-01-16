@@ -36,11 +36,54 @@
     <style>
         body { -webkit-tap-highlight-color: transparent; }
         
-        /* --- ANIMATIONS --- */
-        /* Smooth Fade In */
-        .tab-content { display: none; animation: fadeIn 0.2s ease-out; }
+        /* --- SMOOTH SLIDE ANIMATIONS (GPU Accelerated) --- */
+        .tab-content { 
+            display: none; 
+            width: 100%;
+            /* Animation speed aur feel yahan se control hoga */
+            animation-duration: 0.3s;
+            animation-timing-function: cubic-bezier(0.2, 0.0, 0.2, 1); /* Material Design Ease */
+            animation-fill-mode: forwards;
+        }
+        
         .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Wallet se Stats (Right se aayega) */
+        @keyframes slideInFromRight {
+            0% { transform: translate3d(100%, 0, 0); opacity: 0; }
+            100% { transform: translate3d(0, 0, 0); opacity: 1; }
+        }
+
+        /* Stats se Wallet (Left se aayega) */
+        @keyframes slideInFromLeft {
+            0% { transform: translate3d(-100%, 0, 0); opacity: 0; }
+            100% { transform: translate3d(0, 0, 0); opacity: 1; }
+        }
+
+        .anim-slide-right { animation-name: slideInFromRight; }
+        .anim-slide-left { animation-name: slideInFromLeft; }
+
+        /* --- Wallet Tab Animations --- */
+        .animate-slideLeft-enter {
+            transform: translateX(-50px); /* Start slightly off-screen left */
+            opacity: 0;
+        }
+        .animate-slideLeft-enter-active {
+            transform: translateX(0);
+            opacity: 1;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease-in-out;
+        }
+
+        /* --- Stats Tab Animations --- */
+        .animate-slideRight-enter {
+            transform: translateX(50px); /* Start slightly off-screen right */
+            opacity: 0;
+        }
+        .animate-slideRight-enter-active {
+            transform: translateX(0);
+            opacity: 1;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease-in-out;
+        }
 
         /* Search Overlay Animation */
         @keyframes fadeInDown {
@@ -256,15 +299,65 @@
         .fab { position: fixed; bottom: 100px; right: 20px; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4); border: none; cursor: pointer; z-index: 40; transition: transform 0.1s; background: #4f46e5; color: white; }
         .fab:active { transform: scale(0.95); }
         
-        /* Modal General */
-        .modal-overlay { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); position: fixed; inset: 0; z-index: 50; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; display: flex; align-items: flex-end; justify-content: center; }
-        .modal-overlay.active { opacity: 1; visibility: visible; }
-        .modal-card { width: 100%; border-radius: 2.5rem 2.5rem 0 0; max-height: 90vh; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1); position: relative; z-index: 20; }
-        .modal-overlay.active .modal-card { transform: translateY(0); }
+        /* --- 🚀 UNIFIED MODAL SLIDE ANIMATION (GPU) --- */
         
-        /* Specific: View Modal (Centered & Scaled) */
-        #viewModal .modal-card { border-radius: 1.5rem; max-width: 350px; width: 90%; transform: scale(0.9); opacity: 0; transition: all 0.3s ease-out; }
-        #viewModal.active .modal-card { transform: scale(1); opacity: 1; }
+        .modal-overlay { 
+            background: rgba(15, 23, 42, 0.6); 
+            backdrop-filter: blur(4px); 
+            position: fixed; 
+            inset: 0; 
+            z-index: 50; 
+            opacity: 0; 
+            visibility: hidden; 
+            transition: opacity 0.3s ease, visibility 0.3s ease; 
+            display: flex; 
+            align-items: flex-end; /* Bottom se start */
+            justify-content: center; 
+        }
+        
+        .modal-overlay.active { 
+            opacity: 1; 
+            visibility: visible; 
+        }
+
+        /* Common Animation Logic for BOTH Modals */
+        #entryModal .modal-card, 
+        #viewModal .modal-card { 
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+            z-index: 20;
+            
+            /* 🔥 Start Position: Screen ke neeche */
+            transform: translate3d(0, 100%, 0); 
+            
+            /* Performance */
+            will-change: transform;
+            
+            /* Smooth iOS Style Curve */
+            transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1); 
+        }
+
+        /* Active State: Slide Up */
+        #entryModal.active .modal-card, 
+        #viewModal.active .modal-card { 
+            transform: translate3d(0, 0, 0); 
+        }
+
+        /* --- 1. ADD ENTRY STYLING (Bottom Sheet) --- */
+        #entryModal .modal-card {
+            width: 100%; 
+            border-radius: 2.5rem 2.5rem 0 0; 
+            max-height: 90vh; 
+        }
+
+        /* --- 2. VIEW ENTRY STYLING (Floating Card) --- */
+        #viewModal .modal-card { 
+            width: 90%; 
+            max-width: 350px; 
+            border-radius: 1.5rem; 
+            margin-bottom: 20px; /* Thoda hawa mein */
+        }
 
         /* Dark Mode Transitions */
         body, .modal-card, .entry-row, .day-header { transition: background-color 0.3s, color 0.3s; }
@@ -297,6 +390,13 @@
 		  position: relative;
 		}
 
+        /* 🔥 FIX ADDED HERE: Ye Amazon Gola hata dega */
+        .radio-inputs label {
+            position: relative !important;
+            transform: none !important;
+            margin: 0;
+        }
+
 		/* Account filter specific: Don't stretch too much */
 		.radio-inputs.scrollable .radio {
 			flex: 0 0 auto; /* Don't stretch */
@@ -324,6 +424,55 @@
 
 		/* Dark Mode Text */
 		.dark .radio-inputs .radio .name { color: #94a3b8; }
+
+		/* --- SELECTED STATE (Floating Pill) --- */
+		.radio-inputs .radio input:checked + .name {
+		  background: white;
+		  color: #4f46e5; /* Indigo Text */
+		  font-weight: 800;
+		  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15), 0 1px 2px rgba(0,0,0,0.05);
+		  transform: scale(1.02);
+		}
+
+		.dark .radio-inputs .radio input:checked + .name {
+			background: #1e293b;
+			color: #818cf8;
+			box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+			border: 1px solid #334155;
+		}
+
+		/* --- ✨ PARTICLE ANIMATION (Visible now) --- */
+		.radio-inputs .radio .name::before, .radio-inputs .radio .name::after {
+		  content: "";
+		  position: absolute;
+		  width: 4px; height: 4px;
+		  border-radius: 50%;
+		  opacity: 0;
+		  pointer-events: none;
+		  z-index: 0; /* Behind text but visible */
+		}
+
+		.radio-inputs .radio input:checked + .name::before {
+		  background: #6366f1;
+		  box-shadow: 0 0 8px #6366f1;
+		  animation: particle-up 0.6s ease-out forwards;
+		}
+
+		.radio-inputs .radio input:checked + .name::after {
+		  background: #a5b4fc;
+		  box-shadow: 0 0 8px #a5b4fc;
+		  animation: particle-down 0.6s ease-out forwards;
+		}
+
+		@keyframes particle-up {
+		  0% { opacity: 1; transform: translate(-50%, 0) scale(1); top: 0; left: 50%; }
+		  100% { opacity: 0; transform: translate(-50%, -15px) scale(0); top: -10px; left: 20%; }
+		}
+
+		@keyframes particle-down {
+		  0% { opacity: 1; transform: translate(-50%, 0) scale(1); bottom: 0; left: 50%; }
+		  100% { opacity: 0; transform: translate(-50%, 15px) scale(0); bottom: -10px; left: 80%; }
+		}
 
 		/* --- SELECTED STATE (Floating Pill) --- */
 		.radio-inputs .radio input:checked + .name {
@@ -432,6 +581,88 @@
 			height: 100%;
 		}
 		
+		/* 2. Custom Form Dropdown (Fixed Stacking) */
+        .custom-select-container {
+            position: relative;
+            z-index: 1; /* Default low z-index */
+        }
+
+        /* Jab dropdown khule, tab uska container sabse upar aa jaye */
+        .custom-select-container:has(.custom-options-menu.open) {
+            z-index: 100;
+        }
+
+        .custom-select-trigger {
+            width: 100%;
+            background-color: #f8fafc; /* slate-50 */
+            color: #334155; /* slate-700 */
+            font-weight: 700;
+            font-size: 0.875rem;
+            border-radius: 0.75rem;
+            height: 3rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            user-select: none; /* Text selection rokne ke liye */
+        }
+        
+        .dark .custom-select-trigger { background-color: #1e293b; color: #e2e8f0; }
+        .custom-select-trigger:active { transform: scale(0.98); }
+
+        .custom-options-menu {
+            position: absolute;
+            /* Default: Open Downwards */
+            top: 100%; 
+            left: 0;
+            width: 100%;
+            max-height: 250px; /* Thoda bada kiya */
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.98); /* Solid color for readability */
+            border-radius: 1rem;
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.25);
+            border: 1px solid rgba(0,0,0,0.05);
+            z-index: 100; /* High z-index */
+            margin-top: 8px;
+            display: none;
+            padding: 6px;
+        }
+        
+        /* Agar bottom mein jagah kam ho (JS se 'top-open' class lagayenge) */
+        .custom-options-menu.open-up {
+            top: auto;
+            bottom: 100%;
+            margin-bottom: 8px;
+            margin-top: 0;
+        }
+        
+        .dark .custom-options-menu { background: #0f172a; border-color: rgba(255,255,255,0.1); }
+
+        .custom-options-menu.open { display: block; animation: fadeInScale 0.2s ease-out; }
+
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        .custom-option {
+            padding: 12px 16px; /* Clickable area badhaya */
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .dark .custom-option { color: #94a3b8; }
+        .custom-option:hover, .custom-option:active { background-color: #f1f5f9; color: #4f46e5; }
+        .dark .custom-option:hover, .dark .custom-option:active { background-color: #334155; color: #818cf8; }
+		
     </style>
 </head>
 <body class="font-sans text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 h-screen flex flex-col overflow-hidden">
@@ -485,11 +716,20 @@
                         <i id="theme-icon" class="fas fa-moon text-xs"></i>
                     </button>
                     
-                    <!-- Month Dropdown -->
-                    <div class="relative group">
-                        <select id="monthFilter" class="appearance-none bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold text-xs py-2.5 pl-3 pr-8 rounded-xl outline-none shadow-sm transition-all cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900/40" onchange="handleMonthChange()"></select>
-                        <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-indigo-500 pointer-events-none"></i>
-                    </div>
+                    <!-- Month Custom Dropdown -->
+					<div class="relative z-50">
+						<!-- Trigger Button -->
+						<button onclick="toggleMonthMenu()" id="monthTriggerBtn" class="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold text-xs py-2.5 pl-3 pr-3 rounded-xl outline-none shadow-sm transition-all active:scale-95">
+							<span id="selectedMonthLabel">Loading...</span>
+							<i class="fas fa-chevron-down text-[10px] opacity-70"></i>
+						</button>
+
+						<!-- Dropdown Menu (Hidden by default) -->
+						<div id="customMonthMenu" class="hidden absolute top-12 right-0 w-32 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] border border-slate-100 dark:border-slate-800 p-1.5 transform origin-top-right transition-all animate-fadeInDown">
+							<!-- List will be injected by JS -->
+							<div id="monthListContainer" class="max-h-60 overflow-y-auto no-scrollbar space-y-1"></div>
+						</div>
+					</div>
 
                 </div>            
                 
@@ -763,51 +1003,107 @@
                 <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center transition"><i class="fas fa-times"></i></button>
             </div>
             <div class="overflow-y-auto px-6 flex-1 no-scrollbar pt-2">
-                <form id="entryForm" class="space-y-5 pb-6">
-                    <input type="hidden" id="entryId">
-                    <div class="text-center py-4">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Amount</label>
-                        <div class="relative inline-block">
-                            <span class="absolute -left-6 top-1/2 -translate-y-1/2 text-3xl font-bold text-slate-300">₹</span>
-                            <input type="number" id="amount" class="w-48 text-center text-5xl font-black text-slate-800 dark:text-white bg-transparent outline-none placeholder-slate-200 p-0 m-0" placeholder="0" required>
-                        </div>
-                        <div class="mt-3 flex justify-center">
-                            <div class="relative">
-                                <select id="type" class="appearance-none bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 font-bold text-xs py-2 pl-4 pr-8 rounded-full outline-none border border-indigo-100 dark:border-indigo-800">
-                                    <option value="Expense">🔴 Expense</option><option value="Income">🟢 Income</option><option value="Investment">🔵 Investment</option>
-                                </select>
-                                <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-indigo-400 text-[10px] pointer-events-none"></i>
-                            </div>
-                        </div>
-                        <!-- Quick Chips -->
-                        <div class="flex justify-center gap-2 mt-4">
-                            <button type="button" onclick="addAmount(20)" class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-xs font-bold rounded-full text-slate-600 dark:text-slate-300 hover:bg-indigo-100 transition">+20</button>
-                            <button type="button" onclick="addAmount(50)" class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-xs font-bold rounded-full text-slate-600 dark:text-slate-300 hover:bg-indigo-100 transition">+50</button>
-                            <button type="button" onclick="addAmount(100)" class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-xs font-bold rounded-full text-slate-600 dark:text-slate-300 hover:bg-indigo-100 transition">+100</button>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Date</label><input type="date" id="date" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-semibold rounded-xl h-12 px-4 outline-none border border-transparent focus:bg-white dark:focus:bg-slate-700 focus:border-indigo-500 focus:shadow-sm transition-all" required></div>
-                        <div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Account</label><div class="relative"><select id="account" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-semibold rounded-xl h-12 px-4 outline-none appearance-none border border-transparent focus:bg-white dark:focus:bg-slate-700 focus:border-indigo-500 focus:shadow-sm transition-all"><option>Axis Bank</option><option>Cash</option><option>Flipkart Card</option><option>Amazon Card</option><option>Sunita</option><option>Other</option></select><i class="fas fa-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i></div></div>
-                    </div>
-                    <div class="space-y-4">
-                        <div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Title</label><input type="text" id="note" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white text-sm font-bold rounded-xl h-12 px-4 outline-none border border-transparent focus:bg-white dark:focus:bg-slate-700 focus:border-indigo-500 focus:shadow-sm transition-all" placeholder="Title" required></div>
-                        <div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Description <span class="normal-case opacity-50">(Optional)</span></label><input type="text" id="description" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-medium rounded-xl h-12 px-4 outline-none border border-transparent focus:bg-white dark:focus:bg-slate-700 focus:border-indigo-500 focus:shadow-sm transition-all" placeholder="Add more details..."></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Category</label><div class="relative"><select id="category" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-xl h-12 px-4 outline-none appearance-none border border-transparent focus:bg-white dark:focus:bg-slate-700 focus:border-indigo-500 focus:shadow-sm transition-all truncate" required onchange="updateSubCategories()">
-    <option value="">Select Category</option>
-    <!-- Explicit values to match JS Keys -->
-    <option value="🏠 NEEDS">🏠 NEEDS</option>
-    <option value="🎉 WANTS">🎉 WANTS</option>
-    <option value="📈 INVESTMENT">📈 INVESTMENT</option>
-    <option value="💰 Salary & Income">💰 Salary & Income</option>
-    <option value="🎁 Windfall">🎁 Windfall</option>
-    <option value="📈 Passive">📈 Passive</option>
-</select><i class="fas fa-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i></div></div>
-                        <div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Sub-Category</label><div class="relative"><select id="sub_category" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-xl h-12 px-4 outline-none appearance-none border border-transparent focus:bg-white dark:focus:bg-slate-700 focus:border-indigo-500 focus:shadow-sm transition-all truncate"><option value="">Select Cat</option></select><i class="fas fa-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i></div></div>
-                    </div>
-                </form>
+						<form id="entryForm" class="space-y-5 pb-6">
+			<input type="hidden" id="entryId">
+			
+			<!-- 1. AMOUNT (Same as before) -->
+			<div class="text-center py-4">
+				<label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Amount</label>
+				<div class="relative inline-block">
+					<span class="absolute -left-6 top-1/2 -translate-y-1/2 text-3xl font-bold text-slate-300">₹</span>
+					<input type="number" id="amount" class="w-48 text-center text-5xl font-black text-slate-800 dark:text-white bg-transparent outline-none placeholder-slate-200 p-0 m-0" placeholder="0" required>
+				</div>
+				
+				<!-- TYPE DROPDOWN (Custom) -->
+				<div class="mt-3 flex justify-center">
+					<div class="relative w-40">
+						<input type="hidden" id="type" value="Expense"> <!-- Hidden Real Input -->
+						<button type="button" class="flex items-center justify-center gap-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 font-bold text-xs py-2 pl-4 pr-4 rounded-full w-full outline-none border border-indigo-100 dark:border-indigo-800" onclick="toggleFormDropdown('typeMenu')">
+							<span id="typeDisplay">🔴 Expense</span>
+							<i class="fas fa-chevron-down text-[10px] opacity-50"></i>
+						</button>
+						<!-- Menu -->
+						<div id="typeMenu" class="custom-options-menu" style="bottom: auto; top: 100%; margin-top: 5px;">
+							<div class="custom-option" onclick="selectFormOption('type', 'Expense', '🔴 Expense')">🔴 Expense</div>
+							<div class="custom-option" onclick="selectFormOption('type', 'Income', '🟢 Income')">🟢 Income</div>
+							<div class="custom-option" onclick="selectFormOption('type', 'Investment', '🔵 Investment')">🔵 Investment</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Quick Chips (Same) -->
+				<div class="flex justify-center gap-2 mt-4">
+					<button type="button" onclick="addAmount(20)" class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-xs font-bold rounded-full text-slate-600 dark:text-slate-300 hover:bg-indigo-100 transition">+20</button>
+					<button type="button" onclick="addAmount(50)" class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-xs font-bold rounded-full text-slate-600 dark:text-slate-300 hover:bg-indigo-100 transition">+50</button>
+					<button type="button" onclick="addAmount(100)" class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-xs font-bold rounded-full text-slate-600 dark:text-slate-300 hover:bg-indigo-100 transition">+100</button>
+				</div>
+			</div>
+
+			<!-- 2. DATE & ACCOUNT -->
+			<div class="grid grid-cols-2 gap-4">
+				<div>
+					<label class="text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Date</label>
+					<input type="date" id="date" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-semibold rounded-xl h-12 px-4 outline-none border border-transparent focus:bg-white dark:focus:bg-slate-700 focus:border-indigo-500 transition-all" required>
+				</div>
+				
+				<!-- ACCOUNT DROPDOWN (Custom) -->
+				<div class="custom-select-container">
+					<label class="text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Account</label>
+					<input type="hidden" id="account" value="Axis Bank"> <!-- Hidden Real Input -->
+					<button type="button" class="custom-select-trigger" onclick="toggleFormDropdown('accMenu')">
+						<span id="accountDisplay">Axis Bank</span>
+						<i class="fas fa-chevron-down text-xs opacity-50"></i>
+					</button>
+					<div id="accMenu" class="custom-options-menu">
+						<!-- JS will populate this -->
+					</div>
+				</div>
+			</div>
+
+			<!-- 3. TITLE & DESC (Same) -->
+			<div class="space-y-4">
+				<div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Title</label><input type="text" id="note" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white text-sm font-bold rounded-xl h-12 px-4 outline-none border border-transparent focus:bg-white dark:focus:bg-slate-700 focus:border-indigo-500 transition-all" placeholder="Title" required></div>
+				<div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Description</label><input type="text" id="description" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-medium rounded-xl h-12 px-4 outline-none border border-transparent focus:bg-white dark:focus:bg-slate-700 focus:border-indigo-500 transition-all" placeholder="Optional details..."></div>
+			</div>
+
+			<!-- 4. CATEGORY & SUB-CATEGORY -->
+			<div class="grid grid-cols-2 gap-4">
+				<!-- CATEGORY DROPDOWN (Custom) -->
+				<div class="custom-select-container">
+					<label class="text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Category</label>
+					<input type="hidden" id="category" value="">
+					<button type="button" class="custom-select-trigger" onclick="toggleFormDropdown('catMenu')">
+						<span id="categoryDisplay" class="truncate">Select</span>
+						<i class="fas fa-chevron-down text-xs opacity-50"></i>
+					</button>
+					<div id="catMenu" class="custom-options-menu">
+						<!-- Hardcoded Categories with Icons -->
+						<div class="custom-option" onclick="selectCategory('🏠 NEEDS')">🏠 NEEDS</div>
+						<div class="custom-option" onclick="selectCategory('🎉 WANTS')">🎉 WANTS</div>
+						<div class="custom-option" onclick="selectCategory('📈 INVESTMENT')">📈 INVESTMENT</div>
+						<div class="custom-option" onclick="selectCategory('💰 Salary & Income')">💰 Salary & Income</div>
+						<div class="custom-option" onclick="selectCategory('🎁 Windfall')">🎁 Windfall</div>
+						<div class="custom-option" onclick="selectCategory('📈 Passive')">📈 Passive</div>
+					</div>
+				</div>
+
+				<!-- SUB-CATEGORY DROPDOWN (Fixed ID) -->
+				<div class="custom-select-container">
+					<label class="text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Sub-Category</label>
+					<input type="hidden" id="sub_category" value="">
+					
+					<!-- 🔥 Fixed ID here: 'sub_categoryDisplay' matches inputId 'sub_category' -->
+					<button type="button" class="custom-select-trigger" onclick="toggleFormDropdown('subCatMenu')">
+						<span id="sub_categoryDisplay" class="truncate">Select</span>
+						<i class="fas fa-chevron-down text-xs opacity-50"></i>
+					</button>
+					
+					<div id="subCatMenu" class="custom-options-menu">
+						<div class="p-2 text-xs text-slate-400 text-center">Select Category First</div>
+					</div>
+				</div>
+			</div>
+		</form>
             </div>
             <div class="p-5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 shrink-0 pb-safe z-10 flex gap-3">
                 <button type="button" id="deleteBtn" onclick="deleteEntry()" class="hidden w-14 h-14 rounded-xl bg-rose-50 dark:bg-rose-900/20 text-rose-500 border border-rose-100 dark:border-rose-900 hover:bg-rose-100 transition flex items-center justify-center"><i class="fas fa-trash-can text-lg"></i></button>
@@ -929,7 +1225,7 @@
     // ********************************************
     // 1. CONFIGURATION & STATE
     // ********************************************
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyP5LfSDcBteaExMJBsjJwX_pTOvO5JINMzOH2PnvYHFyzvA3uD_RrtWMiY-SGMIyeK/exec'; 
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzGsSaIpiyZbe7BJUaZhbon1sZ1pCj15OG_GACSdnlN_H1ttK7ysHdkxjHul1svjoEs/exec'; 
     const CACHE_KEY = 'finance_v3_cache';
 
     let allData = [];
@@ -959,68 +1255,73 @@
 
         container.innerHTML = '';
         
-        // 🔥 FIX: Padding badha di taaki shadow/animation kate nahi
+        // Styling fix (Same as before)
         container.className = "radio-inputs scrollable flex-nowrap overflow-x-auto no-scrollbar";
         container.style.background = "transparent"; 
         container.style.boxShadow = "none";
-        container.style.padding = "4px"; // <-- 0 se 6px kiya (Space for shadow)
-        container.style.marginBottom = "10px"; // Thoda gap neeche bhi
+        container.style.padding = "4px"; 
+        container.style.marginBottom = "10px"; 
 
-        // 1. Unique Accounts
-        const accounts = new Set(['All']);
-        allData.forEach(item => { if(item.Account) accounts.add(item.Account); });
+        // --- 📊 SMART SORTING LOGIC START ---
+        
+        // 1. Calculate Usage for Current Month
+        const usageCounts = {};
+        allData.forEach(item => {
+            if(!item.Account) return;
+            
+            const d = parseDate(item.Date);
+            // Check agar transaction Selected Month/Year ka hai
+            if (d.getFullYear() === currentFilter.year && d.getMonth() === currentFilter.month) {
+                usageCounts[item.Account] = (usageCounts[item.Account] || 0) + 1;
+            }
+        });
 
-        // 2. Generate Animated Buttons
-		accounts.forEach(acc => {
+        // 2. Get All Unique Accounts
+        const uniqueAccounts = new Set();
+        allData.forEach(item => { if(item.Account) uniqueAccounts.add(item.Account); });
+
+        // 3. Sort Logic: Usage (High to Low)
+        let sortedList = Array.from(uniqueAccounts).sort((a, b) => {
+            const countA = usageCounts[a] || 0;
+            const countB = usageCounts[b] || 0;
+            return countB - countA; // Descending Sort
+        });
+
+        // 4. Force 'All' to be First
+        const finalAccounts = ['All', ...sortedList];
+
+        // --- SMART SORTING LOGIC END ---
+
+        // 5. Generate Buttons (Loop on finalAccounts)
+		finalAccounts.forEach(acc => {
 			let icon = 'fa-wallet';
 			const lowerAcc = acc.toLowerCase();
 			
 			// --- 🏷️ RENAMING LOGIC ---
 			let displayName = acc;
-			// ... (Apka purana renaming logic same rahega) ...
 			if (acc === 'All') { displayName = 'All'; icon = 'fa-layer-group'; } 
 			else if (lowerAcc.includes('flipkart')) { displayName = 'Flipkart Credit Card'; icon = 'fa-credit-card'; } 
 			else if (lowerAcc.includes('amazon')) { displayName = 'Amazon Credit Card'; icon = 'fab fa-amazon'; } 
 			else if (lowerAcc.includes('sbi')) { displayName = 'SBI Bank'; icon = 'fa-university'; }
 			else if (lowerAcc.includes('axis')) { displayName = 'Axis Bank'; icon = 'fa-university'; }
 			else if (lowerAcc.includes('cash')) { displayName = 'Cash'; icon = 'fa-money-bill-wave'; }
-			else if (lowerAcc.includes('sunita')) { icon = 'fa-user-circle'; } // Sunita Icon
+			else if (lowerAcc.includes('sunita')) { icon = 'fa-user-circle'; }
 
-			// --- 🎨 COLOR LOGIC (Subtle Backgrounds) ---
-			// Default (All): Indigo
+			// --- 🎨 COLOR LOGIC ---
 			let colorClass = 'peer-checked:!bg-indigo-50 peer-checked:!text-indigo-700 peer-checked:!border-indigo-100';
 
-			if (lowerAcc.includes('axis')) {
-				// Axis: Official Maroon -> Subtle Rose/Red
-				colorClass = 'peer-checked:!bg-rose-100 peer-checked:!text-rose-900 peer-checked:!border-rose-200';
-			} 
-			else if (lowerAcc.includes('flipkart')) {
-				// Flipkart: Official Blue -> Subtle Blue
-				colorClass = 'peer-checked:!bg-blue-50 peer-checked:!text-blue-700 peer-checked:!border-blue-200';
-			} 
-			else if (lowerAcc.includes('amazon')) {
-				// Amazon: Subtle Brown (Stone)
-				colorClass = 'peer-checked:!bg-orange-100 peer-checked:!text-orange-900 peer-checked:!border-orange-200';
-			} 
-			else if (lowerAcc.includes('sbi')) {
-				// SBI: Subtle Sky Blue
-				colorClass = 'peer-checked:!bg-sky-100 peer-checked:!text-sky-700 peer-checked:!border-sky-200';
-			} 
-			else if (lowerAcc.includes('cash')) {
-				// Cash: Emerald Green
-				colorClass = 'peer-checked:!bg-emerald-100 peer-checked:!text-emerald-800 peer-checked:!border-emerald-200';
-			}
-			else if (lowerAcc.includes('sunita')) {
-				// Sunita: Pink/Fuchsia
-				colorClass = 'peer-checked:!bg-fuchsia-100 peer-checked:!text-fuchsia-800 peer-checked:!border-fuchsia-200';
-			}
+			if (lowerAcc.includes('axis')) { colorClass = 'peer-checked:!bg-rose-100 peer-checked:!text-rose-900 peer-checked:!border-rose-200'; } 
+			else if (lowerAcc.includes('flipkart')) { colorClass = 'peer-checked:!bg-blue-50 peer-checked:!text-blue-700 peer-checked:!border-blue-200'; } 
+			else if (lowerAcc.includes('amazon')) { colorClass = 'peer-checked:!bg-orange-100 peer-checked:!text-orange-900 peer-checked:!border-orange-200'; } 
+			else if (lowerAcc.includes('sbi')) { colorClass = 'peer-checked:!bg-sky-100 peer-checked:!text-sky-700 peer-checked:!border-sky-200'; } 
+			else if (lowerAcc.includes('cash')) { colorClass = 'peer-checked:!bg-emerald-100 peer-checked:!text-emerald-800 peer-checked:!border-emerald-200'; }
+			else if (lowerAcc.includes('sunita')) { colorClass = 'peer-checked:!bg-fuchsia-100 peer-checked:!text-fuchsia-800 peer-checked:!border-fuchsia-200'; }
 
 			const label = document.createElement('label');
 			label.className = "radio";
 			
 			const isChecked = currentAccountFilter === acc ? 'checked' : '';
 			
-			// 🔥 HTML Construction with 'peer' and 'colorClass'
 			label.innerHTML = `
 				<input type="radio" name="accFilter" class="peer" ${isChecked}>
 				<span class="name gap-2 ${colorClass} peer-checked:!shadow-none">
@@ -1087,6 +1388,71 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
+	// --- 🟢 ULTIMATE SWIPE HANDLER (With Unlock Hack) ---
+    
+    // 1. HACK: Jaise hi user screen touch kare, vibration unlock karo
+    const unlockAudioContext = () => {
+        if (navigator.vibrate) {
+            navigator.vibrate(1); // 1ms vibration (pata bhi nahi chalega)
+        }
+        // Listener hata do taaki baar baar run na ho
+        document.removeEventListener('touchstart', unlockAudioContext);
+    };
+    document.addEventListener('touchstart', unlockAudioContext, { passive: true });
+
+
+    // 2. MAIN SWIPE LOGIC (With Scroll Protection)
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isTouchingScrollableArea = false; // Flag to track specific areas
+
+    document.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+
+        // 🔥 IMPORTANT: Check karo user ne kahan touch kiya
+        // Agar touch 'account-filters' (Chips) ya 'heatmap-container' ke andar hai
+        // Toh Global Swipe ko disable kar do temporary.
+        if (e.target.closest('#account-filters') || e.target.closest('.heatmap-grid')) {
+            isTouchingScrollableArea = true;
+        } else {
+            isTouchingScrollableArea = false;
+        }
+    }, {passive: true});
+
+    document.addEventListener('touchend', e => {
+        // ⛔ Agar user scrollable area mein tha, toh Tab Switch MAT karo
+        if (isTouchingScrollableArea) return;
+
+        const touchEndX = e.changedTouches[0].screenX;
+        const touchEndY = e.changedTouches[0].screenY;
+        
+        const diffX = touchEndX - touchStartX;
+        const diffY = touchEndY - touchStartY;
+        const threshold = 50; 
+
+        // Check: Horizontal Swipe > Vertical Swipe
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > threshold) {
+            
+            const isHomeActive = document.getElementById('tab-home').classList.contains('active');
+
+            // Swipe Left (Go to Stats)
+            if (diffX < 0 && isHomeActive) { 
+                if(typeof vibrate === 'function') vibrate(40); 
+                else if(navigator.vibrate) navigator.vibrate(40);
+                switchTab('stats'); 
+            }
+
+            // Swipe Right (Go to Home)
+            else if (diffX > 0 && !isHomeActive) { 
+                if(typeof vibrate === 'function') vibrate(40); 
+                else if(navigator.vibrate) navigator.vibrate(40);
+                switchTab('home'); 
+            }
+        }
+    }, {passive: true});
+	
+        // --- 🔴 SWIPE HANDLER END ---
         document.getElementById('date').valueAsDate = new Date();
         initDarkMode();
         
@@ -1166,15 +1532,37 @@
     // ********************************************
     // 5. FILTER & RENDER LOGIC
     // ********************************************
+    // --- 📅 NEW CUSTOM DROPDOWN LOGIC ---
+
+    let selectedMonthKey = ""; // Store current selection (e.g., '2026-0')
+
+    function toggleMonthMenu() {
+        vibrate(20);
+        const menu = document.getElementById('customMonthMenu');
+        menu.classList.toggle('hidden');
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const menu = document.getElementById('customMonthMenu');
+        const btn = document.getElementById('monthTriggerBtn');
+        if (!menu.classList.contains('hidden') && !menu.contains(event.target) && !btn.contains(event.target)) {
+            menu.classList.add('hidden');
+        }
+    });
+
     function initDynamicDropdown() {
-        const select = document.getElementById('monthFilter');
-        const currentSelection = select.value;
-        select.innerHTML = ''; 
+        const container = document.getElementById('monthListContainer');
+        const btnLabel = document.getElementById('selectedMonthLabel');
+        container.innerHTML = ''; 
 
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const uniqueMonths = new Set();
         const today = new Date();
-        uniqueMonths.add(`${today.getFullYear()}-${today.getMonth()}`);
+        
+        // Default Key (Current Month)
+        const currentKey = `${today.getFullYear()}-${today.getMonth()}`;
+        uniqueMonths.add(currentKey);
         
         allData.forEach(item => { 
             if(!item.Date) return; 
@@ -1188,30 +1576,62 @@
             return (y2 - y1) || (m2 - m1); 
         });
 
-        sortedMonths.forEach(key => { 
+        // Generate Custom Options
+        sortedMonths.forEach((key, index) => {
             const [year, monthIdx] = key.split('-').map(Number); 
             const yy = year.toString().slice(-2); 
             const label = `${monthNames[monthIdx]} ${yy}`; 
-            const option = document.createElement('option'); 
-            option.value = key; option.text = label; 
-            select.appendChild(option); 
-        });
+            
+            const itemDiv = document.createElement('div');
+            
+            // Styling for Active vs Inactive
+            const isActive = (key === selectedMonthKey) || (!selectedMonthKey && index === 0);
+            
+            if(isActive && !selectedMonthKey) {
+                selectedMonthKey = key; // Set default init value
+                btnLabel.innerText = label;
+                currentFilter = { year: year, month: monthIdx };
+            }
 
-        if (currentSelection && Array.from(select.options).some(o => o.value === currentSelection)) { 
-            select.value = currentSelection; 
-        } else if(select.options.length > 0) { 
-            select.selectedIndex = 0; 
-            handleMonthChange(); 
-        }
+            let activeClass = isActive 
+                ? "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 font-black" 
+                : "text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-50 dark:hover:bg-slate-800";
+
+            itemDiv.className = `cursor-pointer px-3 py-2 rounded-lg text-xs transition-colors flex justify-between items-center ${activeClass}`;
+            
+            itemDiv.innerHTML = `
+                <span>${label}</span>
+                ${isActive ? '<i class="fas fa-check text-[10px]"></i>' : ''}
+            `;
+
+            // Click Handler
+            itemDiv.onclick = () => {
+                vibrate(20);
+                selectMonth(key, label);
+            };
+
+            container.appendChild(itemDiv);
+        });
     }
 
-    function handleMonthChange() {
-        const val = document.getElementById('monthFilter').value;
-        if(!val) return;
-        const [y, m] = val.split('-');
+    function selectMonth(key, label) {
+        // 1. Update State
+        selectedMonthKey = key;
+        const [y, m] = key.split('-');
         currentFilter = { year: parseInt(y), month: parseInt(m) };
+        
+        // 2. Update UI Label
+        document.getElementById('selectedMonthLabel').innerText = label;
+        
+        // 3. Hide Menu
+        document.getElementById('customMonthMenu').classList.add('hidden');
+        
+        // 4. Re-render Dropdown (to move checkmark) & App Data
+        initDynamicDropdown(); 
         applyFilter();
     }
+
+    // `handleMonthChange` function ki ab zaroorat nahi hai, delete kar sakte hain.
 
     function applyFilter() {
         let filtered = allData.filter(item => { 
@@ -1366,7 +1786,7 @@
             if(!isNaN(d.getTime())) timeStr = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
         } catch(e) {}
 
-        const safeItem = encodeURIComponent(JSON.stringify(item));
+        const safeItem = encodeURIComponent(JSON.stringify(item)).replace(/'/g, "%27");
 
         return `
             <div class="entry-wrapper mb-0 overflow-hidden relative bg-white dark:bg-slate-900 border-b border-slate-50 dark:border-slate-800">
@@ -2085,6 +2505,119 @@ function updateSubCategories() {
             container.innerHTML = html;
         }
     }
+	
+	// --- 🔽 CUSTOM FORM DROPDOWN LOGIC (FIXED) ---
+
+    // 1. Toggle Menu Visibility
+    function toggleFormDropdown(menuId) {
+        vibrate(15);
+        const menu = document.getElementById(menuId);
+        const button = menu.previousElementSibling; // Trigger Button
+        
+        // Close ALL other menus first
+        document.querySelectorAll('.custom-options-menu').forEach(el => {
+            if(el.id !== menuId) el.classList.remove('open');
+        });
+
+        // Toggle Current
+        menu.classList.toggle('open');
+
+        // 🔥 Auto-Position Logic (Up or Down)
+        if (menu.classList.contains('open')) {
+            const rect = button.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - rect.bottom;
+            
+            // Agar neeche 200px se kam jagah hai, toh Upar kholo
+            if (spaceBelow < 220) {
+                menu.classList.add('open-up');
+                menu.style.bottom = '100%';
+                menu.style.top = 'auto';
+            } else {
+                menu.classList.remove('open-up');
+                menu.style.bottom = 'auto';
+                menu.style.top = '100%';
+            }
+        }
+    }
+
+    // 2. Select Option Logic
+    function selectFormOption(inputId, value, displayHtml) {
+        vibrate(20);
+        // Update Hidden Input
+        const input = document.getElementById(inputId);
+        if(input) input.value = value;
+        
+        // Update Button Text
+        const display = document.getElementById(inputId + 'Display');
+        if(display) display.innerHTML = displayHtml;
+        
+        // Close Menu
+        document.querySelectorAll('.custom-options-menu').forEach(el => el.classList.remove('open'));
+        
+        // Special: If Type changes, update theme color
+        if(inputId === 'type') applyTheme(value);
+    }
+
+    // 3. Select Category (Trigger Sub-Cat Update)
+    function selectCategory(catValue) {
+        selectFormOption('category', catValue, catValue);
+        updateCustomSubCategories(catValue);
+    }
+
+    // 4. Update Sub-Category List (Fixed ID references)
+    function updateCustomSubCategories(selectedCat) {
+        const subMenu = document.getElementById('subCatMenu');
+        // Ensure we get the plain category name even if emoji is missing/present match
+        const list = categoryMap[selectedCat] || [];
+        
+        subMenu.innerHTML = ''; // Clear old list
+        
+        if (list.length > 0) {
+            list.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'custom-option';
+                div.innerText = item;
+                // 🔥 Pass 'sub_category' as ID
+                div.onclick = () => selectFormOption('sub_category', item, item);
+                subMenu.appendChild(div);
+            });
+        } else {
+            // Fallback
+            const div = document.createElement('div');
+            div.className = 'custom-option';
+            div.innerText = 'General';
+            div.onclick = () => selectFormOption('sub_category', 'General', 'General');
+            subMenu.appendChild(div);
+        }
+        
+        // Reset Selection Display (using correct ID)
+        document.getElementById('sub_category').value = '';
+        document.getElementById('sub_categoryDisplay').innerText = 'Select Sub-Cat';
+    }
+
+    // 5. Populate Accounts (Dynamic List)
+    function populateAccountDropdown() {
+        const accMenu = document.getElementById('accMenu');
+        accMenu.innerHTML = '';
+        
+        // Fixed List + Dynamic
+        const accounts = ['Axis Bank', 'Cash', 'Flipkart Card', 'Amazon Card', 'Sunita', 'Other'];
+        
+        accounts.forEach(acc => {
+            const div = document.createElement('div');
+            div.className = 'custom-option';
+            div.innerHTML = `<i class="fas fa-wallet text-slate-300"></i> ${acc}`;
+            div.onclick = () => selectFormOption('account', acc, acc);
+            accMenu.appendChild(div);
+        });
+    }
+
+    // 6. Close Dropdowns on Outside Click
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.custom-select-container') && !e.target.closest('#typeMenu') && !e.target.closest('button[onclick*="typeMenu"]')) {
+            document.querySelectorAll('.custom-options-menu').forEach(el => el.classList.remove('open'));
+        }
+    });
 
     // ********************************************
     // MODAL & FORM HANDLERS
@@ -2157,25 +2690,51 @@ function updateSubCategories() {
         } catch(e) { showToast("Delete failed", "error"); }
     }
     
-    // Tab Switcher
+    // Tab Switcher (With Force Animation Logic)
     function switchTab(id) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.getElementById('tab-' + id).classList.add('active');
+        // 1. Scroll Reset (Taaki naya page top se dikhe)
+        document.getElementById('main-scroll').scrollTop = 0;
+
+        // 2. Hide All Tabs & Remove Old Animation Classes
+        document.querySelectorAll('.tab-content').forEach(el => {
+            el.classList.remove('active', 'anim-slide-right', 'anim-slide-left');
+        });
+
+        // 3. Select New Tab
+        const newTab = document.getElementById('tab-' + id);
+        
+        // 4. 🔥 MAGIC TRICK: Force Browser Reflow (Animation Reset)
+        // Ye line browser ko bolti hai "Element ko recalculate karo" taaki animation restart ho sake
+        void newTab.offsetWidth; 
+
+        // 5. Apply New Animation Class
+        if (id === 'stats') {
+            newTab.classList.add('anim-slide-right'); // Right se aao
+        } else {
+            newTab.classList.add('anim-slide-left'); // Left se aao
+        }
+
+        // 6. Show Tab
+        newTab.classList.add('active');
+
+        // --- BUTTON STYLING (Ye same rahega) ---
         const homeBtn = document.getElementById('nav-home');
         const statsBtn = document.getElementById('nav-stats');
         const baseClass = "flex-1 h-full rounded-full flex flex-col items-center justify-center gap-0.5 transition-all duration-300";
         const activeClass = "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 shadow-sm"; 
 		const inactiveClass = "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50";
+        
         if (id === 'home') {
             homeBtn.className = `${baseClass} ${activeClass}`;
             statsBtn.className = `${baseClass} ${inactiveClass}`;
         } else {
             homeBtn.className = `${baseClass} ${inactiveClass}`;
             statsBtn.className = `${baseClass} ${activeClass}`;
-            // 👇 FIX: Added renderHeatmap() here
+            
+            // Heatmap thoda ruk ke render karo taaki lag na ho
             setTimeout(() => { 
                 renderStats(); 
-                renderHeatmap(); // 🔥 Added this line
+                renderHeatmap(); 
             }, 50);
         }
     }
@@ -2230,66 +2789,78 @@ function updateSubCategories() {
         input.value = (parseInt(input.value || 0) + val);
     }
     
+    // --- 🛠️ UPDATE OPENMODAL FUNCTION (Better Edit Logic) ---
     function openModal(mode, data) {
-    const modal = document.getElementById('entryModal');
-    const viewModal = document.getElementById('viewModal');
-    
-    // View modal khula hai to band karo
-    if (viewModal.classList.contains('active')) viewModal.classList.remove('active');
-    
-    modal.classList.add('active'); 
-    try { if (window.location.hash !== "#modal") { history.pushState({modalOpen: true}, "", "#modal"); } } catch(e) {}
-    
-    // Reset Form
-    document.getElementById('entryForm').reset();
-
-    if (mode === 'edit' && data) {
-        // --- EDIT MODE ---
-        document.getElementById('modalTitle').innerText = 'Edit Transaction';
-        document.getElementById('saveBtn').innerText = 'UPDATE ENTRY';
-        document.getElementById('deleteBtn').classList.remove('hidden');
-
-        document.getElementById('entryId').value = data.ID || '';
-        document.getElementById('amount').value = data.Amount || '';
-        document.getElementById('type').value = data.Type || 'Expense';
-        document.getElementById('account').value = data.Account || 'Cash';
-        document.getElementById('category').value = data.Category || '';
+        const modal = document.getElementById('entryModal');
+        if (document.getElementById('viewModal').classList.contains('active')) document.getElementById('viewModal').classList.remove('active');
         
-        updateSubCategories(); 
-        document.getElementById('sub_category').value = data['Sub-Category'] || '';
-        document.getElementById('note').value = data.Note || '';
-        document.getElementById('description').value = data.Description || '';
+        modal.classList.add('active'); 
+        try { if (window.location.hash !== "#modal") { history.pushState({modalOpen: true}, "", "#modal"); } } catch(e) {}
         
-        try {
-            const d = parseDate(data.Date);
-            const y = d.getFullYear();
-            const m = String(d.getMonth()+1).padStart(2,'0');
-            const day = String(d.getDate()).padStart(2,'0');
-            document.getElementById('date').value = `${y}-${m}-${day}`;
-        } catch(e) {
-            document.getElementById('date').valueAsDate = new Date();
+        document.getElementById('entryForm').reset();
+        populateAccountDropdown(); // ⚡ Initialize Accounts
+
+        if (mode === 'edit' && data) {
+            document.getElementById('modalTitle').innerText = 'Edit Transaction';
+            document.getElementById('saveBtn').innerText = 'UPDATE ENTRY';
+            document.getElementById('deleteBtn').classList.remove('hidden');
+
+            document.getElementById('entryId').value = data.ID || '';
+            document.getElementById('amount').value = data.Amount || '';
+            
+            // 1. Set Type & Account
+            selectFormOption('type', data.Type, (data.Type === 'Income' ? '🟢 Income' : (data.Type === 'Investment' ? '🔵 Investment' : '🔴 Expense')));
+            selectFormOption('account', data.Account, data.Account);
+            
+            // 2. Set Category
+            selectFormOption('category', data.Category, data.Category);
+            
+            // 3. Build Sub-Category List
+            updateCustomSubCategories(data.Category); 
+            
+            // 4. Set Sub-Category (Timeout hata diya, direct set karenge)
+            // Agar data mein Sub-Category hai to set karo, warna 'General'
+            const targetSub = data['Sub-Category'] || 'General';
+            selectFormOption('sub_category', targetSub, targetSub);
+
+            document.getElementById('note').value = data.Note || '';
+            document.getElementById('description').value = data.Description || '';
+            
+            try {
+                const d = parseDate(data.Date);
+                const y = d.getFullYear();
+                const m = String(d.getMonth()+1).padStart(2,'0');
+                const day = String(d.getDate()).padStart(2,'0');
+                document.getElementById('date').value = `${y}-${m}-${day}`;
+            } catch(e) {
+                document.getElementById('date').valueAsDate = new Date();
+            }
+
+            applyTheme(data.Type);
+
+        } else {
+            // --- ADD MODE ---
+            document.getElementById('modalTitle').innerText = 'New Transaction';
+            document.getElementById('saveBtn').innerText = 'SAVE ENTRY';
+            document.getElementById('deleteBtn').classList.add('hidden');
+            
+            document.getElementById('entryId').value = '';
+            
+            // Defaults
+            selectFormOption('type', 'Expense', '🔴 Expense');
+            selectFormOption('account', 'Axis Bank', 'Axis Bank');
+            selectFormOption('category', '', 'Select Category');
+            
+            // Clear Sub Cat
+            document.getElementById('subCatMenu').innerHTML = '<div class="p-2 text-xs text-slate-400">Select Category First</div>';
+            document.getElementById('sub_categoryDisplay').innerText = 'Select'; // Fixed ID
+
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+            
+            applyTheme('Expense');
         }
-
-        applyTheme(data.Type);
-
-    } else {
-        // --- ADD NEW MODE ---
-        document.getElementById('modalTitle').innerText = 'New Transaction';
-        document.getElementById('saveBtn').innerText = 'SAVE ENTRY';
-        document.getElementById('deleteBtn').classList.add('hidden');
-        
-        document.getElementById('entryId').value = '';
-        document.getElementById('type').value = 'Expense';
-        document.getElementById('account').selectedIndex = 0; 
-        document.getElementById('category').selectedIndex = 0; 
-        document.getElementById('sub_category').innerHTML = '<option value="">Select</option>';
-
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('date').value = today;
-        
-        applyTheme('Expense');
     }
-}
 
     function applyTheme(type) {
         const saveBtn = document.getElementById('saveBtn');
