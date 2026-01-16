@@ -1,31 +1,44 @@
-	<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- 1. Meta Tags (Zaroori Settings) -->
+    <!-- 1. Meta Tags (Essential & Mobile Optimization) -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ffffff" class="theme-color-meta"> <!-- Chrome Toolbar Color -->
+    <meta name="apple-mobile-web-app-capable" content="yes"> <!-- iOS Fullscreen -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Finance Tracker Pro</title>
     
-    <!-- 2. Favicon (Browser Tab Icon) -->
+    <!-- 2. Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>">
     
-    <!-- 3. Fonts & Icons (Look & Feel) -->
+    <!-- 3. Fonts (Preconnect for Faster Loading) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
-    <!-- 4. Libraries (Tailwind CSS & Chart.js) -->
+    <!-- 4. Icons (FontAwesome v6.5.1 - Stable) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <!-- 5. Libraries (Tailwind CSS & Chart.js) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- 5. Tailwind Configuration (Ye Script Upar Kyun Hai?) -->
+    <!-- 6. Tailwind Configuration -->
     <script>
         tailwind.config = {
-            darkMode: 'class', // Manual Dark Mode enable karne ke liye
+            darkMode: 'class', // Manual Dark Mode
             theme: {
                 extend: {
                     fontFamily: { 
-                        sans: ['Outfit', 'sans-serif'], // Custom Fonts
-                        mono: ['Roboto', 'monospace']
+                        sans: ['Outfit', 'sans-serif'], // Primary Font
+                        mono: ['Roboto', 'monospace']   // Secondary Font
+                    },
+                    colors: {
+                        slate: {
+                            850: '#1e293b', // Custom Dark Shade
+                            950: '#020617', // Deepest Dark
+                        }
                     }
                 }
             }
@@ -311,7 +324,7 @@
             visibility: hidden; 
             transition: opacity 0.3s ease, visibility 0.3s ease; 
             display: flex; 
-            align-items: flex-end; /* Bottom se start */
+            align-items: flex-end; /* Hamesha Bottom se start */
             justify-content: center; 
         }
         
@@ -320,43 +333,64 @@
             visibility: visible; 
         }
 
-        /* Common Animation Logic for BOTH Modals */
-        #entryModal .modal-card, 
-        #viewModal .modal-card { 
+        /* 🔥 Common Animation Logic for ALL Modals */
+        /* Entry, View, Day, AI sabhi par apply hoga */
+        .modal-card { 
             display: flex; 
             flex-direction: column; 
             position: relative; 
             z-index: 20;
             
-            /* 🔥 Start Position: Screen ke neeche */
+            /* Start Position: Screen ke neeche */
             transform: translate3d(0, 100%, 0); 
             
-            /* Performance */
+            /* Performance Magic */
             will-change: transform;
             
             /* Smooth iOS Style Curve */
             transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1); 
         }
 
-        /* Active State: Slide Up */
-        #entryModal.active .modal-card, 
-        #viewModal.active .modal-card { 
+        /* Jab Modal Active ho toh Slide Up */
+        .modal-overlay.active .modal-card { 
             transform: translate3d(0, 0, 0); 
         }
 
-        /* --- 1. ADD ENTRY STYLING (Bottom Sheet) --- */
-        #entryModal .modal-card {
+        /* --- 1. FULL SHEET ANIMATION (Add Entry & Day Details) --- */
+        /* 🔥 Dono Modals ko same slide effect milega */
+        #entryModal .modal-card,
+        #dayModal .modal-card {
             width: 100%; 
             border-radius: 2.5rem 2.5rem 0 0; 
-            max-height: 90vh; 
+            max-height: 90vh; /* Screen ka 90% */
+            
+            /* Animation Logic */
+            transform: translate3d(0, 100%, 0); /* Start: Neeche */
+            transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        
+        /* Active hone pe Slide Up */
+        #entryModal.active .modal-card,
+        #dayModal.active .modal-card {
+            transform: translate3d(0, 0, 0);
         }
 
-        /* --- 2. VIEW ENTRY STYLING (Floating Card) --- */
-        #viewModal .modal-card { 
+        /* --- 2. FLOATING CARD ANIMATION (View Entry & AI) --- */
+        #viewModal .modal-card,
+        #aiModal .modal-card { 
             width: 90%; 
             max-width: 350px; 
             border-radius: 1.5rem; 
-            margin-bottom: 20px; /* Thoda hawa mein */
+            margin-bottom: 20px;
+            
+            /* Animation Logic */
+            transform: translate3d(0, 100%, 0);
+            transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+
+        #viewModal.active .modal-card,
+        #aiModal.active .modal-card {
+            transform: translate3d(0, 0, 0);
         }
 
         /* Dark Mode Transitions */
@@ -1155,10 +1189,11 @@
         </div>
     </div>
 	
-	<!-- DAY DETAILS MODAL -->
-	<div id="dayModal" class="modal-overlay">
-		<div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeDayModal()"></div>
-		<div class="modal-card bg-slate-50 dark:bg-slate-900 w-full max-h-[70vh] rounded-t-3xl shadow-2xl overflow-hidden flex flex-col">
+	<!-- DAY DETAILS MODAL (Fixed Animation & Blur) -->
+	<div id="dayModal" class="modal-overlay" onclick="closeDayModal()">
+        <!-- Note: Extra blur div hata diya hai -->
+        
+		<div class="modal-card bg-slate-50 dark:bg-slate-900 w-full max-h-[70vh] rounded-t-3xl shadow-2xl overflow-hidden flex flex-col" onclick="event.stopPropagation()">
 			
 			<!-- Header -->
 			<div class="bg-white dark:bg-slate-950 p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center shrink-0">
@@ -1225,7 +1260,7 @@
     // ********************************************
     // 1. CONFIGURATION & STATE
     // ********************************************
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzGsSaIpiyZbe7BJUaZhbon1sZ1pCj15OG_GACSdnlN_H1ttK7ysHdkxjHul1svjoEs/exec'; 
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyyq1xdiA6-8Zm4asj8UXgFtxwau1K3kfYk8liOsln-UV9JG6QTn5jnKv1T12f29ok0/exec'; 
     const CACHE_KEY = 'finance_v3_cache';
 
     let allData = [];
@@ -1364,15 +1399,16 @@
         }, 3000);
     }
 
+    // --- 🛠️ DATE PARSER (Timezone Fix) ---
     function parseDate(str) {
         if(!str) return new Date();
-        if(str.toString().includes('T')) return new Date(str); 
-        // Handle DD/MM/YYYY
-        if(str.toString().includes('/')) {
-            const parts = str.split(' ')[0].split('/');
-            return new Date(parts[2], parts[1]-1, parts[0]);
-        }
-        return new Date(str);
+        
+        let d = new Date(str);
+
+        // Agar Date Valid nahi hai, toh wapas aaj ki date bhejo
+        if (isNaN(d.getTime())) return new Date();
+
+        return d;
     }
 
     // ********************************************
@@ -1468,6 +1504,84 @@
         loadFromCache();
         fetchData();
     });
+	
+	// --- 🚀 FORM SUBMIT HANDLER (Fixed ID Logic) ---
+    const form = document.getElementById('entryForm');
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        vibrate(30);
+
+        const btn = document.getElementById('saveBtn');
+        const originalText = btn.innerText;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> SAVING...';
+        btn.disabled = true;
+        btn.classList.add('opacity-70', 'cursor-not-allowed');
+
+        try {
+            // 🔥 CRITICAL FIX: ID ko String banao aur Trim karo
+            const rawId = document.getElementById('entryId').value;
+            const cleanId = rawId ? String(rawId).trim() : ""; // Ensure String
+            
+            // Agar ID hai to 'edit', nahi to 'add'
+            const actionType = cleanId && cleanId !== "" ? 'edit' : 'add';
+
+            const formData = {
+                action: actionType,
+                ID: cleanId, // Yahan ab clean string jayegi
+                Date: document.getElementById('date').value,
+                Amount: document.getElementById('amount').value,
+                Type: document.getElementById('type').value,
+                Account: document.getElementById('account').value,
+                Category: document.getElementById('category').value,
+                'Sub-Category': document.getElementById('sub_category').value,
+                Note: document.getElementById('note').value,
+                Description: document.getElementById('description').value
+            };
+
+            console.log("Sending Data:", formData); // Debugging ke liye (Console check karna agar issue aaye)
+
+            if (!formData.Amount || !formData.Category || !formData.Account) {
+                throw new Error("Please fill all required fields");
+            }
+
+            await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify(formData)
+            });
+
+            showToast(actionType === 'edit' ? 'Transaction Updated ✅' : 'Transaction Added ✅');
+            closeModal();
+
+            // 🔥 FIX: Wait for fetch, then Switch Month
+            await fetchData(); 
+            
+            // Get date from input field
+            const inputDateVal = document.getElementById('date').value; // YYYY-MM-DD
+            if (inputDateVal) {
+                const d = new Date(inputDateVal);
+                const targetYear = d.getFullYear();
+                const targetMonth = d.getMonth();
+
+                // Agar current view alag hai, to switch karo
+                if (currentFilter.year !== targetYear || currentFilter.month !== targetMonth) {
+                    currentFilter = { year: targetYear, month: targetMonth };
+                    // Dropdown Label Update logic (Optional but good for UX)
+                    // ... (Agar aapne dropdown logic lagaya hai)
+                }
+            }
+            
+            applyFilter(); // Final Refresh
+
+        } catch (error) {
+            console.error(error);
+            showToast(error.message || "Error saving data", "error");
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            btn.classList.remove('opacity-70', 'cursor-not-allowed');
+        }
+    });
 
     function initDarkMode() {
         if(localStorage.getItem('theme') === 'dark') {
@@ -1509,12 +1623,15 @@
         indicatorIcon.className = "fas fa-sync-alt text-[9px] text-amber-500 animate-spin"; 
 
         try {
-            const res = await fetch(API_URL);
+            // 🔥 FIX: Timestamp add kiya taaki browser cache na uthaye
+            const res = await fetch(API_URL + '?t=' + new Date().getTime());
             const json = await res.json();
             
             if(json.status === 'success') {
                 allData = json.data.filter(i => i.Amount);
                 localStorage.setItem(CACHE_KEY, JSON.stringify(allData));
+                
+                // Refresh Logic
                 initDynamicDropdown();
                 applyFilter();
             }
@@ -1554,6 +1671,11 @@
     function initDynamicDropdown() {
         const container = document.getElementById('monthListContainer');
         const btnLabel = document.getElementById('selectedMonthLabel');
+		 // 🔥 CRITICAL FIX: Safety Check
+        if (!container || !btnLabel) {
+            console.warn("Dropdown Elements Not Found!");
+            return;
+        }
         container.innerHTML = ''; 
 
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -2307,48 +2429,46 @@ function updateSubCategories() {
             const chartData = chartLabels.map(k => dailyTrend[k]);
 
             expenseChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: chartLabels,
-                    datasets: [{
-                        label: 'Spent',
-                        data: chartData,
-                        backgroundColor: '#6366f1', // Indigo Color
-                        borderRadius: 6,
-                        barThickness: 'flex',
-                        maxBarThickness: 30
-                    }]
+                type: 'doughnut',
+                data: { 
+                    labels: labels, 
+                    datasets: [{ 
+                        data: dataValues, 
+                        backgroundColor: gradients, 
+                        borderWidth: 0, 
+                        borderRadius: 20, 
+                        spacing: 5, 
+                        hoverOffset: 15 
+                    }] 
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    layout: { padding: { top: 20, bottom: 10, left: 5, right: 5 } },
-                    scales: {
-                        x: { 
-                            grid: { display: false, drawBorder: false }, 
-                            ticks: { 
-                                font: { size: 10, family: "'Outfit', sans-serif", weight: 'bold' },
-                                color: '#94a3b8',
-                                autoSkip: true,
-                                maxTicksLimit: 8 
-                            } 
-                        },
-                        y: { display: false } 
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    cutout: '75%', 
+                    layout: { padding: 10 },
+                    
+                    // 🔥 NEW ANIMATION CONFIG (Tukde Judne wala effect)
+                    animation: {
+                        animateScale: true,  // Chote se bada hoga
+                        animateRotate: true, // Ghum ke aayega
+                        duration: 1200,      // 1.2 Seconds smooth speed
+                        easing: 'easeOutQuart' // Smooth stopping
                     },
-                    plugins: { 
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                            titleFont: { family: "'Outfit', sans-serif" },
-                            bodyFont: { family: "'Outfit', sans-serif", weight: 'bold', size: 14 },
-                            padding: 12,
-                            cornerRadius: 12,
-                            displayColors: false,
-                            callbacks: {
-                                label: function(context) {
-                                    return '₹' + context.parsed.y.toLocaleString();
-                                }
-                            }
+
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    onHover: (event, activeElements) => {
+                        if (activeElements.length > 0) {
+                            const i = activeElements[0].index;
+                            const pct = ((dataValues[i] / total) * 100).toFixed(1);
+                            centerTextDiv.innerHTML = `
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 animate-fadeInDown">Category</p>
+                                <h3 class="text-2xl font-black text-indigo-600 dark:text-indigo-400 drop-shadow-sm">₹${dataValues[i].toLocaleString()}</h3>
+                                <div class="mt-1 px-2 py-0.5 bg-indigo-50 dark:bg-slate-700 rounded text-[10px] font-bold text-slate-500 border border-indigo-100 dark:border-slate-600">
+                                    ${labels[i]} (${pct}%)
+                                </div>
+                            `;
+                        } else {
+                            resetCenterText(centerTextDiv, total);
                         }
                     }
                 }
@@ -2540,16 +2660,27 @@ function updateSubCategories() {
         }
     }
 
-    // 2. Select Option Logic
+    // 2. Select Option Logic (Fixed for Icons)
     function selectFormOption(inputId, value, displayHtml) {
         vibrate(20);
+        
         // Update Hidden Input
         const input = document.getElementById(inputId);
         if(input) input.value = value;
         
-        // Update Button Text
+        // Update Button Text (HTML allowed for Icons)
         const display = document.getElementById(inputId + 'Display');
-        if(display) display.innerHTML = displayHtml;
+        if(display) {
+            // Agar displayHtml mein icon nahi hai (Simple text hai), toh hum usse waisa hi rakhenge
+            // Lekin agar Account hai toh hum icon wapas lagayenge
+            if (inputId === 'account' && !displayHtml.includes('<i')) {
+               // Re-generate icon logic locally if needed, but usually populateAccountDropdown passes full HTML
+               // Fallback: Just Text
+               display.innerText = value;
+            } else {
+               display.innerHTML = displayHtml;
+            }
+        }
         
         // Close Menu
         document.querySelectorAll('.custom-options-menu').forEach(el => el.classList.remove('open'));
@@ -2595,19 +2726,55 @@ function updateSubCategories() {
         document.getElementById('sub_categoryDisplay').innerText = 'Select Sub-Cat';
     }
 
-    // 5. Populate Accounts (Dynamic List)
+    // 5. Populate Accounts (With Brand Colors & Icons)
     function populateAccountDropdown() {
         const accMenu = document.getElementById('accMenu');
         accMenu.innerHTML = '';
         
-        // Fixed List + Dynamic
         const accounts = ['Axis Bank', 'Cash', 'Flipkart Card', 'Amazon Card', 'Sunita', 'Other'];
         
         accounts.forEach(acc => {
+            // --- 🎨 STYLE LOGIC ---
+            let icon = 'fas fa-wallet';
+            let color = 'text-slate-400'; // Default Grey
+
+            if (acc.includes('Axis')) { 
+                icon = 'fas fa-university'; 
+                color = 'text-rose-700'; // Maroon
+            } 
+            else if (acc.includes('Cash')) { 
+                icon = 'fas fa-money-bill-wave'; 
+                color = 'text-emerald-500'; // Green
+            } 
+            else if (acc.includes('Flipkart')) { 
+                icon = 'fas fa-credit-card'; 
+                color = 'text-blue-600'; // Blue
+            } 
+            else if (acc.includes('Amazon')) { 
+                icon = 'fab fa-amazon'; // ✅ Fixed: Sahi syntax
+                color = 'text-amber-500'; // Orange/Yellow
+            } 
+            else if (acc.includes('Sunita')) { 
+                icon = 'fas fa-user-circle'; 
+                color = 'text-pink-500'; // Pink
+            }
+
+            // Create Option
             const div = document.createElement('div');
-            div.className = 'custom-option';
-            div.innerHTML = `<i class="fas fa-wallet text-slate-300"></i> ${acc}`;
-            div.onclick = () => selectFormOption('account', acc, acc);
+            div.className = 'custom-option group';
+            
+            // HTML with Color & Icon
+            // w-6 text-center lagaya taaki alignment perfect rahe
+            const contentHtml = `
+                <div class="w-6 text-center"><i class="${icon} ${color} text-sm group-hover:scale-110 transition-transform"></i></div>
+                <span class="font-bold text-slate-600 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-white transition-colors">${acc}</span>
+            `;
+
+            div.innerHTML = contentHtml;
+            
+            // On Click: Pass pure HTML ko taaki button pe bhi Icon dikhe
+            div.onclick = () => selectFormOption('account', acc, contentHtml);
+            
             accMenu.appendChild(div);
         });
     }
@@ -2638,7 +2805,19 @@ function updateSubCategories() {
         document.getElementById('viewAmount').innerText = `₹${parseFloat(item.Amount).toLocaleString()}`;
         document.getElementById('viewTitle').innerText = item.Note || 'No Title';
         document.getElementById('viewSubCat').innerText = item['Sub-Category'] || 'General';
-        document.getElementById('viewAccount').innerText = item.Account;
+        
+        // 🔥 NEW: Account Icon Logic for View Modal
+        const accElement = document.getElementById('viewAccount');
+        let accIcon = '<i class="fas fa-wallet text-slate-400"></i>';
+        
+        if (item.Account.includes('Axis')) accIcon = '<i class="fas fa-university text-rose-700"></i>';
+        else if (item.Account.includes('Cash')) accIcon = '<i class="fas fa-money-bill-wave text-emerald-500"></i>';
+        else if (item.Account.includes('Flipkart')) accIcon = '<i class="fas fa-credit-card text-blue-600"></i>';
+        else if (item.Account.includes('Amazon')) accIcon = '<i class="fab fa-amazon text-amber-500"></i>';
+        else if (item.Account.includes('Sunita')) accIcon = '<i class="fas fa-user-circle text-pink-500"></i>';
+
+        accElement.innerHTML = `<div class="flex items-center gap-2">${accIcon} <span>${item.Account}</span></div>`;
+
         document.getElementById('viewCategory').innerText = item.Category;
         document.getElementById('viewTypeBadge').innerText = item.Type;
         
@@ -2680,14 +2859,67 @@ function updateSubCategories() {
         if(currentViewItem) openModal('edit', currentViewItem);
     }
 
-    async function deleteFromView() {
-        if(!confirm("Permanently delete this entry?")) return;
+    // --- 🗑️ MODERN DELETE LOGIC ---
+
+    let itemToDeleteId = null; // Store ID temporarily
+
+    // 1. Open Delete Confirmation (From View Modal)
+    function deleteFromView() {
+        vibrate(30);
+        if(!currentViewItem) return;
+
+        itemToDeleteId = currentViewItem.ID;
+        
+        // Hide View Modal & Show Delete Modal
         document.getElementById('viewModal').classList.remove('active');
-        try { 
-            await fetch(API_URL, { method: 'POST', body: JSON.stringify({action:'delete', ID: currentViewItem.ID}) }); 
-            fetchData(); 
-            showToast("Entry Deleted 🗑️");
-        } catch(e) { showToast("Delete failed", "error"); }
+        document.getElementById('deleteModal').classList.add('active');
+    }
+
+    // 2. Open Delete Confirmation (From Edit Modal)
+    function deleteEntry() {
+        vibrate(30);
+        itemToDeleteId = document.getElementById('entryId').value;
+        if(!itemToDeleteId) return;
+
+        // Hide Edit Modal & Show Delete Modal
+        document.getElementById('entryModal').classList.remove('active');
+        document.getElementById('deleteModal').classList.add('active');
+    }
+
+    // 3. Close Delete Modal
+    function closeDeleteModal() {
+        vibrate(20);
+        document.getElementById('deleteModal').classList.remove('active');
+        itemToDeleteId = null;
+    }
+
+    // 4. Confirm & Execute Delete
+    async function confirmDelete() {
+        vibrate(50);
+        if(!itemToDeleteId) return;
+
+        // UI Loading
+        const btn = document.querySelector('#deleteModal button:last-child'); // The YES button
+        const originalText = btn.innerText;
+        btn.innerText = "DELETING...";
+        btn.disabled = true;
+
+        try {
+            await fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ action: 'delete', ID: itemToDeleteId }) 
+            });
+            
+            showToast("Entry Deleted Successfully 🗑️");
+            closeDeleteModal();
+            fetchData(); // Refresh Data
+
+        } catch(e) {
+            showToast("Delete Failed", "error");
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
     }
     
     // Tab Switcher (With Force Animation Logic)
@@ -2731,11 +2963,11 @@ function updateSubCategories() {
             homeBtn.className = `${baseClass} ${inactiveClass}`;
             statsBtn.className = `${baseClass} ${activeClass}`;
             
-            // Heatmap thoda ruk ke render karo taaki lag na ho
+            // 🔥 FIX: Delay badhaya (50 -> 350) taaki slide khatam hone ke baad chart banna shuru ho
             setTimeout(() => { 
                 renderStats(); 
                 renderHeatmap(); 
-            }, 50);
+            }, 350); 
         }
     }
     
@@ -2789,18 +3021,21 @@ function updateSubCategories() {
         input.value = (parseInt(input.value || 0) + val);
     }
     
-    // --- 🛠️ UPDATE OPENMODAL FUNCTION (Better Edit Logic) ---
+    // --- 🛠️ UPDATE OPENMODAL FUNCTION (With Icons Fix) ---
     function openModal(mode, data) {
         const modal = document.getElementById('entryModal');
+        // View modal agar khula hai to band karo
         if (document.getElementById('viewModal').classList.contains('active')) document.getElementById('viewModal').classList.remove('active');
         
         modal.classList.add('active'); 
         try { if (window.location.hash !== "#modal") { history.pushState({modalOpen: true}, "", "#modal"); } } catch(e) {}
         
+        // Reset Form & Populate Accounts
         document.getElementById('entryForm').reset();
-        populateAccountDropdown(); // ⚡ Initialize Accounts
+        populateAccountDropdown(); // ⚡ Initialize Accounts List
 
         if (mode === 'edit' && data) {
+            // --- EDIT MODE ---
             document.getElementById('modalTitle').innerText = 'Edit Transaction';
             document.getElementById('saveBtn').innerText = 'UPDATE ENTRY';
             document.getElementById('deleteBtn').classList.remove('hidden');
@@ -2808,24 +3043,42 @@ function updateSubCategories() {
             document.getElementById('entryId').value = data.ID || '';
             document.getElementById('amount').value = data.Amount || '';
             
-            // 1. Set Type & Account
+            // 1. SET TYPE
             selectFormOption('type', data.Type, (data.Type === 'Income' ? '🟢 Income' : (data.Type === 'Investment' ? '🔵 Investment' : '🔴 Expense')));
-            selectFormOption('account', data.Account, data.Account);
             
-            // 2. Set Category
+            // 2. SET ACCOUNT (🔥 WITH ICONS FIX)
+            let accHtml = data.Account; // Default text only
+            
+            // Generate Icon HTML based on Account Name
+            if (data.Account.includes('Axis')) {
+                accHtml = `<div class="w-6 text-center"><i class="fas fa-university text-rose-700 text-sm"></i></div> <span class="font-bold text-slate-600 dark:text-slate-300">${data.Account}</span>`;
+            } else if (data.Account.includes('Cash')) {
+                accHtml = `<div class="w-6 text-center"><i class="fas fa-money-bill-wave text-emerald-500 text-sm"></i></div> <span class="font-bold text-slate-600 dark:text-slate-300">${data.Account}</span>`;
+            } else if (data.Account.includes('Flipkart')) {
+                accHtml = `<div class="w-6 text-center"><i class="fas fa-credit-card text-blue-600 text-sm"></i></div> <span class="font-bold text-slate-600 dark:text-slate-300">${data.Account}</span>`;
+            } else if (data.Account.includes('Amazon')) {
+                accHtml = `<div class="w-6 text-center"><i class="fab fa-amazon text-amber-500 text-sm"></i></div> <span class="font-bold text-slate-600 dark:text-slate-300">${data.Account}</span>`;
+            } else if (data.Account.includes('Sunita')) {
+                accHtml = `<div class="w-6 text-center"><i class="fas fa-user-circle text-pink-500 text-sm"></i></div> <span class="font-bold text-slate-600 dark:text-slate-300">${data.Account}</span>`;
+            }
+
+            selectFormOption('account', data.Account, accHtml);
+            
+            // 3. SET CATEGORY
             selectFormOption('category', data.Category, data.Category);
             
-            // 3. Build Sub-Category List
-            updateCustomSubCategories(data.Category); 
+            // 4. SET SUB-CATEGORY
+            updateCustomSubCategories(data.Category); // List build karo
             
-            // 4. Set Sub-Category (Timeout hata diya, direct set karenge)
-            // Agar data mein Sub-Category hai to set karo, warna 'General'
+            // Direct set value (No timeout needed now)
             const targetSub = data['Sub-Category'] || 'General';
             selectFormOption('sub_category', targetSub, targetSub);
 
+            // 5. FILL TEXT FIELDS
             document.getElementById('note').value = data.Note || '';
             document.getElementById('description').value = data.Description || '';
             
+            // 6. SET DATE
             try {
                 const d = parseDate(data.Date);
                 const y = d.getFullYear();
@@ -2848,12 +3101,16 @@ function updateSubCategories() {
             
             // Defaults
             selectFormOption('type', 'Expense', '🔴 Expense');
-            selectFormOption('account', 'Axis Bank', 'Axis Bank');
+            
+            // Default Axis Bank with Icon
+            const defaultAccHtml = `<div class="w-6 text-center"><i class="fas fa-university text-rose-700 text-sm"></i></div> <span class="font-bold text-slate-600 dark:text-slate-300">Axis Bank</span>`;
+            selectFormOption('account', 'Axis Bank', defaultAccHtml);
+            
             selectFormOption('category', '', 'Select Category');
             
             // Clear Sub Cat
             document.getElementById('subCatMenu').innerHTML = '<div class="p-2 text-xs text-slate-400">Select Category First</div>';
-            document.getElementById('sub_categoryDisplay').innerText = 'Select'; // Fixed ID
+            document.getElementById('sub_categoryDisplay').innerText = 'Select'; 
 
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('date').value = today;
@@ -3010,63 +3267,60 @@ function updateSubCategories() {
 	}
 
 	// Open Modal Logic
+	// Open Modal Logic
 	function openDayDetails(day) {
 		const year = currentFilter.year;
 		const month = currentFilter.month;
 
-		// 1. Filter Transactions for this specific Date
+        // ... (Filter Logic Same Rahega) ...
 		const dayTransactions = allData.filter(item => {
 			const d = parseDate(item.Date);
-			// Match Year, Month, Day AND ensure it's an Expense
 			return d.getFullYear() === year && 
 				   d.getMonth() === month && 
 				   d.getDate() === day && 
 				   item.Type === 'Expense';
 		});
 
-		if (dayTransactions.length === 0) return; // Empty day pe kuch mat kholo
+		if (dayTransactions.length === 0) return; 
 
-		vibrate(30);
+		vibrate(30); // ⚡ Added Vibration
 
-		// 2. Calculate Total
+        // ... (Calculation & Header Logic Same) ...
 		const total = dayTransactions.reduce((sum, item) => sum + (parseFloat(String(item.Amount).replace(/,/g, '')) || 0), 0);
-
-		// 3. Update Header
 		const dateObj = new Date(year, month, day);
 		document.getElementById('dayModalTitle').innerText = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
 		document.getElementById('dayModalTotal').innerText = `₹${total.toLocaleString()}`;
 
-		// 4. Generate List HTML
 		const listContainer = document.getElementById('dayModalList');
 		listContainer.innerHTML = '';
 
+        // ... (Loop Logic Same) ...
 		dayTransactions.forEach(item => {
+            // ... (HTML Generation Same) ...
 			let emoji = '🛒';
-			// Simple Emoji Logic (reuse existing logic ideally)
 			if (item['Sub-Category']) { const match = item['Sub-Category'].match(/[\p{Emoji}\u200d]+/u); if (match) emoji = match[0]; }
-			
 			const note = item.Note || item.Description || 'Expense';
 			const amount = parseFloat(item.Amount).toLocaleString();
 
 			const html = `
 				<div class="flex items-center gap-3 bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
-					<div class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-lg shrink-0">
-						${emoji}
-					</div>
+					<div class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-lg shrink-0">${emoji}</div>
 					<div class="flex-1 min-w-0">
 						<p class="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">${note}</p>
 						<p class="text-[10px] font-bold text-slate-400 uppercase truncate">${item.Category}</p>
 					</div>
-					<div class="text-right">
-						<p class="text-sm font-black text-slate-800 dark:text-white">₹${amount}</p>
-					</div>
-				</div>
-			`;
+					<div class="text-right"><p class="text-sm font-black text-slate-800 dark:text-white">₹${amount}</p></div>
+				</div>`;
 			listContainer.innerHTML += html;
 		});
 
-		// 5. Show Modal
 		document.getElementById('dayModal').classList.add('active');
+	}
+
+	// Close Logic
+	function closeDayModal() {
+        vibrate(20); // ⚡ Added Vibration
+		document.getElementById('dayModal').classList.remove('active');
 	}
 
 	// Close Logic
