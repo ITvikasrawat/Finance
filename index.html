@@ -2326,13 +2326,12 @@ function updateSubCategories() {
     function renderStats() {
         const { type, group } = statsState;
         
-        // --- 1. FILTER LOGIC (Global Scope Fix) ---
+        // --- 1. FILTER LOGIC ---
         window.currentStatsFilter = (item) => {
             const d = parseDate(item.Date);
             const itemType = (item.Type || '').toLowerCase().trim();
             const targetType = statsState.type.toLowerCase().trim();
             
-            // A. Date Check
             let dateMatch = false;
             if (statsViewMode === 'Year') {
                 dateMatch = d.getFullYear() === currentFilter.year;
@@ -2340,12 +2339,10 @@ function updateSubCategories() {
                 dateMatch = d.getFullYear() === currentFilter.year && d.getMonth() === currentFilter.month;
             }
             
-            // B. Type Check
             let typeMatch = false;
             if (targetType.includes('invest')) typeMatch = itemType.includes('invest');
             else typeMatch = itemType === targetType;
 
-            // C. Account Check
             let accountMatch = true;
             if (typeof currentAccountFilter !== 'undefined' && currentAccountFilter !== 'All') {
                 accountMatch = item.Account === currentAccountFilter;
@@ -2354,134 +2351,122 @@ function updateSubCategories() {
             return dateMatch && typeMatch && accountMatch;
         };
 
-        // Apply filter
         const filtered = allData.filter(window.currentStatsFilter);
 
-        // --- 2. AGGREGATION (Total jodna) ---
+        // --- 2. AGGREGATION ---
         const totals = {}; 
         let total = 0;
-        const dailyTrend = {}; // For Bar Chart
+        const dailyTrend = {}; 
         
         filtered.forEach(i => {
             let v = parseFloat(String(i.Amount).replace(/,/g, '')) || 0;
             
-            // Category Totals
+            // Pie Chart Data
             let key = (group === 'sub_category' ? (i['Sub-Category'] || i.Category) : i.Category).replace(/[\p{Emoji}\u200d]+/u, '').trim();
             if(!totals[key]) totals[key] = 0;
             totals[key] += v; 
             
-            // Daily Trend (Day key generation)
+            // Bar Chart Data (Daily Trend)
             const d = parseDate(i.Date);
             let dayKey;
             if (statsViewMode === 'Year') {
-                // Year mode: "Jan", "Feb"
-                dayKey = d.toLocaleString('default', { month: 'short' });
+                dayKey = d.toLocaleString('default', { month: 'short' }); 
             } else {
-                // Month mode: 1, 2, 3...
-                dayKey = d.getDate();
+                dayKey = d.getDate(); 
             }
             
             dailyTrend[dayKey] = (dailyTrend[dayKey] || 0) + v;
             total += v;
         });
 
-        // --- 3. UI RESET ---
-        const chartCanvas = document.getElementById('expenseChart');
+        // --- 3. UI RESET (NUCLEAR OPTION) ---
+        const oldCanvas = document.getElementById('expenseChart');
+        const parentDiv = oldCanvas.parentElement;
+        
+        oldCanvas.remove(); // Purana hatao
+        
+        const newCanvas = document.createElement('canvas');
+        newCanvas.id = 'expenseChart';
+        // 🔥 CRITICAL: Classes for size
+        newCanvas.className = "w-full h-full"; 
+        parentDiv.appendChild(newCanvas);
+        
+        const ctx = newCanvas.getContext('2d');
         const centerTextDiv = document.getElementById('chartCenterText'); 
         const listDiv = document.getElementById('stats-list'); 
         listDiv.innerHTML = '';
 
-        // Handle No Data
         if (total === 0) {
-            chartCanvas.style.display = 'none';
+            newCanvas.style.display = 'none';
             if(centerTextDiv) centerTextDiv.innerHTML = ''; 
-            if(expenseChart) { expenseChart.destroy(); expenseChart = null; }
             listDiv.innerHTML = `<div class="text-center py-12 opacity-50"><i class="fas fa-chart-pie text-2xl text-slate-300 mb-2"></i><p class="text-sm font-bold text-slate-400">No data found</p></div>`;
             return;
         }
 
-        // --- 4. RENDER CHART ---
-        chartCanvas.style.display = 'block';
-        if(expenseChart) expenseChart.destroy();
-        const ctx = chartCanvas.getContext('2d');
+        newCanvas.style.display = 'block';
+        if(expenseChart) { expenseChart.destroy(); expenseChart = null; }
 
-        // 🔥 LOGIC SWITCHER: Bar vs Doughnut
+        // --- 4. RENDER CHART ---
         if (statsChartType === 'Bar') {
-            // --- 📊 BAR CHART (Updated Logic) ---
-            if(centerTextDiv) centerTextDiv.style.display = 'none'; // Center text chhupao
+            // Hide Center Text for Bar Chart
+            if(centerTextDiv) centerTextDiv.style.display = 'none'; 
             
             let chartLabels = Object.keys(dailyTrend);
             
-            // Sorting Logic
+            // Sort Labels
             if (statsViewMode === 'Month') {
-                // Numbers sort karo (1, 2, 3...)
-                chartLabels.sort((a,b) => parseInt(a) - parseInt(b));
+                chartLabels.sort((a,b) => Number(a) - Number(b));
             } else {
-                // Months sort karo (Jan, Feb...)
                 const monthsOrder = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                chartLabels.sort((a,b) => {
-                    const m1 = a.split(' ')[0]; 
-                    const m2 = b.split(' ')[0];
-                    return monthsOrder.indexOf(m1) - monthsOrder.indexOf(m2);
-                });
+                chartLabels.sort((a,b) => monthsOrder.indexOf(a) - monthsOrder.indexOf(b));
             }
 
             const chartData = chartLabels.map(k => dailyTrend[k]);
 
             expenseChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: { 
-                    labels: labels, 
-                    datasets: [{ 
-                        data: dataValues, 
-                        backgroundColor: gradients, 
-                        borderWidth: 0, 
-                        borderRadius: 20, 
-                        spacing: 5, 
-                        hoverOffset: 15 
-                    }] 
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Spent',
+                        data: chartData,
+                        backgroundColor: '#6366f1',
+                        borderRadius: 4,
+                        barThickness: 'flex',
+                        maxBarThickness: 30
+                    }]
                 },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    cutout: '75%', 
-                    layout: { padding: 10 },
-                    
-                    // 🔥 NEW ANIMATION CONFIG (Tukde Judne wala effect)
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
                     animation: {
-                        animateScale: true,  // Chote se bada hoga
-                        animateRotate: true, // Ghum ke aayega
-                        duration: 1200,      // 1.2 Seconds smooth speed
-                        easing: 'easeOutQuart' // Smooth stopping
+                        duration: 800, // Smooth rise
+                        easing: 'easeOutQuart'
                     },
-
-                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
-                    onHover: (event, activeElements) => {
-                        if (activeElements.length > 0) {
-                            const i = activeElements[0].index;
-                            const pct = ((dataValues[i] / total) * 100).toFixed(1);
-                            centerTextDiv.innerHTML = `
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 animate-fadeInDown">Category</p>
-                                <h3 class="text-2xl font-black text-indigo-600 dark:text-indigo-400 drop-shadow-sm">₹${dataValues[i].toLocaleString()}</h3>
-                                <div class="mt-1 px-2 py-0.5 bg-indigo-50 dark:bg-slate-700 rounded text-[10px] font-bold text-slate-500 border border-indigo-100 dark:border-slate-600">
-                                    ${labels[i]} (${pct}%)
-                                </div>
-                            `;
-                        } else {
-                            resetCenterText(centerTextDiv, total);
-                        }
-                    }
+                    layout: { padding: { top: 10, bottom: 5, left: 0, right: 0 } },
+                    scales: {
+                        x: { 
+                            grid: { display: false }, 
+                            ticks: { 
+                                font: { size: 10, family: "'Outfit', sans-serif", weight: 'bold' }, 
+                                color: '#94a3b8', 
+                                autoSkip: true, 
+                                maxTicksLimit: 7 
+                            } 
+                        },
+                        y: { display: false } 
+                    },
+                    plugins: { legend: { display: false }, tooltip: { enabled: true } }
                 }
             });
 
         } else {
-            // --- 🍩 DOUGHNUT CHART (Iron Man Logic) ---
-            if(centerTextDiv) centerTextDiv.style.display = 'flex'; // Show center text
+            // --- 🍩 DOUGHNUT CHART (Fixed Animation) ---
+            if(centerTextDiv) centerTextDiv.style.display = 'flex'; 
             
             const labels = Object.keys(totals); 
             const dataValues = Object.values(totals);
 
-            // Gradients
             const createGradient = (ctx, c1, c2) => {
                 const g = ctx.createLinearGradient(0, 0, 0, 400);
                 g.addColorStop(0, c1); g.addColorStop(1, c2); return g;
@@ -2507,6 +2492,15 @@ function updateSubCategories() {
                     maintainAspectRatio: false, 
                     cutout: '75%', 
                     layout: { padding: 10 },
+                    
+                    // 🔥 UPDATED ANIMATION: No Scaling, Only Rotation
+                    animation: {
+                        animateScale: false,  // ❌ Scaling Band (Chote se bada nahi hoga)
+                        animateRotate: true,  // ✅ Sirf ghoom ke aayega
+                        duration: 1000,       // 1 second duration
+                        easing: 'easeOutQuart'
+                    },
+
                     plugins: { legend: { display: false }, tooltip: { enabled: false } },
                     onHover: (event, activeElements) => {
                         if (activeElements.length > 0) {
@@ -2751,9 +2745,9 @@ function updateSubCategories() {
                 color = 'text-blue-600'; // Blue
             } 
             else if (acc.includes('Amazon')) { 
-                icon = 'fab fa-amazon'; // ✅ Fixed: Sahi syntax
-                color = 'text-amber-500'; // Orange/Yellow
-            } 
+                icon = 'fab fa-amazon'; // ✅ Corrected Syntax
+                color = 'text-amber-500'; 
+            }
             else if (acc.includes('Sunita')) { 
                 icon = 'fas fa-user-circle'; 
                 color = 'text-pink-500'; // Pink
