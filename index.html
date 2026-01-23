@@ -3362,146 +3362,361 @@ function updateSubCategories() {
     
     const aiModal = document.getElementById('aiModal');
     const contentDiv = document.getElementById('aiContent');
-    const closeBtn = document.getElementById('aiCloseBtn'); // Get the button
+    const closeBtn = document.getElementById('aiCloseBtn'); 
     
-    // 1. Reset UI: Hide Button & Show Centered Loader
-    closeBtn.classList.add('hidden'); // HIDE BUTTON
+    // 1. Reset UI (Hide Bottom Button Permanently)
+    if(closeBtn) closeBtn.style.display = 'none'; 
     
-    // Loader HTML with 'h-full', 'flex-col', 'justify-center' for perfect centering
+    // Modern Loader
     contentDiv.innerHTML = `
-        <div class="flex flex-col items-center justify-center h-full min-h-[300px]">
-            <div class="ai-loader-wrapper scale-75"> <!-- Added scale-75 to fit better -->
-                <div class="ai-loader">
-                    <span></span><span></span><span></span><span></span>
-                </div>
+        <div class="flex flex-col items-center justify-center h-full min-h-[500px]">
+            <div class="relative w-24 h-24">
+                <div class="absolute inset-0 rounded-full border-4 border-slate-100 dark:border-slate-800 opacity-20"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
+                <div class="absolute inset-0 flex items-center justify-center font-black text-2xl text-indigo-500 animate-pulse">AI</div>
             </div>
-            <p class="text-xs font-bold text-slate-400 mt-6 animate-pulse uppercase tracking-wider">AI is crunching your numbers...</p>
+            <p class="text-[10px] font-bold text-slate-400 mt-6 animate-pulse uppercase tracking-widest">Scanning 30 Financial Data Points...</p>
         </div>
     `;
     
     aiModal.classList.add('active');
 
-    // 2. DATA CALCULATION (Behind the scenes)
-    const type = statsState.type;
+    // 2. DATA ENGINE
     const filterFunc = window.currentStatsFilter || (() => true);
     const filtered = allData.filter(filterFunc);
     
     setTimeout(() => {
         if(filtered.length === 0) { 
-            contentDiv.innerHTML = `<p class="text-center text-rose-500 font-bold py-10">No data found to analyze!</p>`;
-            closeBtn.classList.remove('hidden'); // Show button even if error
+            contentDiv.innerHTML = `<div class="flex flex-col items-center justify-center h-64"><i class="fas fa-ghost text-4xl text-slate-300 mb-3"></i><p class="text-slate-400 font-bold">Ghost Town! No data found.</p></div>`;
             return; 
         }
 
-        // ... (KEEP YOUR EXISTING CALCULATION LOGIC HERE: total, count, maxTxn etc...) ...
-        // ... (Paste lines 1450 to 1480 from your original file here) ...
-        // Recalculating variables for context of this snippet:
-        const today = new Date();
-        const daysInMonth = new Date(currentFilter.year, currentFilter.month + 1, 0).getDate();
-        let total = 0; let count = 0; let maxTxn = { amount: 0, note: '-' };
-        let weekendSpend = 0; let smallLeaks = 0; let cashSpend = 0;
-        const catTotals = {}; const accCounts = {}; const dayWiseMap = {}; const dateSet = new Set();
+        // --- 🧠 30-POINT CALCULATION ENGINE ---
         
+        // Variables
+        let totalExp = 0, totalInc = 0;
+        let wants = 0, needs = 0, invest = 0;
+        let smallLeaks = 0, cashSpend = 0, digitalSpend = 0;
+        let weekendSum = 0, weekdaySum = 0;
+        let weekendCount = 0, weekdayCount = 0;
+        let latteSum = 0, frictionSum = 0, regretSum = 0;
+        let salarySpikeSum = 0; // First 3 days
+        let maxTxn = { amount: 0, note: '-' };
+        
+        const dayMap = {}; const timeMap = { M:0, A:0, E:0, N:0 };
+        const merchantMap = {}; const catMap = {}; const dateSet = new Set();
+        const amtFrequencyMap = {}; // For Subscription Hunter
+        
+        // Context
+        const today = new Date();
+        const curMonth = currentFilter.month;
+        const curYear = currentFilter.year;
+        const daysInMonth = new Date(curYear, curMonth + 1, 0).getDate();
+        
+        // 🔥 FIX: 0 Spend Day Calculation (Count passed days only, not whole month)
+        const isCurMonth = today.getMonth() === curMonth && today.getFullYear() === curYear;
+        const daysPassed = isCurMonth ? today.getDate() : daysInMonth;
+
+        // --- MASTER LOOP ---
         filtered.forEach(i => {
             let val = parseFloat(String(i.Amount).replace(/,/g, '')) || 0;
-            let cat = i.Category.replace(/[\p{Emoji}\u200d]+/u, '').trim();
-            let acc = i.Account;
+            let type = (i.Type || '').toLowerCase();
+            let cat = (i.Category || '').toUpperCase();
+            let desc = (i.Description || i.Note || 'Misc').trim();
+            let lowerDesc = desc.toLowerCase();
             let d = parseDate(i.Date);
-            let dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+            let dayNum = d.getDay(); 
+            let dateNum = d.getDate();
+            let hr = d.getHours();
+            let min = d.getMinutes();
 
-            total += val; count++; dateSet.add(d.toDateString());
-            if(val > maxTxn.amount) maxTxn = { amount: val, note: i.Note || cat };
-            if(d.getDay() === 0 || d.getDay() === 6) weekendSpend += val;
+            // 1. Income Logic
+            if(type === 'income') { totalInc += val; return; }
+            if(type !== 'expense' && type !== 'investment') return;
+
+            totalExp += val;
+            dateSet.add(d.toDateString()); // Track active spending days
+
+            // 2. Needs/Wants/Invest
+            if(cat.includes('WANTS')) wants += val;
+            else if(cat.includes('INVEST') || type === 'investment') invest += val;
+            else needs += val;
+
+            // 3. Cash/Digital
+            if(i.Account.toLowerCase().includes('cash')) cashSpend += val;
+            else digitalSpend += val;
+
+            // 4. Weekend
+            if(dayNum === 0 || dayNum === 6) { weekendSum += val; weekendCount++; }
+            else { weekdaySum += val; weekdayCount++; }
+
+            // 🔥 FIX: 12 AM Exclusion Logic (Default Timestamp)
+            // Agar exact 00:00 hai, to ise "Time Analysis" se exclude karo
+            const isDefaultTime = (hr === 0 && min === 0);
+
+            // 5. Detectives (Latte, Friction, Regret, Spike)
+            if(lowerDesc.match(/chai|tea|coffee|sutta|cig|pan|snack|maggi|coke/)) latteSum += val;
+            if(lowerDesc.match(/fee|charge|delivery|fine|interest|tax/)) frictionSum += val;
+            
+            // Only calc Regret Window if time is NOT default 12 AM
+            if (!isDefaultTime) {
+                if(hr >= 23 || hr < 4) regretSum += val; // 11 PM - 4 AM
+            }
+
+            if(dateNum <= 3) salarySpikeSum += val; // First 3 days
+
+            // 6. Subscription Logic (Repeated Amounts)
+            amtFrequencyMap[val] = (amtFrequencyMap[val] || 0) + 1;
+
+            // 7. Time & Maps (Exclude 12 AM)
+            if (!isDefaultTime) {
+                if(hr < 12) timeMap.M += val;
+                else if(hr < 17) timeMap.A += val;
+                else if(hr < 21) timeMap.E += val;
+                else timeMap.N += val;
+            }
+
+            let dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+            dayMap[dayName] = (dayMap[dayName] || 0) + val;
+            merchantMap[desc] = (merchantMap[desc] || 0) + val;
+            catMap[cat] = (catMap[cat] || 0) + val;
+
             if(val < 100) smallLeaks += val;
-            catTotals[cat] = (catTotals[cat] || 0) + val;
-            accCounts[acc] = (accCounts[acc] || 0) + 1;
-            dayWiseMap[dayName] = (dayWiseMap[dayName] || 0) + val;
+            if(val > maxTxn.amount) maxTxn = { amount: val, note: desc };
         });
 
-        const daysPassed = dateSet.size || 1; 
-        const dailyAvg = total / daysPassed;
-        const zeroSpendDays = daysInMonth - dateSet.size; // Estimate
-        const avgTicket = count > 0 ? Math.round(total / count) : 0;
-        const topCat = Object.entries(catTotals).sort((a,b) => b[1]-a[1])[0] || ['-', 0];
-        const topAcc = Object.entries(accCounts).sort((a,b) => b[1]-a[1])[0] || ['-', 0];
-        const busyDay = Object.entries(dayWiseMap).sort((a,b) => b[1]-a[1])[0] || ['-', 0];
-        const fmt = (n) => '₹' + Math.round(n).toLocaleString('en-IN');
+        // --- DERIVED METRICS ---
+        
+        // 🔥 FIX: Zero Spend Days Calculation
+        // Active Days (dateSet.size) ko total passed days se minus karo
+        const zeroSpendDays = Math.max(0, daysPassed - dateSet.size);
 
-        // 3. GENERATE UI
+        const dailyAvg = totalExp / Math.max(1, dateSet.size); // Avg on spending days
+        const projected = isCurMonth ? (totalExp / daysPassed) * daysInMonth : totalExp;
+        const budget = totalInc > 0 ? totalInc : (totalExp * 1.2); 
+        
+        // Category 1: Overview
+        const burnDay = Math.min(daysInMonth, Math.floor(budget / (dailyAvg || 1)));
+        const savingsRate = totalInc > 0 ? ((totalInc - totalExp)/totalInc)*100 : 0;
+        let healthScore = 50; 
+        if(savingsRate > 20) healthScore += 20;
+        if(wants < needs) healthScore += 10;
+        if(invest > 0) healthScore += 20;
+        healthScore = Math.min(100, Math.max(0, healthScore));
+
+        const paycheckEndurance = burnDay >= 28 ? "High (30+ Days)" : `Low (${burnDay} Days)`;
+        const survivalDays = Math.floor((budget - totalExp) / (needs/daysPassed || 1));
+
+        // Category 2: Psychology
+        const hourlyRate = (budget / 160); 
+        const timeCost = totalExp / hourlyRate;
+        const freedomPct = Math.round(((budget - needs) / budget) * 100) || 0;
+        const plasticRatio = cashSpend > 0 ? (digitalSpend / cashSpend).toFixed(1) : "∞";
+        
+        let persona = "Balanced 🧘";
+        if(wants > needs) persona = "Hedonist 🕺";
+        if(regretSum > 2000) persona = "Night Owl 🦉";
+        if(invest > wants) persona = "Visionary 🚀";
+
+        // Category 3: Patterns
+        const spikePct = Math.round((salarySpikeSum / totalExp) * 100);
+        const heaviestDay = Object.entries(dayMap).sort((a,b)=>b[1]-a[1])[0] || ['-',0];
+        const wkndMult = weekdaySum > 0 ? ((weekendSum/weekendCount) / (weekdaySum/weekdayCount)).toFixed(1) : 0;
+
+        // Category 4: Detective
+        const impulseScore = (dateSet.size > 0) ? Math.round(filtered.length / dateSet.size) : 0; 
+
+        // Category 5: Trends (MoM)
+        let lastMonthTotal = 0;
+        let lastMonthCount = 0;
+        const prevM = curMonth === 0 ? 11 : curMonth - 1;
+        const prevY = curMonth === 0 ? curYear - 1 : curYear;
+        allData.forEach(i => {
+            let d = parseDate(i.Date);
+            if(d.getMonth() === prevM && d.getFullYear() === prevY && d.getDate() <= daysPassed && i.Type === 'Expense') {
+                lastMonthTotal += parseFloat(String(i.Amount).replace(/,/g, '')) || 0;
+                lastMonthCount++;
+            }
+        });
+        const momDiff = totalExp - lastMonthTotal;
+        const momSign = momDiff > 0 ? '+' : '';
+        const curAvgTicket = filtered.length > 0 ? totalExp/filtered.length : 0;
+        const lastAvgTicket = lastMonthCount > 0 ? lastMonthTotal/lastMonthCount : 0;
+        const inflation = lastAvgTicket > 0 ? ((curAvgTicket - lastAvgTicket)/lastAvgTicket)*100 : 0;
+        
+        const topMerch = Object.entries(merchantMap).sort((a,b)=>b[1]-a[1])[0] || ['-',0];
+        
+        // Category 6: Actionable
+        const potentialSave = wants * 0.2;
+        const onePercent = totalExp * 0.01;
+        const nextMonthPred = totalExp * 1.05; 
+
+        // Formatting Helper
+        const fmt = n => '₹' + Math.round(n).toLocaleString('en-IN');
+
+        // --- 🎨 HTML GENERATION ---
         contentDiv.innerHTML = `
-            <!-- HEADER -->
-            <div class="flex items-center justify-between bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800/50 p-4 rounded-2xl border border-indigo-100 dark:border-slate-700 mb-3 shadow-sm animate-fadeInDown">
-                <div>
-                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Total Spent</p>
-                    <p class="text-2xl font-black text-slate-800 dark:text-white leading-none mt-0.5">${fmt(total)}</p>
-                </div>
-                <div class="text-right">
-                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Daily Avg</p>
-                    <p class="text-lg font-black text-indigo-500 dark:text-indigo-400 leading-none mt-0.5">${fmt(dailyAvg)}</p>
-                </div>
-            </div>
-
-            <!-- HABITS GRID -->
-            <div class="grid grid-cols-2 gap-2 mb-3 animate-fadeInDown" style="animation-delay: 0.1s">
-                <div class="habit-card bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/50">
-                    <div class="flex justify-between items-start">
-                        <i class="fas fa-couch text-purple-500 text-xs"></i>
-                        <span class="text-[10px] font-black text-purple-700 dark:text-purple-300">${Math.round((weekendSpend/total)*100)}%</span>
+            <div class="space-y-4 pb-6">
+                
+                <!-- 1. HEALTH SCORE HEADER -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-800 dark:text-white">Financial IQ</h2>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">30-Point Analysis</p>
                     </div>
-                    <p class="text-[9px] text-purple-400 font-bold mt-1 uppercase">Weekend</p>
+                    <div class="relative w-16 h-16 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90">
+                            <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="6" fill="none" class="text-slate-100 dark:text-slate-800" />
+                            <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="6" fill="none" class="${healthScore > 70 ? 'text-emerald-500' : healthScore > 40 ? 'text-amber-500' : 'text-rose-500'}" stroke-dasharray="175" stroke-dashoffset="${175 - (175 * healthScore) / 100}" />
+                        </svg>
+                        <span class="absolute text-sm font-black text-slate-700 dark:text-white">${healthScore}</span>
+                    </div>
+                </div>
+
+                <!-- CATEGORY 1: OVERVIEW -->
+                <div class="relative bg-slate-900 text-white p-5 rounded-3xl overflow-hidden shadow-xl">
+                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-600 rounded-full blur-[60px] opacity-50"></div>
+                    <div class="grid grid-cols-2 gap-4 relative z-10">
+                        <div>
+                            <p class="text-[9px] text-slate-400 font-bold uppercase">Projected End</p>
+                            <h3 class="text-2xl font-black text-white">${fmt(projected)}</h3>
+                        </div>
+                        <div class="text-right">
+                             <p class="text-[9px] text-slate-400 font-bold uppercase">Burn Date</p>
+                             <span class="inline-block px-2 py-0.5 rounded bg-rose-500 text-white text-xs font-bold">${burnDay} ${new Date(curYear, curMonth).toLocaleString('default', {month:'short'})}</span>
+                        </div>
+                        <div class="col-span-2 pt-2 border-t border-slate-700 flex justify-between">
+                            <div class="text-center">
+                                <p class="text-[8px] text-slate-400 uppercase">Endurance</p>
+                                <p class="text-xs font-bold text-indigo-300">${paycheckEndurance}</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[8px] text-slate-400 uppercase">Survival</p>
+                                <p class="text-xs font-bold text-emerald-300">${survivalDays} Days</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CATEGORY 2: PSYCHOLOGY -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-gradient-to-br from-violet-50 to-fuchsia-50 dark:from-violet-900/20 dark:to-fuchsia-900/20 p-3 rounded-2xl border border-violet-100 dark:border-violet-800/50">
+                        <p class="text-[9px] text-violet-500 font-bold uppercase">Time Cost</p>
+                        <p class="text-lg font-black text-violet-700 dark:text-violet-200">${Math.round(timeCost)} Hours</p>
+                        <p class="text-[8px] text-violet-400 leading-tight">Work to pay bills</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 p-3 rounded-2xl border border-cyan-100 dark:border-cyan-800/50">
+                        <p class="text-[9px] text-cyan-600 font-bold uppercase">Freedom</p>
+                        <p class="text-lg font-black text-cyan-700 dark:text-cyan-200">${freedomPct}%</p>
+                        <p class="text-[8px] text-cyan-500 leading-tight">Money you control</p>
+                    </div>
+                </div>
+
+                <!-- CATEGORY 3: TIME & PATTERNS -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-700">
+                    <h4 class="text-xs font-black text-slate-800 dark:text-white uppercase mb-3 flex items-center gap-2"><i class="fas fa-clock text-amber-500"></i> Timing Analysis</h4>
+                    <div class="space-y-3">
+                        
+                        <!-- 🔥 No-Spend Days Added Here -->
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-500 dark:text-slate-400">No-Spend Days</span>
+                            <span class="font-bold text-emerald-500">${zeroSpendDays} Days</span>
+                        </div>
+
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-500 dark:text-slate-400">Salary Spike (Days 1-3)</span>
+                            <span class="font-bold text-rose-500">${spikePct}% Spent</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-500 dark:text-slate-400">Regret Window (11PM-4AM)</span>
+                            <span class="font-bold text-slate-800 dark:text-white">${fmt(regretSum)}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-500 dark:text-slate-400">Heaviest Day</span>
+                            <span class="font-bold text-slate-800 dark:text-white">${heaviestDay[0]} (${fmt(heaviestDay[1])})</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CATEGORY 4: DETECTIVE -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-rose-50 dark:bg-rose-900/20 p-3 rounded-2xl border border-rose-100 dark:border-rose-800/50">
+                        <i class="fas fa-mug-hot text-rose-400 text-xs mb-1"></i>
+                        <p class="text-[9px] text-rose-400 font-bold uppercase">Latte Factor</p>
+                        <p class="text-sm font-black text-rose-600 dark:text-rose-300">${fmt(latteSum)}</p>
+                    </div>
+                    <div class="bg-rose-50 dark:bg-rose-900/20 p-3 rounded-2xl border border-rose-100 dark:border-rose-800/50">
+                        <i class="fas fa-file-invoice text-rose-400 text-xs mb-1"></i>
+                        <p class="text-[9px] text-rose-400 font-bold uppercase">Friction Cost</p>
+                        <p class="text-sm font-black text-rose-600 dark:text-rose-300">${fmt(frictionSum)}</p>
+                    </div>
+                    <div class="bg-rose-50 dark:bg-rose-900/20 p-3 rounded-2xl border border-rose-100 dark:border-rose-800/50">
+                        <i class="fas fa-droplet text-rose-400 text-xs mb-1"></i>
+                        <p class="text-[9px] text-rose-400 font-bold uppercase">Small Leaks</p>
+                        <p class="text-sm font-black text-rose-600 dark:text-rose-300">${fmt(smallLeaks)}</p>
+                    </div>
+                    <div class="bg-rose-50 dark:bg-rose-900/20 p-3 rounded-2xl border border-rose-100 dark:border-rose-800/50">
+                        <i class="fas fa-bolt text-rose-400 text-xs mb-1"></i>
+                        <p class="text-[9px] text-rose-400 font-bold uppercase">Impulse</p>
+                        <p class="text-sm font-black text-rose-600 dark:text-rose-300">${impulseScore} Txn/Day</p>
+                    </div>
+                </div>
+
+                <!-- CATEGORY 5: TRENDS -->
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                    <div class="grid grid-cols-3 divide-x divide-slate-100 dark:divide-slate-700 text-center">
+                        <div>
+                            <p class="text-[8px] text-slate-400 font-bold uppercase">Vs Last Mo</p>
+                            <p class="text-xs font-black ${momDiff > 0 ? 'text-rose-500' : 'text-emerald-500'}">${momSign}${fmt(Math.abs(momDiff))}</p>
+                        </div>
+                        <div>
+                            <p class="text-[8px] text-slate-400 font-bold uppercase">Inflation</p>
+                            <p class="text-xs font-black ${inflation > 0 ? 'text-rose-500' : 'text-emerald-500'}">${Math.round(inflation)}%</p>
+                        </div>
+                        <div>
+                            <p class="text-[8px] text-slate-400 font-bold uppercase">Plastic Use</p>
+                            <p class="text-xs font-black text-indigo-500">${plasticRatio}x</p>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="habit-card bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/50">
-                    <div class="flex justify-between items-start">
-                        <i class="fas fa-ban text-emerald-500 text-xs"></i>
-                        <span class="text-[10px] font-black text-emerald-700 dark:text-emerald-300">${zeroSpendDays} Days</span>
+                <!-- Merchant & Persona -->
+                <div class="flex gap-3">
+                    <div class="flex-1 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-700">
+                        <p class="text-[9px] text-slate-400 font-bold uppercase">Top Merchant</p>
+                        <p class="text-xs font-black text-slate-800 dark:text-white truncate">${topMerch[0]}</p>
+                        <p class="text-[9px] text-slate-400">${fmt(topMerch[1])}</p>
                     </div>
-                    <p class="text-[9px] text-emerald-400 font-bold mt-1 uppercase">No-Spend</p>
+                    <div class="flex-1 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-700">
+                        <p class="text-[9px] text-slate-400 font-bold uppercase">Persona</p>
+                        <p class="text-xs font-black text-slate-800 dark:text-white truncate">${persona}</p>
+                        <p class="text-[9px] text-slate-400">Based on habits</p>
+                    </div>
                 </div>
 
-                <div class="habit-card bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50">
-                    <div class="flex justify-between items-start">
-                        <i class="fas fa-receipt text-blue-500 text-xs"></i>
-                        <span class="text-[10px] font-black text-blue-700 dark:text-blue-300">${fmt(avgTicket)}</span>
+                <!-- CATEGORY 6: ACTIONABLE -->
+                <div class="bg-emerald-50 dark:bg-emerald-900/10 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-800/30">
+                    <h4 class="text-xs font-black text-emerald-700 dark:text-emerald-400 uppercase mb-2">💡 Savings Opportunities</h4>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-emerald-600/70 dark:text-emerald-400/70">Cut 'Wants' by 20%</span>
+                        <span class="font-bold text-emerald-700 dark:text-emerald-300">+${fmt(potentialSave)}</span>
                     </div>
-                    <p class="text-[9px] text-blue-400 font-bold mt-1 uppercase">Avg Bill</p>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-emerald-600/70 dark:text-emerald-400/70">The 1% Rule</span>
+                        <span class="font-bold text-emerald-700 dark:text-emerald-300">+${fmt(onePercent)}/mo</span>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-emerald-200 dark:border-emerald-800/50 text-center">
+                        <p class="text-[9px] text-emerald-600 dark:text-emerald-400 uppercase">Next Month Prediction</p>
+                        <p class="text-sm font-black text-emerald-800 dark:text-emerald-200">${fmt(nextMonthPred)}</p>
+                    </div>
                 </div>
 
-                <div class="habit-card bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50">
-                    <div class="flex justify-between items-start">
-                        <i class="fas fa-coffee text-amber-500 text-xs"></i>
-                        <span class="text-[10px] font-black text-amber-700 dark:text-amber-300">${fmt(smallLeaks)}</span>
-                    </div>
-                    <p class="text-[9px] text-amber-400 font-bold mt-1 uppercase">Small Leaks</p>
-                </div>
-            </div>
-
-            <!-- LIST -->
-            <div class="space-y-2 animate-fadeInDown" style="animation-delay: 0.2s">
-                <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
-                    <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 text-[10px]"><i class="fas fa-crown"></i></div>
-                        <div><p class="text-[9px] font-bold text-slate-400 uppercase">Top Category</p><p class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate w-24">${topCat[0]}</p></div>
-                    </div>
-                    <span class="text-xs font-black text-slate-800 dark:text-white">${Math.round((topCat[1]/total)*100)}%</span>
-                </div>
-
-                <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
-                    <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 text-[10px]"><i class="fas fa-arrow-up"></i></div>
-                        <div><p class="text-[9px] font-bold text-slate-400 uppercase">Biggest Txn</p><p class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate w-24">${maxTxn.note}</p></div>
-                    </div>
-                    <span class="text-xs font-black text-slate-800 dark:text-white">${fmt(maxTxn.amount)}</span>
-                </div>
             </div>
         `;
         
-        // 4. SHOW BUTTON NOW ⚡
-        closeBtn.classList.remove('hidden'); 
-        
         vibrate(50);
         
-    }, 3000); 
+    }, 2500); 
 }
 	
 	// --- AI MODAL CLOSE LOGIC ---
