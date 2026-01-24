@@ -1336,7 +1336,8 @@
 			let displayName = acc;
 			if (acc === 'All') { displayName = 'All'; icon = 'fa-layer-group'; } 
 			else if (lowerAcc.includes('flipkart')) { displayName = 'Flipkart Credit Card'; icon = 'fa-credit-card'; } 
-			else if (lowerAcc.includes('amazon')) { displayName = 'Amazon Credit Card'; icon = 'fab fa-amazon'; } 
+            // 🔥 REMOVED: Amazon special logic to fix "Gola" issue
+			// else if (lowerAcc.includes('amazon')) { displayName = 'Amazon Credit Card'; icon = 'fab fa-amazon'; } 
 			else if (lowerAcc.includes('sbi')) { displayName = 'SBI Bank'; icon = 'fa-university'; }
 			else if (lowerAcc.includes('axis')) { displayName = 'Axis Bank'; icon = 'fa-university'; }
 			else if (lowerAcc.includes('cash')) { displayName = 'Cash'; icon = 'fa-money-bill-wave'; }
@@ -1347,7 +1348,8 @@
 
 			if (lowerAcc.includes('axis')) { colorClass = 'peer-checked:!bg-rose-100 peer-checked:!text-rose-900 peer-checked:!border-rose-200'; } 
 			else if (lowerAcc.includes('flipkart')) { colorClass = 'peer-checked:!bg-blue-50 peer-checked:!text-blue-700 peer-checked:!border-blue-200'; } 
-			else if (lowerAcc.includes('amazon')) { colorClass = 'peer-checked:!bg-orange-100 peer-checked:!text-orange-900 peer-checked:!border-orange-200'; } 
+            // 🔥 REMOVED: Amazon special color logic
+			// else if (lowerAcc.includes('amazon')) { colorClass = 'peer-checked:!bg-orange-100 peer-checked:!text-orange-900 peer-checked:!border-orange-200'; } 
 			else if (lowerAcc.includes('sbi')) { colorClass = 'peer-checked:!bg-sky-100 peer-checked:!text-sky-700 peer-checked:!border-sky-200'; } 
 			else if (lowerAcc.includes('cash')) { colorClass = 'peer-checked:!bg-emerald-100 peer-checked:!text-emerald-800 peer-checked:!border-emerald-200'; }
 			else if (lowerAcc.includes('sunita')) { colorClass = 'peer-checked:!bg-fuchsia-100 peer-checked:!text-fuchsia-800 peer-checked:!border-fuchsia-200'; }
@@ -2565,9 +2567,13 @@ function updateSubCategories() {
 		}
 
     function toggleStatDetails(encodedCategory, containerId) {
+        // 1. 📳 Vibrate
+        if(typeof vibrate === 'function') vibrate(25); 
+
         const container = document.getElementById(containerId);
         const categoryName = decodeURIComponent(encodedCategory);
         
+        // Toggle Visibility
         if (!container.classList.contains('hidden')) { 
             container.classList.add('hidden'); 
             return; 
@@ -2576,7 +2582,7 @@ function updateSubCategories() {
         
         const { group } = statsState;
         
-        // Use Global Filter from renderStats
+        // 2. FILTER ITEMS (Main Category Data)
         const items = allData.filter(item => {
             if (!window.currentStatsFilter(item)) return false;
 
@@ -2589,34 +2595,217 @@ function updateSubCategories() {
         });
 
         if (items.length === 0) { 
-            container.innerHTML = '<p class="text-center text-xs text-slate-400 py-2">No entries found.</p>'; 
-        } else {
-            let html = '';
-            items.forEach(item => {
-                let note = item.Note || 'No Title';
-                let desc = item.Description ? item.Description : '';
-                let dateObj = parseDate(item.Date);
-                let dateStr = isNaN(dateObj) ? 'N/A' : dateObj.toLocaleDateString('en-GB', {day: 'numeric', month: 'short'});
-                let timeStr = isNaN(dateObj) ? '' : dateObj.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
-                let catStr = item.Category;
-                if(item['Sub-Category']) catStr += ` • ${item['Sub-Category']}`;
+            container.innerHTML = '<p class="text-center text-xs text-slate-400 py-6 font-medium italic">No entries found.</p>'; 
+            return;
+        }
+
+        // 3. AGGREGATE DATA
+        const subCatTotals = {};
+        const subCatCounts = {};
+        let mainTotal = 0;
+
+        items.forEach(item => {
+            let val = parseFloat(String(item.Amount).replace(/,/g, '')) || 0;
+            let subKey = item['Sub-Category'] ? item['Sub-Category'].trim() : 'General';
+            
+            if (!subCatTotals[subKey]) { subCatTotals[subKey] = 0; subCatCounts[subKey] = 0; }
+            subCatTotals[subKey] += val;
+            subCatCounts[subKey]++;
+            mainTotal += val;
+        });
+
+        const sortedSubCats = Object.entries(subCatTotals).sort((a,b) => b[1] - a[1]);
+
+        // 4. GROUP TRANSACTIONS BY DATE (For Timeline Fix)
+        const groupedTxns = {};
+        items.forEach(item => {
+            const d = parseDate(item.Date);
+            // Key: "Jan 25, 2026"
+            const dateKey = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            if(!groupedTxns[dateKey]) groupedTxns[dateKey] = [];
+            groupedTxns[dateKey].push(item);
+        });
+
+        // 5. GENERATE MODERN UI
+        let html = `<div class="animate-fadeInDown duration-300 cursor-default" onclick="event.stopPropagation()">`; 
+
+        // --- PART A: STACKED CARDS (Sub-Categories) ---
+        if (group !== 'sub_category') {
+            html += `<div class="flex items-center justify-between mb-4 pl-1">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Spending Breakdown</p>
+                     </div>`;
+            
+            // Stack Container (Vertical Column)
+            html += `<div class="flex flex-col gap-3 mb-8">`;
+            
+            sortedSubCats.forEach(([subName, subAmount]) => {
+                const count = subCatCounts[subName];
+                const pct = mainTotal > 0 ? ((subAmount / mainTotal) * 100).toFixed(0) : 0;
                 
-                const safeItem = encodeURIComponent(JSON.stringify(item));
+                let emoji = '🔹';
+                const match = subName.match(/[\p{Emoji}\u200d]+/u); 
+                if (match) emoji = match[0];
+                
+                const cleanName = subName.replace(/[\p{Emoji}\u200d]+/u, '').trim() || subName;
+                const safeName = cleanName.replace(/'/g, "\\'"); 
 
                 html += `
-                    <div class="relative bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm mb-3 last:mb-0 cursor-pointer active:scale-95 transition" onclick="handleItemClick('${safeItem}')">
-                        <div class="flex justify-between items-start mb-1">
-                            <span class="text-sm font-bold text-slate-800 dark:text-slate-200 leading-tight pr-2">${note}</span>
-                            <span class="text-sm font-black text-indigo-600 whitespace-nowrap">₹${parseFloat(item.Amount).toLocaleString()}</span>
+                    <div class="subcat-card relative bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm transition-all duration-200 active:scale-[0.98] cursor-pointer group"
+                         onclick="handleSubCatFilter(event, '${safeName}', '${containerId}', this)"
+                         data-name="${cleanName}">
+                        
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="flex items-center gap-3">
+                                <!-- iOS Style Squircle Icon -->
+                                <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/20 flex items-center justify-center text-lg shadow-sm group-hover:bg-indigo-100 transition-colors">
+                                    ${emoji}
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200 leading-tight">${cleanName}</p>
+                                    <p class="text-[10px] font-bold text-slate-400 mt-0.5">${count} Transactions</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-base font-black text-slate-800 dark:text-white tracking-tight">₹${subAmount.toLocaleString()}</p>
+                                <p class="text-[10px] font-bold text-indigo-500">${pct}% of total</p>
+                            </div>
                         </div>
-                        ${desc ? `<p class="text-xs text-slate-500 italic mb-2 leading-snug">"${desc}"</p>` : '<div class="mb-2"></div>'}
-                        <div class="flex flex-wrap gap-2 items-center">
-                            <div class="flex items-center gap-1 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded-md border border-indigo-100 dark:border-indigo-800"><i class="fas fa-layer-group text-[9px] text-indigo-400"></i><span class="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 truncate max-w-[100px]">${catStr}</span></div>
-                            <div class="flex items-center gap-1 bg-slate-50 dark:bg-slate-900 px-2 py-1 rounded-md border border-slate-100 dark:border-slate-800"><i class="fas fa-calendar-alt text-[9px] text-slate-400"></i><span class="text-[9px] font-bold text-slate-500">${dateStr}</span></div>
+
+                        <!-- Integrated Progress Bar -->
+                        <div class="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-indigo-500 rounded-full" style="width: ${pct}%"></div>
                         </div>
-                    </div>`;
+                    </div>
+                `;
             });
-            container.innerHTML = html;
+            html += `</div>`;
+        }
+
+        // --- PART B: GROUPED TIMELINE (Fixed Alignment) ---
+        html += `<div class="flex items-center justify-between mb-4 pl-1 border-t border-slate-100 dark:border-slate-800 pt-6">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">History</span>
+                    <span id="${containerId}-count" class="text-[9px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700">${items.length} Records</span>
+                 </div>`;
+
+        html += `<div class="space-y-6" id="${containerId}-list">`; 
+
+        // Loop through Dates
+        Object.keys(groupedTxns).forEach(dateKey => {
+            const dayTxns = groupedTxns[dateKey];
+            
+            // Check if active Sub-Cat filter exists to hide empty dates initially? 
+            // Logic handled in handleSubCatFilter, here we render all.
+
+            html += `<div class="date-group">`;
+            
+            // 1. DATE HEADER (Sticky/Block)
+            html += `<div class="sticky top-0 z-10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-sm py-1 mb-2">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded-md">${dateKey}</span>
+                     </div>`;
+            
+            // 2. TRANSACTIONS LIST (Indent with Border)
+            html += `<div class="ml-2 pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-3">`;
+            
+            dayTxns.forEach(item => {
+                let note = item.Note || 'No Title';
+                let rawSub = item['Sub-Category'] ? item['Sub-Category'] : 'General';
+                const itemCleanSub = rawSub.replace(/[\p{Emoji}\u200d]+/u, '').trim();
+                const safeItem = encodeURIComponent(JSON.stringify(item));
+                
+                html += `
+                    <div class="txn-row relative flex justify-between items-start cursor-pointer active:opacity-70 transition-opacity"
+                         data-subcat="${itemCleanSub}"
+                         onclick="event.stopPropagation(); vibrate(15); handleItemClick('${safeItem}')">
+                        
+                        <!-- Dot Connector -->
+                        <div class="absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full bg-white dark:bg-slate-800 border-2 border-indigo-400 ring-2 ring-slate-50 dark:ring-slate-900"></div>
+
+                        <div class="flex-1 min-w-0 pr-3">
+                            <p class="text-sm font-bold text-slate-700 dark:text-slate-200 truncate leading-tight">${note}</p>
+                            <p class="text-[10px] text-slate-400 truncate mt-0.5">${item.Account} • ${rawSub}</p>
+                        </div>
+                        <span class="text-sm font-black text-slate-800 dark:text-white whitespace-nowrap">₹${parseFloat(item.Amount).toLocaleString()}</span>
+                    </div>
+                `;
+            });
+            
+            html += `</div></div>`; // Close Items & Group
+        });
+
+        html += `</div>`; // Close List Container
+        html += `</div>`; // Close Main Wrapper
+
+        container.innerHTML = html;
+    }
+  
+function handleSubCatFilter(event, subName, containerId, cardEl) {
+        event.stopPropagation();
+        vibrate(20);
+        const container = document.getElementById(containerId);
+        
+        // Elements
+        const dateGroups = container.querySelectorAll('.date-group'); // Get Date Blocks
+        const cards = container.querySelectorAll('.subcat-card');
+        const countBadge = document.getElementById(`${containerId}-count`);
+
+        // Check active state
+        const isAlreadyActive = cardEl.getAttribute('data-active') === 'true';
+
+        // --- RESET UI (Default State) ---
+        cards.forEach(c => {
+            c.setAttribute('data-active', 'false');
+            // Remove Active Styles
+            c.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-50', 'dark:bg-indigo-900/20', 'border-indigo-200');
+            // Restore Default Styles
+            c.classList.add('bg-white', 'dark:bg-slate-800', 'border-slate-100');
+        });
+
+        if (isAlreadyActive) {
+            // --- SHOW ALL ---
+            dateGroups.forEach(group => {
+                group.classList.remove('hidden'); // Show Date Header
+                const rows = group.querySelectorAll('.txn-row');
+                rows.forEach(r => r.classList.remove('hidden')); // Show Rows
+            });
+            
+            // Recount Total
+            const total = container.querySelectorAll('.txn-row').length;
+            if(countBadge) countBadge.innerText = `${total} Records`;
+            
+        } else {
+            // --- FILTER MODE ---
+            
+            // 1. Highlight Card
+            cardEl.setAttribute('data-active', 'true');
+            cardEl.classList.remove('bg-white', 'dark:bg-slate-800', 'border-slate-100');
+            cardEl.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-50', 'dark:bg-indigo-900/20', 'border-indigo-200');
+
+            let visibleCount = 0;
+
+            // 2. Loop through Date Groups
+            dateGroups.forEach(group => {
+                const rows = group.querySelectorAll('.txn-row');
+                let hasVisibleRow = false;
+
+                rows.forEach(r => {
+                    if (r.getAttribute('data-subcat') === subName) {
+                        r.classList.remove('hidden');
+                        hasVisibleRow = true;
+                        visibleCount++;
+                    } else {
+                        r.classList.add('hidden');
+                    }
+                });
+
+                // Hide Date Header if no rows match in that date
+                if (hasVisibleRow) {
+                    group.classList.remove('hidden');
+                } else {
+                    group.classList.add('hidden');
+                }
+            });
+
+            if(countBadge) countBadge.innerText = `${visibleCount} Records`;
         }
     }
 	
