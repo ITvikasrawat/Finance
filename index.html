@@ -696,7 +696,620 @@
         .dark .custom-option { color: #94a3b8; }
         .custom-option:hover, .custom-option:active { background-color: #f1f5f9; color: #4f46e5; }
         .dark .custom-option:hover, .dark .custom-option:active { background-color: #334155; color: #818cf8; }
-		
+/* --- ⚡ NEW MODERN UTILITY STYLES --- */
+
+/* Frosted Glass Card Effect */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+.dark .glass-panel {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Neon Glows */
+.glow-text-green { text-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+.glow-text-red { text-shadow: 0 0 10px rgba(244, 63, 94, 0.4); }
+
+/* Animation for Live Status */
+@keyframes pulse-ring {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+.live-indicator { animation: pulse-ring 2s infinite; }
+
+<!-- ... inside <style> ... -->
+
+/* --- ⚡ MODERN UTILITY CARDS (New) --- */
+.util-card {
+    position: relative;
+    background: white;
+    border-radius: 1.5rem;
+    padding: 1.25rem;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+    border: 1px solid #f1f5f9;
+    transition: transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+}
+.dark .util-card {
+    background: #1e293b;
+    border-color: #334155;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3);
+}
+.util-card:active { transform: scale(0.98); }
+
+/* Floor Badges */
+.floor-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 2.5rem; height: 2.5rem; border-radius: 1rem;
+    font-weight: 900; font-size: 1rem; color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Status Indicators */
+.status-pill {
+    padding: 4px 10px; border-radius: 99px;
+    font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.status-due { background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; } /* Rose */
+.status-paid { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; } /* Emerald */
+.dark .status-due { background: rgba(225, 29, 72, 0.15); color: #fb7185; border-color: rgba(225, 29, 72, 0.3); }
+.dark .status-paid { background: rgba(5, 150, 105, 0.15); color: #34d399; border-color: rgba(5, 150, 105, 0.3); }
+
+/* IGL Digital Meter Glow */
+.meter-glow {
+    text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+}
+
+/* --- 💳 UTILITY CREDIT CARD STYLE --- */
+.util-hero-card {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1.8/1;
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    color: white;
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Background Patterns for Cards */
+.bg-pattern-bses {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+.bg-pattern-igl {
+    background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+}
+
+.card-chip {
+    width: 40px; height: 30px;
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.3);
+    position: relative;
+    margin-bottom: 1rem;
+}
+.card-chip::after {
+    content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 1px; bg: rgba(0,0,0,0.2);
+}
+
+/* --- 🔽 ACCORDION (DROPDOWN) STYLE --- */
+.accordion-item {
+    background: white;
+    border-radius: 1rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid #f1f5f9;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+.dark .accordion-item { background: #1e293b; border-color: #334155; }
+
+.accordion-header {
+    padding: 1rem;
+    display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer;
+    background: white;
+    position: relative;
+    z-index: 10;
+}
+.dark .accordion-header { background: #1e293b; }
+
+.accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s cubic-bezier(0, 1, 0, 1);
+    background: #f8fafc;
+}
+.dark .accordion-body { background: #0f172a; }
+
+.accordion-item.active { box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border-color: #e2e8f0; }
+.accordion-item.active .accordion-body { max-height: 200px; /* Adjust based on content */ border-top: 1px solid #f1f5f9; }
+.accordion-item.active .chevron-icon { transform: rotate(180deg); }
+
+.accordion-icon { transition: transform 0.3s; }
+
+/* Status Badges */
+.badge-paid { background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; }
+.badge-due { background: #ffe4e6; color: #be123c; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; }
+.dark .badge-paid { background: rgba(22, 101, 52, 0.2); color: #4ade80; }
+.dark .badge-due { background: rgba(190, 18, 60, 0.2); color: #fb7185; }
+
+/* --- 💳 MODERN UTILITY CARDS --- */
+.util-card-3d {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1.7/1; /* Credit Card Ratio */
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    color: white;
+    overflow: hidden;
+    box-shadow: 0 20px 50px -12px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s;
+}
+
+/* BSES Gradient (Warm/Gold) */
+.bg-bses-gradient {
+    background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%);
+}
+
+/* IGL Gradient (Cool/Blue) */
+.bg-igl-gradient {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+/* Glass Effect for Text/Numbers */
+.card-glass-pill {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 4px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* EMV Chip Style */
+.emv-chip {
+    width: 45px; height: 32px;
+    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+}
+.emv-chip::before {
+    content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: #ccc;
+}
+.emv-chip::after {
+    content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #ccc;
+}
+
+/* --- 📝 MODERN LIST ITEMS --- */
+.util-list-item {
+    background: white;
+    border-radius: 1.25rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 15px -3px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: transform 0.1s;
+}
+.dark .util-list-item {
+    background: #1e293b;
+    border-color: #334155;
+}
+.util-list-item:active { transform: scale(0.98); }
+
+/* Badges */
+.badge-bill { background: #ffe4e6; color: #be123c; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; }
+.badge-zero { background: #dcfce7; color: #15803d; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; }
+.dark .badge-bill { background: rgba(190, 18, 60, 0.2); color: #fb7185; }
+.dark .badge-zero { background: rgba(21, 128, 61, 0.2); color: #4ade80; }
+
+/* --- 🗓️ UTILITY HEADER & DROPDOWN --- */
+.util-header-pill {
+    background: white;
+    border: 1px solid #e2e8f0;
+    padding: 6px 12px;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    transition: all 0.2s;
+}
+.dark .util-header-pill { background: #1e293b; border-color: #334155; color: #cbd5e1; }
+.util-header-pill:active { transform: scale(0.95); background: #f8fafc; }
+
+/* Custom Dropdown Menu (Reused & Tweaked) */
+.util-month-menu {
+    position: absolute;
+    top: 100%; 
+    right: 0;
+    width: 140px;
+    max-height: 200px;
+    overflow-y: auto;
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 10px 40px -5px rgba(0,0,0,0.25);
+    border: 1px solid #f1f5f9;
+    
+    /* 🔥 MAGIC FIX: Dropdown ko 3D mein hawa mein upar uthao */
+    transform: translateZ(50px); 
+    z-index: 1000 !important;
+    
+    display: none;
+    margin-top: 8px;
+    padding: 6px;
+}
+/* Ensure Dark Mode works */
+.dark .util-month-menu { 
+    background: #0f172a; 
+    border-color: #334155; 
+}
+
+/* Open State */
+.util-month-menu.open { 
+    display: block; 
+    animation: fadeInDown 0.2s ease-out; 
+}
+
+/* --- 📝 MODERN LIST ITEMS (Fixed Alignment) --- */
+.util-item-row {
+    background: white;
+    border-radius: 1.25rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 10px -2px rgba(0,0,0,0.03);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: transform 0.1s;
+    cursor: pointer;
+}
+.dark .util-item-row { background: #1e293b; border-color: #334155; }
+.util-item-row:active { transform: scale(0.98); background: #f8fafc; }
+
+/* Status Badges */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap; /* Prevents line break */
+}
+.bg-green-soft { background: #dcfce7; color: #166534; }
+.bg-red-soft { background: #ffe4e6; color: #be123c; }
+.dark .bg-green-soft { background: rgba(22, 101, 52, 0.2); color: #4ade80; }
+.dark .bg-red-soft { background: rgba(190, 18, 60, 0.2); color: #fb7185; }
+
+/* Detail Modal Grid */
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 1rem;
+    margin-top: 1rem;
+}
+.dark .detail-grid { background: #0f172a; }
+
+.detail-box {
+    display: flex; flex-direction: column;
+}
+.detail-label { font-size: 0.65rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px; }
+.detail-val { font-size: 0.85rem; font-weight: 700; color: #334155; }
+.dark .detail-val { color: #e2e8f0; }
+
+/* --- 💳 UTILITY FLIP CARD SYSTEM --- */
+.util-perspective {
+    perspective: 1000px;
+    margin-bottom: 1.5rem;
+}
+
+.util-flip-inner {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1.75/1; /* Credit Card Ratio */
+    text-align: left;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+    cursor: pointer;
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
+    border-radius: 1.5rem;
+}
+
+.util-flip-inner.flipped {
+    transform: rotateY(180deg);
+}
+
+.util-face {
+    /* Purana overflow hidden hatao */
+    overflow: visible !important; 
+    /* Baaki properties same rahengi */
+    position: absolute; width: 100%; height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.util-bg-wrapper {
+    position: absolute;
+    inset: 0;
+    border-radius: 1.5rem;
+    overflow: hidden; /* Blobs ko clip karne ke liye */
+    z-index: 0;
+}
+
+/* Front: BSES (Warm Gradient) */
+.util-front {
+    background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+}
+
+/* Back: IGL (Cool Gradient) */
+.util-back {
+    background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+    transform: rotateY(180deg);
+}
+
+/* Card Elements */
+.util-chip {
+    width: 45px; height: 32px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(5px);
+    position: relative;
+}
+.util-chip::after {
+    content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: rgba(255,255,255,0.3);
+}
+
+.util-badge {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    backdrop-filter: blur(4px);
+    letter-spacing: 0.5px;
+}
+
+/* Hint Animation */
+.tap-hint {
+    animation: pulse 2s infinite;
+}
+
+/* --- 🔽 INLINE ACCORDION STYLES --- */
+.util-row-wrapper {
+    background: white;
+    border: 1px solid #f1f5f9;
+    border-radius: 1.25rem;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px -2px rgba(0,0,0,0.03);
+}
+.dark .util-row-wrapper { background: #1e293b; border-color: #334155; }
+
+/* The clickable header part */
+.util-row-header {
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    background: white;
+    position: relative;
+    z-index: 10;
+}
+.dark .util-row-header { background: #1e293b; }
+.util-row-header:active { background-color: #f8fafc; }
+
+/* The hidden details part */
+.util-row-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #f8fafc;
+}
+.dark .util-row-body { background: #0f172a; }
+
+/* Expanded State */
+.util-row-wrapper.expanded {
+    box-shadow: 0 10px 30px -5px rgba(0,0,0,0.1);
+    border-color: #e2e8f0;
+}
+.util-row-wrapper.expanded .util-row-body {
+    max-height: 300px; /* Enough height to show content */
+    border-top: 1px dashed #e2e8f0;
+}
+.util-row-wrapper.expanded .chevron-icon {
+    transform: rotate(180deg);
+}
+
+/* Inner Grid */
+.inline-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 1rem;
+}
+.inline-label { font-size: 0.65rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px; }
+.inline-val { font-size: 0.85rem; font-weight: 700; color: #334155; }
+.dark .inline-val { color: #e2e8f0; }
+
+/* --- ⚡ UTILITY 3D FLIP CARD CSS (Fix for Gap) --- */
+.util-perspective {
+    perspective: 1000px;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 10;
+}
+
+.util-flip-inner {
+    position: relative;
+    width: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    overflow: visible !important; /* 🔥 Fix */
+}
+
+/* Jab Flip ho (IGL Active) */
+.util-flip-inner.flipped {
+    transform: rotateY(180deg);
+}
+
+/* Card Faces (BSES & IGL) - Absolute taaki stack na ho */
+.util-face {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden; /* Safari Fix */
+    backface-visibility: hidden;
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+}
+
+/* FRONT FACE (BSES - Orange) */
+.util-front {
+    background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+    z-index: 2;
+    transform: rotateY(0deg);
+}
+
+/* BACK FACE (IGL - Blue) */
+.util-back {
+    background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+    transform: rotateY(180deg);
+    z-index: 1;
+}
+
+/* --- Card Elements Styling --- */
+.util-chip {
+    width: 45px; 
+    height: 32px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(5px);
+    position: relative;
+}
+.util-chip::after {
+    content: ''; 
+    position: absolute; 
+    top: 50%; left: 0; width: 100%; height: 1px; 
+    background: rgba(255,255,255,0.3);
+}
+
+/* Tap Hint Animation */
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+.animate-spin-slow { animation: spin-slow 3s linear infinite; }
+
+/* --- ⚡ UTILITY 3D FLIP CARD CSS --- */
+.util-perspective {
+    perspective: 1000px;
+    margin-bottom: 1.5rem;
+}
+
+.util-flip-inner {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1.75/1; /* Credit Card Ratio */
+    text-align: left;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+    cursor: pointer;
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
+    border-radius: 1.5rem;
+}
+
+/* Jab Flip ho (IGL Active) */
+.util-flip-inner.flipped {
+    transform: rotateY(180deg);
+}
+
+/* Card Faces (BSES & IGL) - Absolute taaki stack na ho */
+.util-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden; /* Safari Fix */
+    backface-visibility: hidden;
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+}
+
+/* FRONT FACE (BSES - Orange) */
+.util-front {
+    background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+    z-index: 2;
+    transform: rotateY(0deg);
+}
+
+/* BACK FACE (IGL - Blue) */
+.util-back {
+    background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+    transform: rotateY(180deg);
+    z-index: 1;
+}
+
+/* --- Card Elements Styling --- */
+.util-chip {
+    width: 45px; height: 32px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(5px);
+    position: relative;
+}
+.util-chip::after {
+    content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: rgba(255,255,255,0.3);
+}
+
+/* Tap Hint Animation */
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+.animate-spin-slow { animation: spin-slow 3s linear infinite; }
+
     </style>
 </head>
 <body class="font-sans text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 h-screen flex flex-col overflow-hidden">
@@ -791,26 +1404,30 @@
         </div>
 
         <!-- FAB -->
-        <button class="fab" onclick="vibrate(50); openModal('add')"><i class="fas fa-plus"></i></button>
+        <button class="fab" onclick="vibrate(50); handleFabClick()"><i class="fas fa-plus"></i></button>
 
         <!-- FLOATING BOTTOM NAV -->
-		<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[350px] h-[65px] bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.5)] rounded-full z-50 flex items-center justify-between px-2 p-1 transition-colors duration-300">
-			
-			<!-- 1. Wallet Button (Active by Default) -->
-			<!-- Added: dark:bg-indigo-500/20 dark:text-indigo-300 -->
-			<button id="nav-home" class="flex-1 h-full rounded-full flex flex-col items-center justify-center gap-0.5 transition-all duration-300 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 shadow-sm" onclick="vibrate(20); switchTab('home')">
-				<i class="fas fa-wallet text-lg mb-0.5"></i>
-				<span class="text-[10px] font-bold">Wallet</span>
-			</button>
-			
-			<!-- 2. Stats Button (Inactive by Default) -->
-			<!-- Added: dark:text-slate-500 dark:hover:text-slate-300 -->
-			<button id="nav-stats" class="flex-1 h-full rounded-full flex flex-col items-center justify-center gap-0.5 transition-all duration-300 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50" onclick="vibrate(20); switchTab('stats')">
-				<i class="fas fa-chart-pie text-lg mb-0.5"></i>
-				<span class="text-[10px] font-bold">Stats</span>
-			</button>
+<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[350px] h-[65px] bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.5)] rounded-full z-50 flex items-center justify-between px-2 p-1 transition-colors duration-300">
+    
+    <!-- 1. Wallet Button -->
+    <button id="nav-home" class="flex-1 h-full rounded-full flex flex-col items-center justify-center gap-0.5 transition-all duration-300 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 shadow-sm" onclick="vibrate(20); switchTab('home')">
+        <i class="fas fa-wallet text-lg mb-0.5"></i>
+        <span class="text-[10px] font-bold">Wallet</span>
+    </button>
+    
+    <!-- 2. UTILITY Button (NEW ADDITION ⚡) -->
+    <button id="nav-utility" class="flex-1 h-full rounded-full flex flex-col items-center justify-center gap-0.5 transition-all duration-300 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50" onclick="vibrate(20); switchTab('utility')">
+        <i class="fas fa-bolt text-lg mb-0.5"></i>
+        <span class="text-[10px] font-bold">Utility</span>
+    </button>
+    
+    <!-- 3. Stats Button -->
+    <button id="nav-stats" class="flex-1 h-full rounded-full flex flex-col items-center justify-center gap-0.5 transition-all duration-300 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50" onclick="vibrate(20); switchTab('stats')">
+        <i class="fas fa-chart-pie text-lg mb-0.5"></i>
+        <span class="text-[10px] font-bold">Stats</span>
+    </button>
 
-		</nav>
+</nav>
 
         <!-- HOME TAB -->
         <div id="tab-home" class="tab-content active">
@@ -1023,6 +1640,13 @@
 			<h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 px-1">Breakdown</h3>
 			<div id="stats-list" class="space-y-3 pb-24"></div>
 		</div>
+		
+		<!-- UTILITY TAB (MODERN - CLEANED) -->
+		<div id="tab-utility" class="tab-content px-5 hidden">
+			<!-- Bas ye ek khaali dibba rahega, JS isme sab bharega -->
+			<div id="utility-container"></div>
+		</div>
+		
     </main>
 
     <!-- TOAST CONTAINER -->
@@ -1260,10 +1884,12 @@
     // ********************************************
     // 1. CONFIGURATION & STATE
     // ********************************************
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwkYbgMNi-ibFiXvFVcC_TQX-OfH9fFVSd1d9QNiyPAheg4raK5C0mPboQzuklChE1W/exec'; 
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyI-l5MTdZoyXqtw2L7OgY8xS5ynz7Pw6FUMlgB5fzxT5ElXLvM0Tt9nXhOH8hUGfnH/exec'; 
     const CACHE_KEY = 'finance_v3_cache';
 
     let allData = [];
+	let bsesData = [];
+let iglData = [];
     let currentFilter = { year: new Date().getFullYear(), month: new Date().getMonth() };
     let expenseChart = null;
     let showChartLegend = false;
@@ -1470,24 +2096,28 @@
         const threshold = 50; 
 
         // Check: Horizontal Swipe > Vertical Swipe
-        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > threshold) {
-            
-            const isHomeActive = document.getElementById('tab-home').classList.contains('active');
+        // New Fixed Swipe Logic (Inside 'touchend' listener)
+if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > threshold) {
+    
+    const isHomeActive = document.getElementById('tab-home').classList.contains('active');
+    const isUtilityActive = document.getElementById('tab-utility').classList.contains('active'); // 🔥 Check Utility Tab
 
-            // Swipe Left (Go to Stats)
-            if (diffX < 0 && isHomeActive) { 
-                if(typeof vibrate === 'function') vibrate(40); 
-                else if(navigator.vibrate) navigator.vibrate(40);
-                switchTab('stats'); 
-            }
+    // Swipe Left (Home -> Stats)
+    if (diffX < 0 && isHomeActive) { 
+        if(typeof vibrate === 'function') vibrate(40); 
+        else if(navigator.vibrate) navigator.vibrate(40);
+        switchTab('stats'); 
+    }
 
-            // Swipe Right (Go to Home)
-            else if (diffX > 0 && !isHomeActive) { 
-                if(typeof vibrate === 'function') vibrate(40); 
-                else if(navigator.vibrate) navigator.vibrate(40);
-                switchTab('home'); 
-            }
-        }
+    // Swipe Right (Stats -> Home)
+    // ⚡ FIX: Added '!isUtilityActive' condition
+    // Iska matlab: Agar Home nahi hai AUR Utility bhi nahi hai (yani Stats hai), tabhi switch karo.
+    else if (diffX > 0 && !isHomeActive && !isUtilityActive) { 
+        if(typeof vibrate === 'function') vibrate(40); 
+        else if(navigator.vibrate) navigator.vibrate(40);
+        switchTab('home'); 
+    }
+}
     }, {passive: true});
 	
         // --- 🔴 SWIPE HANDLER END ---
@@ -1605,48 +2235,69 @@
     // 4. DATA HANDLING
     // ********************************************
     function loadFromCache() {
-        const cached = localStorage.getItem(CACHE_KEY);
-        if(cached) { 
-            try { 
-                allData = JSON.parse(cached); 
-                initDynamicDropdown(); 
-                applyFilter(); 
-            } catch(e) { console.error("Cache Error", e); } 
-        } else { 
+    // 1. Load Finance Data
+    const cached = localStorage.getItem(CACHE_KEY);
+    if(cached) { 
+        try { 
+            allData = JSON.parse(cached); 
             initDynamicDropdown(); 
-        }
+            applyFilter(); 
+        } catch(e) { console.error("Finance Cache Error", e); } 
+    } else { 
+        initDynamicDropdown(); 
     }
+
+    // 2. Load Utility Data (BSES & IGL) ⚡
+    const bsesCached = localStorage.getItem('bses_cache');
+    const iglCached = localStorage.getItem('igl_cache');
+
+    if (bsesCached) { try { bsesData = JSON.parse(bsesCached); } catch(e) { console.error("BSES Cache Error", e); } }
+    if (iglCached) { try { iglData = JSON.parse(iglCached); } catch(e) { console.error("IGL Cache Error", e); } }
+}
 
     async function fetchData() {
-        const indicatorBox = document.getElementById('sync-indicator');
-        const indicatorIcon = document.getElementById('sync-icon');
-        
-        indicatorBox.classList.add('animate-pulse');
-        indicatorIcon.className = "fas fa-sync-alt text-[9px] text-amber-500 animate-spin"; 
+    const indicatorBox = document.getElementById('sync-indicator');
+    const indicatorIcon = document.getElementById('sync-icon');
+    
+    indicatorBox.classList.add('animate-pulse');
+    indicatorIcon.className = "fas fa-sync-alt text-[9px] text-amber-500 animate-spin"; 
 
-        try {
-            // 🔥 FIX: Timestamp add kiya taaki browser cache na uthaye
-            const res = await fetch(API_URL + '?t=' + new Date().getTime());
-            const json = await res.json();
-            
-            if(json.status === 'success') {
-                allData = json.data.filter(i => i.Amount);
-                localStorage.setItem(CACHE_KEY, JSON.stringify(allData));
-                
-                // Refresh Logic
-                initDynamicDropdown();
-                applyFilter();
-            }
-        } catch(e) { 
-            console.error("Sync Error:", e); 
-            indicatorIcon.className = "fas fa-wifi-slash text-[9px] text-rose-500";
-        } finally { 
-            setTimeout(() => {
-                indicatorBox.classList.remove('animate-pulse');
-                indicatorIcon.className = "fas fa-wifi text-[9px] text-emerald-500"; 
-            }, 500);
-        }
+    try {
+        const res = await fetch(API_URL + '?t=' + new Date().getTime());
+        const json = await res.json();
+        
+        if(json.status === 'success') {
+    allData = json.data.filter(i => i.Amount);
+    
+    // 🔥 Capture New Utility Data
+    bsesData = json.bses || [];
+    iglData = json.igl || [];
+	initUtilityDates();
+
+    // ✅ SAVE ALL TO CACHE
+    localStorage.setItem(CACHE_KEY, JSON.stringify(allData));
+    localStorage.setItem('bses_cache', JSON.stringify(bsesData));
+    localStorage.setItem('igl_cache', JSON.stringify(iglData));
+    
+    initDynamicDropdown();
+    applyFilter();
+    
+    // Agar Utility tab khula hai to refresh karo
+    if(!document.getElementById('tab-utility').classList.contains('hidden')) {
+        renderUtilities(); // Refresh view with new data
     }
+}
+
+    } catch(e) { 
+        console.error("Sync Error:", e); 
+        indicatorIcon.className = "fas fa-wifi-slash text-[9px] text-rose-500";
+    } finally { 
+        setTimeout(() => {
+            indicatorBox.classList.remove('animate-pulse');
+            indicatorIcon.className = "fas fa-wifi text-[9px] text-emerald-500"; 
+        }, 500);
+    }
+}
 
     // ********************************************
     // 5. FILTER & RENDER LOGIC
@@ -3106,53 +3757,75 @@ function handleSubCatFilter(event, subName, containerId, cardEl) {
     }
     
     // Tab Switcher (With Force Animation Logic)
-    function switchTab(id) {
-        // 1. Scroll Reset (Taaki naya page top se dikhe)
-        document.getElementById('main-scroll').scrollTop = 0;
+    // New Fixed Logic
+function switchTab(id) {
+    document.getElementById('main-scroll').scrollTop = 0;
 
-        // 2. Hide All Tabs & Remove Old Animation Classes
-        document.querySelectorAll('.tab-content').forEach(el => {
-            el.classList.remove('active', 'anim-slide-right', 'anim-slide-left');
-        });
+    // 1. Reset All Tabs
+    document.querySelectorAll('.tab-content').forEach(el => {
+        el.classList.remove('active', 'anim-slide-right', 'anim-slide-left');
+        // 🔥 Hide explicitly to be safe
+        if(!el.classList.contains('hidden')) el.classList.add('hidden'); 
+    });
 
-        // 3. Select New Tab
-        const newTab = document.getElementById('tab-' + id);
-        
-        // 4. 🔥 MAGIC TRICK: Force Browser Reflow (Animation Reset)
-        // Ye line browser ko bolti hai "Element ko recalculate karo" taaki animation restart ho sake
-        void newTab.offsetWidth; 
+    // -----------------------------------------------------------
+    // ⚡ FIX: Hide Global Header Dropdown when in Utility Tab
+    // -----------------------------------------------------------
+    const globalMonthBtn = document.getElementById('monthTriggerBtn');
+    const globalMonthMenu = document.getElementById('customMonthMenu'); // Menu bhi close karein safety ke liye
 
-        // 5. Apply New Animation Class
-        if (id === 'stats') {
-            newTab.classList.add('anim-slide-right'); // Right se aao
-        } else {
-            newTab.classList.add('anim-slide-left'); // Left se aao
-        }
-
-        // 6. Show Tab
-        newTab.classList.add('active');
-
-        // --- BUTTON STYLING (Ye same rahega) ---
-        const homeBtn = document.getElementById('nav-home');
-        const statsBtn = document.getElementById('nav-stats');
-        const baseClass = "flex-1 h-full rounded-full flex flex-col items-center justify-center gap-0.5 transition-all duration-300";
-        const activeClass = "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 shadow-sm"; 
-		const inactiveClass = "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50";
-        
-        if (id === 'home') {
-            homeBtn.className = `${baseClass} ${activeClass}`;
-            statsBtn.className = `${baseClass} ${inactiveClass}`;
-        } else {
-            homeBtn.className = `${baseClass} ${inactiveClass}`;
-            statsBtn.className = `${baseClass} ${activeClass}`;
-            
-            // 🔥 FIX: Delay badhaya (50 -> 350) taaki slide khatam hone ke baad chart banna shuru ho
-            setTimeout(() => { 
-                renderStats(); 
-                renderHeatmap(); 
-            }, 350); 
-        }
+    if (id === 'utility') {
+        // Agar Utility tab khula hai -> Header Dropdown HATAO
+        if (globalMonthBtn) globalMonthBtn.classList.add('hidden');
+        if (globalMonthMenu) globalMonthMenu.classList.add('hidden'); 
+    } else {
+        // Agar Home ya Stats hai -> Header Dropdown DIKHAO
+        if (globalMonthBtn) globalMonthBtn.classList.remove('hidden');
     }
+    // -----------------------------------------------------------
+
+    // 2. Activate Target Tab
+    const newTab = document.getElementById('tab-' + id);
+    newTab.classList.remove('hidden'); // Show div
+    void newTab.offsetWidth; // Force Reflow
+    
+    // Animation Logic
+    if (id === 'stats' || id === 'utility') {
+        newTab.classList.add('anim-slide-right');
+    } else {
+        newTab.classList.add('anim-slide-left');
+    }
+    newTab.classList.add('active');
+
+    // 3. Button Styling
+    const homeBtn = document.getElementById('nav-home');
+    const statsBtn = document.getElementById('nav-stats');
+    const utilBtn = document.getElementById('nav-utility'); 
+
+    const baseClass = "flex-1 h-full rounded-full flex flex-col items-center justify-center gap-0.5 transition-all duration-300";
+    const activeClass = "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 shadow-sm"; 
+    const inactiveClass = "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50";
+    
+    // Reset All Buttons
+    homeBtn.className = `${baseClass} ${inactiveClass}`;
+    statsBtn.className = `${baseClass} ${inactiveClass}`;
+    utilBtn.className = `${baseClass} ${inactiveClass}`;
+
+    // Activate Specific Button
+    if (id === 'home') {
+        homeBtn.className = `${baseClass} ${activeClass}`;
+    } else if (id === 'utility') {
+        utilBtn.className = `${baseClass} ${activeClass.replace('indigo', 'slate')}`; 
+        utilBtn.classList.add('text-amber-600', 'bg-amber-50'); // Amber Theme for Utility
+        renderUtilities(); // 🔥 Render Data on Tab Switch
+    } else {
+        statsBtn.className = `${baseClass} ${activeClass}`;
+        setTimeout(() => { 
+            renderStats(); 
+            renderHeatmap(); 
+        }, 350); 
+    }
+}
     
     // 1. Toggle Search Bar (Open/Close Logic)
 	function toggleSearch() {
@@ -3916,8 +4589,1034 @@ function handleSubCatFilter(event, subName, containerId, cardEl) {
 			vibrate(20); // Haptic feedback bhi de dete hain
 		}
 	}
+	
+// ********************************************
+// ⚡ UTILITY DASHBOARD LOGIC (FINAL REFINED)
+// ********************************************
+
+let currentUtilityView = 'BSES';
+const utilityState = {
+    BSES: new Date(),
+    IGL: new Date()
+};
+// Helper to Auto-Select Latest Date on Load
+function initUtilityDates() {
+    // BSES: Find latest bill date
+    if(bsesData.length > 0) {
+        const latestBSES = bsesData.reduce((a, b) => new Date(a.Bill_Date) > new Date(b.Bill_Date) ? a : b);
+        if(latestBSES && latestBSES.Bill_Date) utilityState.BSES = new Date(latestBSES.Bill_Date);
+    }
+    // IGL: Find latest reading date
+    if(iglData.length > 0) {
+        const latestIGL = iglData.reduce((a, b) => new Date(a.Date) > new Date(b.Date) ? a : b);
+        if(latestIGL && latestIGL.Date) utilityState.IGL = new Date(latestIGL.Date);
+    }
+}
+
+// --- 1. SMART FAB LOGIC UPDATE ---
+// Isse replace karein purane handleFabClick se
+function handleFabClick() {
+    vibrate(20);
+    
+    // Check if Utility Tab is Active
+    if(document.getElementById('tab-utility').classList.contains('active')) {
+        setTimeout(() => {
+            if(currentUtilityView === 'BSES') {
+                openUtilityModal('bses', 'add'); // Open BSES Specific Modal
+            } else {
+                openUtilityModal('igl', 'add');  // Open IGL Specific Modal
+            }
+        }, 50);
+    } else {
+        // Standard Wallet Modal
+        openModal('add'); 
+    }
+}
+
+// --- 2. OPEN UTILITY MODAL ---
+function openUtilityModal(type, mode, data = null) {
+    vibrate(20);
+    const modalId = type === 'bses' ? 'bsesModal' : 'iglModal';
+    const modal = document.getElementById(modalId);
+	const sorted = [...iglData].sort((a, b) => new Date(b.Date) - new Date(a.Date));
+const lastR = sorted.length > 0 ? sorted[0].Reading : "0";
+document.getElementById('iglPrevDisplay').innerText = "Prev: " + lastR;
+    
+    // Reset Form
+    document.getElementById(`${type}Form`).reset();
+    
+    // Set Date Default to Today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById(`${type}Date`).value = today;
+
+    if (mode === 'edit' && data) {
+        // --- EDIT MODE ---
+        document.getElementById(`${type}ModalTitle`).innerText = type === 'bses' ? 'Edit Bill' : 'Edit Log';
+        document.getElementById(`${type}SaveBtn`).innerText = 'UPDATE ENTRY';
+        document.getElementById(`${type}DeleteBtn`).classList.remove('hidden');
+        document.getElementById(`${type}Id`).value = data.ID || ''; // ID is crucial for Edit
+		
+		// openUtilityModal में IGL वाले सेक्शन के अंदर यह जोड़ें:
+if (type === 'igl') {
+    const otherReadingsForPrev = iglData.filter(item => String(item.ID) !== String(document.getElementById('iglId').value));
+    const sortedForPrev = otherReadingsForPrev.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+    const lastR = sortedForPrev.length > 0 ? sortedForPrev[0].Reading : "0";
+    document.getElementById('iglPrevDisplay').innerText = "Prev: " + lastR;
+}
+
+        if (type === 'bses') {
+            // Fill BSES Data
+            document.getElementById('bsesFloor').value = data.Floor;
+            document.getElementById('bsesUnits').value = data.Units;
+            document.getElementById('bsesAmount').value = data.Amount;
+            document.getElementById('bsesSubsidy').value = data.Subsidy;
+            document.getElementById('bsesDate').value = formatDateForInput(data.Bill_Date);
+        } else {
+            // Fill IGL Data
+            document.getElementById('iglReading').value = data.Reading;
+            document.getElementById('iglCost').value = data.Cost;
+            document.getElementById('iglDate').value = formatDateForInput(data.Date);
+        }
+    } else {
+        // --- ADD MODE ---
+        document.getElementById(`${type}ModalTitle`).innerText = type === 'bses' ? 'New Bill' : 'New Reading';
+        document.getElementById(`${type}SaveBtn`).innerText = 'SAVE ENTRY';
+        document.getElementById(`${type}DeleteBtn`).classList.add('hidden');
+        document.getElementById(`${type}Id`).value = ''; // Clear ID
+    }
+
+    modal.classList.add('active');
+}
+
+function closeUtilityModal(type) {
+    document.getElementById(`${type}Modal`).classList.remove('active');
+}
+
+// --- 3. SAVE HANDLER ---
+async function saveUtilityEntry(type) {
+    vibrate(30);
+    
+    const btn = document.getElementById(`${type}SaveBtn`);
+    const originalText = btn.innerText;
+    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> SAVING...';
+    btn.disabled = true;
+
+    try {
+        const id = document.getElementById(`${type}Id`).value;
+        const action = id ? 'edit' : 'add'; // Logic: ID hai to Edit
+        
+        let payload = {};
+
+        if (type === 'bses') {
+            payload = {
+                action: 'save_bses', // Backend identifier
+                ID: id,
+                Floor: document.getElementById('bsesFloor').value,
+                Units: document.getElementById('bsesUnits').value,
+                Amount: document.getElementById('bsesAmount').value,
+                Subsidy: document.getElementById('bsesSubsidy').value,
+                Bill_Date: document.getElementById('bsesDate').value
+            };
+        } else {
+            payload = {
+                action: 'save_igl', // Backend identifier
+                ID: id,
+                Reading: document.getElementById('iglReading').value,
+                Cost: document.getElementById('iglCost').value,
+                Date: document.getElementById('iglDate').value
+            };
+        }
+
+        // Send to API
+        await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+
+        showToast(`${type.toUpperCase()} Entry Saved ✅`);
+        closeUtilityModal(type);
+        fetchData(); // Refresh Data
+
+    } catch (e) {
+        console.error(e);
+        showToast("Error Saving Data", "error");
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+// --- 4. DELETE HANDLER ---
+async function deleteUtilityEntry(type) {
+    if(!confirm("Are you sure you want to delete this entry?")) return;
+    
+    vibrate(30);
+    const id = document.getElementById(`${type}Id`).value;
+    if(!id) return;
+
+    const btn = document.getElementById(`${type}DeleteBtn`);
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+    try {
+        await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ 
+                action: type === 'bses' ? 'delete_bses' : 'delete_igl', // Backend identifier
+                ID: id 
+            })
+        });
+
+        showToast("Entry Deleted 🗑️");
+        closeUtilityModal(type);
+        fetchData();
+
+    } catch (e) {
+        showToast("Delete Failed", "error");
+    }
+}
+
+// Helper for Date Input
+function formatDateForInput(dateStr) {
+    try {
+        const d = new Date(dateStr);
+        return d.toISOString().split('T')[0];
+    } catch(e) { return ''; }
+}
+
+// --- 2. Swipe Switcher (BSES <-> IGL) ---
+// Add this inside your existing 'touchend' event listener logic
+function handleUtilitySwipe(diffX) {
+    if (Math.abs(diffX) > 50) {
+        if (diffX < 0 && currentUtilityView === 'BSES') {
+            vibrate(20);
+            currentUtilityView = 'IGL';
+            renderUtilities();
+        } else if (diffX > 0 && currentUtilityView === 'IGL') {
+            vibrate(20);
+            currentUtilityView = 'BSES';
+            renderUtilities();
+        }
+    }
+}
+// Note: Hook this into your main touch handler by checking:
+// if(document.getElementById('tab-utility').classList.contains('active')) handleUtilitySwipe(diffX);
+
+// --- 3. Dropdown Logic ---
+function toggleUtilityMonthMenu() {
+    vibrate(15);
+    const menu = document.getElementById('utilMonthMenu');
+    
+    // Auto-Close logic
+    const closeMenu = (e) => {
+        if(!e.target.closest('#utilMonthTrigger') && !e.target.closest('#utilMonthMenu')) {
+            menu.classList.remove('open');
+            document.removeEventListener('click', closeMenu);
+        }
+    };
+    
+    if(menu.classList.contains('open')) {
+        menu.classList.remove('open');
+    } else {
+        menu.classList.add('open');
+        setTimeout(() => document.addEventListener('click', closeMenu), 10);
+    }
+}
+
+// --- FIX: Provider Specific Date Selection ---
+function selectUtilityMonth(year, month, provider) {
+    if(typeof vibrate === 'function') vibrate(20);
+    
+    // 1. Update ONLY the specific provider's date
+    utilityState[provider].setFullYear(year);
+    utilityState[provider].setMonth(month);
+    
+    // 2. Close Menus
+    document.querySelectorAll('.util-month-menu').forEach(el => el.classList.remove('open'));
+
+    // 3. Re-render View
+    renderUtilities();
+}
+
+// IGL Cost ऑटो-कैलकुलेशन फंक्शन
+// IGL Cost Auto-Calculation (Fixed Logic)
+function calculateIglCost() {
+    // 1. सारे एलिमेंट्स निकालें
+    const readingInput = document.getElementById('iglReading');
+    const costInput = document.getElementById('iglCost');
+    const prevDisplay = document.getElementById('iglPrevDisplay');
+    const currentId = document.getElementById('iglId').value;
+    const rate = 47.89;
+
+    // 2. अभी जो टाइप किया है उसे नंबर बनाएं
+    let currentReading = parseFloat(readingInput.value);
+    if (isNaN(currentReading)) currentReading = 0;
+
+    let lastReading = 0;
+
+    // 3. पिछली सही रीडिंग ढूँढना
+    if (typeof iglData !== 'undefined' && Array.isArray(iglData) && iglData.length > 0) {
+        
+        // जो एंट्री अभी एडिट कर रहे हैं उसे लिस्ट से हटा दें
+        let candidates = iglData.filter(item => String(item.ID) !== String(currentId));
+
+        // तारीख के हिसाब से सॉर्ट करें (नयी पहले)
+        candidates.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+
+        // 🔥 CRITICAL FIX: पहली ऐसी एंट्री ढूँढें जिसकी रीडिंग 0 से ज्यादा हो
+        const prevEntry = candidates.find(item => {
+            const r = parseFloat(item.Reading);
+            return !isNaN(r) && r > 0;
+        });
+
+        if (prevEntry) {
+            lastReading = parseFloat(prevEntry.Reading);
+            // स्क्रीन पर दिखाएं कि कौन सी रीडिंग मिली है
+            if(prevDisplay) prevDisplay.innerText = "Prev: " + lastReading;
+        } else {
+            if(prevDisplay) prevDisplay.innerText = "Prev: --";
+        }
+    }
+
+    // 4. कैलकुलेशन (केवल तभी जब रीडिंग पिछली से ज्यादा हो)
+    if (currentReading > lastReading && lastReading > 0) {
+        const diff = currentReading - lastReading;
+        const cost = diff * rate;
+        costInput.value = cost.toFixed(2);
+    } else {
+        // अगर रीडिंग कम है या पिछली रीडिंग नहीं मिली, तो बॉक्स खाली रखें ताकि आप हाथ से भर सकें
+        costInput.value = '';
+    }
+}
+
+// --- 4. Main Render Orchestrator (PROVIDER SPECIFIC DATES) ---
+function renderUtilities() {
+    const container = document.getElementById('utility-container');
+    container.innerHTML = ''; // Clear previous
+
+    // --- A. Helper to Generate Dropdown for a Specific Provider ---
+    const getDropdownHTML = (providerName, targetDate) => {
+        const uniqueDates = new Set();
+        
+        // 🔥 STEP 1: Select Only Relevant Data Source
+        let sourceData = [];
+        if (providerName === 'BSES') {
+            sourceData = bsesData; // Sirf BSES ka data
+        } else {
+            sourceData = iglData;  // Sirf IGL ka data
+        }
+
+        // 🔥 STEP 2: Extract Dates from that Source ONLY
+        sourceData.forEach(i => {
+            // BSES uses 'Bill_Date', IGL uses 'Date'
+            const dateStr = providerName === 'BSES' ? i.Bill_Date : i.Date;
+            const d = new Date(dateStr); 
+            if(!isNaN(d)) uniqueDates.add(`${d.getFullYear()}-${d.getMonth()}`);
+        });
+        
+        // Always add Current Month (Taaki current month hamesha dikhe bhale hi entry na ho)
+        const now = new Date();
+        uniqueDates.add(`${now.getFullYear()}-${now.getMonth()}`);
+        
+        // STEP 3: Sort Dates (Newest First)
+        const sortedDates = Array.from(uniqueDates).sort((a, b) => {
+            const [y1, m1] = a.split('-').map(Number);
+            const [y2, m2] = b.split('-').map(Number);
+            return (y2 - y1) || (m2 - m1); 
+        });
+
+        const mNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        
+        // STEP 4: Generate HTML
+        return sortedDates.map(str => {
+            const [y, m] = str.split('-').map(Number);
+            const isActive = (y === targetDate.getFullYear() && m === targetDate.getMonth());
+            
+            return `<div onclick="event.stopPropagation(); selectUtilityMonth(${y}, ${m}, '${providerName}')" 
+                         class="p-2 text-xs font-bold rounded-lg cursor-pointer flex justify-between items-center ${isActive ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-300' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}">
+                        <span>${mNames[m]} ${y}</span>
+                        ${isActive ? '<i class="fas fa-check"></i>' : ''}
+                    </div>`;
+        }).join('');
+    };
+
+    // --- B. Calculate Data based on INDEPENDENT DATES ---
+    
+    // 1. BSES Calculation
+    const bsesDate = utilityState.BSES;
+    const isBSESMatch = (dStr) => {
+        const d = new Date(dStr);
+        return !isNaN(d) && d.getMonth() === bsesDate.getMonth() && d.getFullYear() === bsesDate.getFullYear();
+    };
+    const bsesBills = bsesData.filter(i => isBSESMatch(i.Bill_Date));
+    const bsesTotal = bsesBills.reduce((sum, i) => sum + (parseFloat(i.Amount)||0), 0);
+    const bsesSubsidy = bsesBills.reduce((sum, i) => sum + (parseFloat(i.Subsidy)||0), 0);
+    
+    // BSES Header Text
+    const mNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const bsesLabel = `${mNames[bsesDate.getMonth()]} ${bsesDate.getFullYear()}`;
+
+    // 2. IGL Calculation
+    const iglDate = utilityState.IGL;
+    const isIGLMatch = (dStr) => {
+        const d = new Date(dStr);
+        return !isNaN(d) && d.getMonth() === iglDate.getMonth() && d.getFullYear() === iglDate.getFullYear();
+    };
+    const iglReadings = iglData.filter(i => isIGLMatch(i.Date));
+    iglReadings.sort((a,b) => new Date(b.Date) - new Date(a.Date));
+    const iglTotal = iglReadings.reduce((sum, i) => sum + (parseFloat(i.Cost)||0), 0);
+    const iglLatest = (iglReadings.length > 0 && iglReadings[0].Reading) ? iglReadings[0].Reading : "0.000";
+    
+    // IGL Header Text
+    const iglLabel = `${mNames[iglDate.getMonth()]} ${iglDate.getFullYear()}`;
+
+    // --- C. Render Card HTML ---
+    const flipClass = currentUtilityView === 'IGL' ? 'flipped' : '';
+
+    container.innerHTML += `
+    <div class="util-perspective mb-6 select-none mt-4">
+        <div class="util-flip-inner relative w-full aspect-[1.75/1] ${flipClass}" onclick="toggleUtilityView()">
+            
+            <div class="util-face util-front absolute inset-0 rounded-[1.5rem] z-20" style="backface-visibility: hidden;">
+                <div class="util-bg-wrapper">
+                    <div class="absolute top-[-30%] right-[-30%] w-60 h-60 bg-white opacity-10 rounded-full blur-3xl"></div>
+                    <div class="absolute bottom-[-20%] left-[-20%] w-40 h-40 bg-black opacity-5 rounded-full blur-2xl"></div>
+                    <div class="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-600 opacity-90"></div>
+                </div>
+
+                <div class="relative z-50 flex flex-col h-full justify-between">
+                    <div class="flex justify-between items-start">
+                        <div class="util-chip w-12 h-9 rounded-md border border-white/30 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm shadow-inner"></div>
+                        
+                        <div class="relative">
+                            <button onclick="event.stopPropagation(); toggleCardMenu('bsesMenu')" class="flex items-center gap-2 bg-black/20 backdrop-blur-md border border-white/20 text-white font-bold text-[10px] py-1.5 px-3 rounded-full shadow-sm hover:bg-black/30 transition">
+                                <i class="far fa-calendar-alt"></i>
+                                <span>${bsesLabel}</span>
+                                <i class="fas fa-chevron-down text-[8px] opacity-70"></i>
+                            </button>
+                            <div id="bsesMenu" class="util-month-menu" onclick="event.stopPropagation()">
+                                ${getDropdownHTML('BSES', bsesDate)}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-2 pointer-events-none">
+                        <div class="flex items-center gap-2 mb-1 opacity-80">
+                            <i class="fas fa-bolt text-yellow-300 text-xs"></i>
+                            <span class="text-[9px] font-bold text-white uppercase tracking-widest">BSES YAMUNA</span>
+                        </div>
+                        <h2 class="text-xl font-black text-white tracking-tight leading-none drop-shadow-md">G-49 Rawat Niwas</h2>
+                    </div>
+
+                    <div class="mt-auto pt-3 border-t border-white/10 pointer-events-none">
+                        <div class="flex justify-between items-end">
+                            <div><p class="text-[9px] font-bold text-white/70 uppercase mb-0.5">Total Bill</p><h2 class="text-3xl font-black text-white tracking-tight drop-shadow-md">₹${bsesTotal.toLocaleString()}</h2></div>
+                            <div class="text-right"><p class="text-[9px] font-bold text-white/70 uppercase mb-1">Subsidy</p><div class="bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1.5 rounded-lg text-xs font-bold text-white shadow-sm flex items-center gap-1.5"><i class="fas fa-check-circle text-emerald-300 text-[10px]"></i> ₹${bsesSubsidy.toFixed(0)}</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="util-face util-back absolute inset-0 rounded-[1.5rem] z-10" style="backface-visibility: hidden; transform: rotateY(180deg);">
+                <div class="util-bg-wrapper">
+                    <div class="absolute top-[-30%] left-[-30%] w-60 h-60 bg-white opacity-10 rounded-full blur-3xl"></div>
+                    <div class="absolute bottom-[-20%] right-[-20%] w-40 h-40 bg-blue-900 opacity-20 rounded-full blur-2xl"></div>
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-400 to-blue-600 opacity-90"></div>
+                </div>
+
+                <div class="relative z-50 flex flex-col h-full justify-between">
+                    <div class="flex justify-between items-start">
+                        <div class="util-chip w-12 h-9 rounded-md border border-white/30 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm shadow-inner"></div>
+                        
+                        <div class="relative">
+                            <button onclick="event.stopPropagation(); toggleCardMenu('iglMenu')" class="flex items-center gap-2 bg-black/20 backdrop-blur-md border border-white/20 text-white font-bold text-[10px] py-1.5 px-3 rounded-full shadow-sm hover:bg-black/30 transition">
+                                <i class="far fa-calendar-alt"></i>
+                                <span>${iglLabel}</span>
+                                <i class="fas fa-chevron-down text-[8px] opacity-70"></i>
+                            </button>
+                            <div id="iglMenu" class="util-month-menu" onclick="event.stopPropagation()">
+                                ${getDropdownHTML('IGL', iglDate)}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-2 pointer-events-none">
+                        <div class="flex items-center gap-2 mb-1 opacity-80">
+                            <i class="fas fa-fire text-orange-300 text-xs"></i>
+                            <span class="text-[9px] font-bold text-white uppercase tracking-widest">IGL PIPELINE</span>
+                        </div>
+                        <h2 class="text-xl font-black text-white tracking-tight leading-none drop-shadow-md">G-49 Rawat Niwas</h2>
+                    </div>
+
+                    <div class="mt-auto pt-3 border-t border-white/10 pointer-events-none">
+                        <div class="flex justify-between items-end">
+                            <div><p class="text-[9px] font-bold text-white/70 uppercase mb-0.5">Current Bill</p><h2 class="text-3xl font-black text-white tracking-tight drop-shadow-md">₹${iglTotal.toLocaleString()}</h2></div>
+                            <div class="text-right"><p class="text-[9px] font-bold text-white/70 uppercase mb-1">Last Reading</p><div class="bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-white shadow-sm flex items-center gap-1.5"><i class="fas fa-tachometer-alt text-blue-200 text-[10px]"></i> ${iglLatest}</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="flex justify-center mt-5">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-1.5 rounded-full flex items-center gap-2 shadow-sm">
+                <i class="fas fa-sync-alt text-indigo-400 animate-spin-slow"></i> Tap card to switch
+            </span>
+        </div>
+    </div>`;
+
+    // 5. Render Bottom List (Based on Active View's Date)
+    container.innerHTML += `<div id="util-list-wrapper" class="animate-fadeInDown"></div>`;
+    const listWrapper = document.getElementById('util-list-wrapper');
+
+    if (currentUtilityView === 'BSES') {
+        renderBSES(listWrapper, isBSESMatch);
+    } else {
+        renderIGL(listWrapper, isIGLMatch);
+    }
+}
+// 🔥 IMP: RenderUtilities ka bracket yahan band hua.
+// Ab agle functions alag define honge.
+
+// --- 5. BSES View (Inline Accordion & Modern Card) ---
+function renderBSES(container, isMatch) {
+    let bills = bsesData.filter(i => isMatch(i.Bill_Date));
+    
+    // CA & Meter Mapping
+    const floorMap = {
+        "Ground": { ca: "152095447", meter: "35357569" },
+        "1st":    { ca: "152095451", meter: "35357570" },
+        "2nd":    { ca: "152095439", meter: "35358326" },
+        "3rd":    { ca: "152095442", meter: "35358327" },
+        "4th":    { ca: "152095445", meter: "35358328" }
+    };
+
+    const floors = [
+        { name: "Ground Floor", id: "G", color: "bg-emerald-500" },
+        { name: "1st Floor", id: "1", color: "bg-blue-500" },
+        { name: "2nd Floor", id: "2", color: "bg-violet-500" },
+        { name: "3rd Floor", id: "3", color: "bg-rose-500" },
+        { name: "4th Floor", id: "4", color: "bg-orange-500" }
+    ];
+
+    let html = `<h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 px-1">Floor Details</h3><div class="space-y-3 pb-24">`;
+
+    floors.forEach(f => {
+        const data = bills.find(b => b.Floor.includes(f.name));
+        
+        // Default Variables (Empty State)
+        let opacity = "opacity-60 grayscale";
+        let clickAction = "";
+        let detailsHtml = "";
+        let statusBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-[9px] font-bold text-slate-400 uppercase tracking-wider">No Data</span>`;
+        let amountHtml = `<span class="text-lg font-black text-slate-300">--</span>`;
+
+        if (data) {
+            opacity = "opacity-100";
+            const amt = parseFloat(data.Amount) || 0;
+            const subsidy = parseFloat(data.Subsidy) || 0;
+            
+            // Map Static Data
+            let activeCA = "N/A";
+            let activeMeter = "N/A";
+            
+            if (data.Floor.includes("Ground")) { activeCA = floorMap["Ground"].ca; activeMeter = floorMap["Ground"].meter; }
+            else if (data.Floor.includes("1st")) { activeCA = floorMap["1st"].ca; activeMeter = floorMap["1st"].meter; }
+            else if (data.Floor.includes("2nd")) { activeCA = floorMap["2nd"].ca; activeMeter = floorMap["2nd"].meter; }
+            else if (data.Floor.includes("3rd")) { activeCA = floorMap["3rd"].ca; activeMeter = floorMap["3rd"].meter; }
+            else if (data.Floor.includes("4th")) { activeCA = floorMap["4th"].ca; activeMeter = floorMap["4th"].meter; }
+
+            // Logic for Badge & Amount Color
+            if (amt > 0) {
+                statusBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-md bg-rose-50 dark:bg-rose-900/30 border border-rose-100 dark:border-rose-800 text-[9px] font-bold text-rose-500 uppercase tracking-wider">Bill Generated</span>`;
+                amountHtml = `<span class="text-lg font-black text-slate-800 dark:text-white">₹${amt.toLocaleString()}</span>`;
+            } else {
+                statusBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800 text-[9px] font-bold text-emerald-500 uppercase tracking-wider">Subsidy Covered</span>`;
+                amountHtml = `<span class="text-lg font-black text-emerald-500">Zero Bill</span>`;
+            }
+
+            // Click Action Enable
+            clickAction = `onclick="toggleUtilRow(this)"`;
+
+            // Expanded Details (Modern Cards)
+            detailsHtml = `
+            <div class="util-row-body bg-slate-50/80 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
+                <div class="p-4 space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+                             <div class="absolute right-[-10px] top-[-5px] opacity-5 -rotate-12"><i class="fas fa-bolt text-5xl"></i></div>
+                             <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">⚡ Units Used</p>
+                             <div class="flex items-baseline gap-1 relative z-10">
+                                <span class="text-2xl font-black text-slate-700 dark:text-white leading-none">${data.Units}</span>
+                                <span class="text-[10px] font-bold text-slate-400">kWh</span>
+                             </div>
+                        </div>
+                        <div class="bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-2xl border border-emerald-100 dark:border-emerald-800 shadow-sm relative overflow-hidden">
+                             <div class="absolute right-[-10px] top-[-5px] opacity-10 -rotate-12"><i class="fas fa-leaf text-5xl text-emerald-600"></i></div>
+                             <p class="text-[9px] font-bold text-emerald-600/70 dark:text-emerald-400 uppercase tracking-wider mb-1 flex items-center gap-1">🌿 Subsidy Saved</p>
+                             <div class="flex items-baseline gap-1 relative z-10">
+                                <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400 leading-none">₹${subsidy.toFixed(0)}</span>
+                             </div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                        <div class="flex justify-between items-center p-3 border-b border-dashed border-slate-100 dark:border-slate-700">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-full bg-indigo-50 dark:bg-slate-700 flex items-center justify-center text-xs shadow-sm">🆔</div>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">CA Number</span>
+                            </div>
+                            <span class="font-mono font-bold text-slate-700 dark:text-slate-200 text-sm tracking-wider select-all">${activeCA}</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-full bg-orange-50 dark:bg-slate-700 flex items-center justify-center text-xs shadow-sm">📟</div>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Meter No</span>
+                            </div>
+                            <span class="font-mono font-bold text-slate-700 dark:text-slate-200 text-sm tracking-wider select-all">${activeMeter}</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-end pt-1">
+                         <div class="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-full shadow-sm">
+                            <span class="text-xs">🗓️</span>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wide mr-1">Bill Date</span>
+                            <span class="text-[11px] font-black text-slate-700 dark:text-white">
+                                ${new Date(data.Bill_Date).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'})}
+                            </span>
+                         </div>
+                    </div>
+
+                    <div class="mt-2 pt-3 border-t border-dashed border-slate-200 dark:border-slate-700 flex justify-end">
+                        <button onclick="event.stopPropagation(); openUtilityModal('bses', 'edit', ${JSON.stringify(data).replace(/"/g, '&quot;')})" 
+                                class="w-full py-2 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 font-bold text-xs rounded-xl hover:bg-orange-100 transition flex items-center justify-center gap-2">
+                            <i class="fas fa-edit"></i> Edit Bill Details
+                        </button>
+                    </div>
+
+                </div>
+            </div>`;
+        }
+
+        // Main List Item HTML (Header)
+        html += `
+        <div class="util-row-wrapper bg-white dark:bg-slate-800 rounded-[1.25rem] border border-slate-100 dark:border-slate-700 shadow-sm mb-3 overflow-hidden transition-all duration-200 hover:shadow-md hover:scale-[1.01] ${opacity}">
+            <div class="util-row-header p-4 flex items-center justify-between cursor-pointer active:bg-slate-50 dark:active:bg-slate-700/50" ${clickAction}>
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl ${f.color} shadow-lg shadow-${f.color.replace('bg-', '')}/20 flex items-center justify-center text-white font-black text-xl relative overflow-hidden">
+                        <div class="absolute inset-0 bg-white opacity-10 blur-md rounded-full -translate-x-4 -translate-y-4"></div>
+                        <span class="relative z-10">${f.id}</span>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <h4 class="text-sm font-black text-slate-700 dark:text-slate-100 leading-none">${f.name}</h4>
+                        <div>${statusBadge}</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    ${amountHtml}
+                    ${data ? `
+                    <div class="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center border border-slate-100 dark:border-slate-700">
+                        <i class="fas fa-chevron-down text-[10px] text-slate-400 transition-transform duration-300 chevron-icon"></i>
+                    </div>` : ''}
+                </div>
+            </div>
+            ${detailsHtml}
+        </div>`;
+    });
+
+    container.innerHTML += html + '</div>';
+}
+
+// --- Helper Function to Toggle Inline Details ---
+function toggleUtilRow(header) {
+    vibrate(20);
+    const wrapper = header.parentElement;
+    
+    // Close other expanded items (Accordion effect)
+    document.querySelectorAll('.util-row-wrapper.expanded').forEach(el => {
+        if (el !== wrapper) el.classList.remove('expanded');
+    });
+
+    // Toggle current
+    wrapper.classList.toggle('expanded');
+}
+
+// --- 6. IGL View Function ---
+function renderIGL(container, isMatch) {
+    let readings = iglData.filter(i => isMatch(i.Date));
+    readings.sort((a,b) => new Date(b.Date) - new Date(a.Date));
+
+    let html = `<h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 px-1">Gas Readings</h3><div class="space-y-3 pb-24">`;
+    
+    if(readings.length === 0) {
+        html += `<div class="text-center py-8 opacity-50"><p class="text-xs font-bold text-slate-400">No logs found</p></div>`;
+    }
+
+    readings.forEach((item, idx) => {
+        const d = new Date(item.Date);
+        const dateStr = d.toLocaleDateString('en-US', {day: '2-digit', month: 'short'});
+        const fullDate = d.toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric'});
+        const costVal = parseFloat(item.Cost);
+        const cost = isNaN(costVal) ? 0 : costVal;
+        const readingVal = item.Reading || "0";
+
+        html += `
+        <div class="util-row-wrapper bg-white dark:bg-slate-800 rounded-[1.25rem] border border-slate-100 dark:border-slate-700 shadow-sm mb-3 overflow-hidden transition-all duration-200 hover:shadow-md hover:scale-[1.01]">
+            <div class="util-row-header p-4 flex items-center justify-between cursor-pointer active:bg-slate-50 dark:active:bg-slate-700/50" onclick="toggleUtilRow(this)">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-900/20 text-orange-500 shadow-sm flex items-center justify-center text-xl relative overflow-hidden">
+                         <i class="fas fa-fire relative z-10"></i>
+                         <div class="absolute inset-0 bg-orange-500 opacity-10 blur-md"></div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <h4 class="text-sm font-black text-slate-700 dark:text-slate-100 leading-none">Log #${readings.length - idx}</h4>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 text-[9px] font-bold text-blue-500 uppercase tracking-wider">${dateStr}</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-lg font-black text-slate-800 dark:text-white">₹${cost.toLocaleString()}</span>
+                    <div class="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center border border-slate-100 dark:border-slate-700">
+                        <i class="fas fa-chevron-down text-[10px] text-slate-400 transition-transform duration-300 chevron-icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="util-row-body bg-slate-50/80 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
+                <div class="p-4 space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
+                             <div class="absolute right-[-10px] top-[-5px] opacity-5 -rotate-12"><i class="fas fa-tachometer-alt text-5xl"></i></div>
+                             <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">📟 Meter Reading</p>
+                             <div class="flex items-baseline gap-1 relative z-10">
+                                <span class="text-xl font-black text-slate-700 dark:text-white leading-none font-mono">${readingVal}</span>
+                                <span class="text-[9px] font-bold text-slate-400">SCM</span>
+                             </div>
+                        </div>
+                        <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-2xl border border-blue-100 dark:border-blue-800 shadow-sm relative overflow-hidden">
+                             <div class="absolute right-[-10px] top-[-5px] opacity-10 -rotate-12"><i class="fas fa-rupee-sign text-5xl text-blue-600"></i></div>
+                             <p class="text-[9px] font-bold text-blue-600/70 dark:text-blue-400 uppercase tracking-wider mb-1 flex items-center gap-1">💰 Billed Amount</p>
+                             <div class="flex items-baseline gap-1 relative z-10">
+                                <span class="text-xl font-black text-blue-600 dark:text-blue-400 leading-none">₹${cost.toFixed(0)}</span>
+                             </div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                        <div class="flex justify-between items-center p-3 border-b border-dashed border-slate-100 dark:border-slate-700">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Entry Date</span>
+                            <span class="font-bold text-slate-700 dark:text-slate-200 text-xs tracking-wider">${fullDate}</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Applied Rate</span>
+                            <span class="font-bold text-slate-700 dark:text-slate-200 text-xs tracking-wider">₹47.89 / SCM</span>
+                        </div>
+                    </div>
+                    <div class="mt-2 pt-3 border-t border-dashed border-slate-200 dark:border-slate-700 flex justify-end">
+                        <button onclick="event.stopPropagation(); openUtilityModal('igl', 'edit', ${JSON.stringify(item).replace(/"/g, '&quot;')})" 
+                                class="w-full py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-bold text-xs rounded-xl hover:bg-blue-100 transition flex items-center justify-center gap-2">
+                            <i class="fas fa-edit"></i> Edit Reading
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    });
+    container.innerHTML = html + '</div>';
+}
+
+// Toggle Helper
+function toggleUtilityView() {
+    vibrate(20);
+    
+    const card = document.querySelector('.util-flip-inner');
+    const listWrapper = document.getElementById('util-list-wrapper');
+
+    // 1. Flip Animation
+    if (card) card.classList.toggle('flipped');
+
+    // 2. Switch View State
+    currentUtilityView = (currentUtilityView === 'BSES') ? 'IGL' : 'BSES';
+
+    // 3. Update Bottom List (Wait for animation)
+    if (listWrapper) {
+        listWrapper.style.opacity = '0';
+        setTimeout(() => {
+            listWrapper.innerHTML = '';
+            
+            // ✅ Use the Correct Date for the Active View
+            const activeDate = utilityState[currentUtilityView];
+            
+            const isMatch = (dStr) => {
+                const d = new Date(dStr);
+                return !isNaN(d) && d.getMonth() === activeDate.getMonth() && d.getFullYear() === activeDate.getFullYear();
+            };
+
+            if (currentUtilityView === 'BSES') renderBSES(listWrapper, isMatch);
+            else renderIGL(listWrapper, isMatch);
+            
+            listWrapper.style.opacity = '1';
+        }, 300);
+    }
+}
+
+// --- 7. Detail Popup Logic (The Magic 🪄) ---
+function openUtilityDetailModal(encodedData, type) {
+    vibrate(20);
+    const data = JSON.parse(decodeURIComponent(encodedData));
+    const modal = document.getElementById('utilDetailModal');
+    
+    const title = document.getElementById('ud-title');
+    const provider = document.getElementById('ud-provider');
+    const amount = document.getElementById('ud-amount');
+    const status = document.getElementById('ud-status');
+    const grid = document.getElementById('ud-grid');
+
+    grid.innerHTML = '';
+
+    if (type === 'BSES') {
+        provider.innerText = 'BSES YAMUNA POWER';
+        title.innerText = data.Floor;
+        const amtVal = parseFloat(data.Amount) || 0;
+        amount.innerText = `₹${amtVal.toLocaleString()}`;
+        
+        if(amtVal === 0) {
+            amount.className = "text-4xl font-black text-emerald-500";
+            status.innerText = "FULLY PAID (SUBSIDY)";
+            status.className = "inline-block mt-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide bg-emerald-100 text-emerald-700";
+        } else {
+            amount.className = "text-4xl font-black text-slate-800 dark:text-white";
+            status.innerText = "BILL GENERATED";
+            status.className = "inline-block mt-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide bg-rose-100 text-rose-700";
+        }
+
+        // 🔥 HARDCODED MAPPING FOR CA & METER 🔥
+        const floorMap = {
+            "Ground": { ca: "152095447", meter: "35357569" },
+            "1st":    { ca: "152095451", meter: "35357570" },
+            "2nd":    { ca: "152095439", meter: "35358326" },
+            "3rd":    { ca: "152095442", meter: "35358327" },
+            "4th":    { ca: "152095445", meter: "35358328" }
+        };
+
+        let activeCA = data.CA || 'N/A';
+        let activeMeter = data.MeterNo || 'N/A';
+
+        // Floor Name Match Karke Values Set Karein
+        if (data.Floor.includes("Ground")) { activeCA = floorMap["Ground"].ca; activeMeter = floorMap["Ground"].meter; }
+        else if (data.Floor.includes("1st")) { activeCA = floorMap["1st"].ca; activeMeter = floorMap["1st"].meter; }
+        else if (data.Floor.includes("2nd")) { activeCA = floorMap["2nd"].ca; activeMeter = floorMap["2nd"].meter; }
+        else if (data.Floor.includes("3rd")) { activeCA = floorMap["3rd"].ca; activeMeter = floorMap["3rd"].meter; }
+        else if (data.Floor.includes("4th")) { activeCA = floorMap["4th"].ca; activeMeter = floorMap["4th"].meter; }
+
+        const fields = [
+            { l: 'Units Consumed', v: `${data.Units} kWh` },
+            { l: 'Subsidy Amount', v: `₹${parseFloat(data.Subsidy).toFixed(2)}` },
+            { l: 'CA Number', v: activeCA },     // Yahan CA number aayega
+            { l: 'Meter Number', v: activeMeter }, // Yahan Meter number aayega
+            { l: 'Bill Date', v: new Date(data.Bill_Date).toLocaleDateString() },
+        ];
+
+        fields.forEach(f => {
+            grid.innerHTML += `<div class="detail-box"><span class="detail-label">${f.l}</span><span class="detail-val">${f.v}</span></div>`;
+        });
+
+    } else {
+        // IGL Logic Same Rahega
+        provider.innerText = 'INDRAPRASTHA GAS LIMITED';
+        title.innerText = 'Meter Reading Log';
+        amount.innerText = `₹${parseFloat(data.Cost).toFixed(2)}`;
+        status.innerText = "LOGGED ENTRY";
+        status.className = "inline-block mt-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide bg-blue-100 text-blue-700";
+
+        const fields = [
+            { l: 'Meter Reading', v: data.Reading },
+            { l: 'Date Logged', v: new Date(data.Date).toLocaleDateString() },
+            { l: 'Rate Applied', v: '₹52.00 / SCM' },
+            { l: 'Previous Reading', v: 'N/A' }
+        ];
+        
+        fields.forEach(f => {
+            grid.innerHTML += `<div class="detail-box"><span class="detail-label">${f.l}</span><span class="detail-val">${f.v}</span></div>`;
+        });
+    }
+
+    modal.classList.add('active');
+}
+
+// --- GLOBAL FUNCTION FOR CARD MENU ---
+function toggleCardMenu(menuId) {
+    if(typeof vibrate === 'function') vibrate(15);
+    
+    const menu = document.getElementById(menuId);
+    if (!menu) return;
+
+    // 1. Close ALL other open menus first
+    document.querySelectorAll('.util-month-menu.open').forEach(el => {
+        if(el.id !== menuId) el.classList.remove('open');
+    });
+
+    // 2. Toggle 'open' class (This triggers display: block in CSS)
+    menu.classList.toggle('open');
+
+    // 3. Auto-Close Listener (Only if opened)
+    if (menu.classList.contains('open')) {
+        const closeMenu = (e) => {
+            // Agar click menu ke andar nahi hai aur button par nahi hai
+            if (!menu.contains(e.target) && !e.target.closest('button')) {
+                menu.classList.remove('open');
+                document.removeEventListener('click', closeMenu);
+            }
+        };
+        // Thoda delay taaki turant close na ho jaye
+        setTimeout(() => document.addEventListener('click', closeMenu), 50);
+    }
+}
+
 
 </script>
+
+<!-- UTILITY DETAIL MODAL (New Modern Popup) -->
+<div id="utilDetailModal" class="modal-overlay">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="document.getElementById('utilDetailModal').classList.remove('active')"></div>
+    <div class="modal-card bg-white dark:bg-slate-900 w-full rounded-t-[2rem]">
+        
+        <!-- Header -->
+        <div class="p-6 pb-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-start">
+            <div>
+                <span id="ud-provider" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">PROVIDER</span>
+                <h2 id="ud-title" class="text-2xl font-black text-slate-800 dark:text-white leading-tight mt-1">Title</h2>
+            </div>
+            <button onclick="document.getElementById('utilDetailModal').classList.remove('active')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500"><i class="fas fa-times"></i></button>
+        </div>
+
+        <!-- Scrollable Content -->
+        <div class="p-6 pt-4 max-h-[70vh] overflow-y-auto no-scrollbar">
+            
+            <!-- Hero Amount -->
+            <div class="text-center mb-6">
+                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Total Amount</p>
+                <h1 id="ud-amount" class="text-4xl font-black text-slate-800 dark:text-white">₹0</h1>
+                <div id="ud-status" class="inline-block mt-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide bg-slate-100 text-slate-500">Status</div>
+            </div>
+
+            <!-- Grid Details -->
+            <div id="ud-grid" class="detail-grid">
+                <!-- Injected via JS -->
+            </div>
+
+            <!-- Notes/Extra -->
+            <div id="ud-extra" class="mt-4 p-4 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-center hidden">
+                <p class="text-xs font-bold text-indigo-600 dark:text-indigo-300">Message</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="bsesModal" class="modal-overlay">
+    <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" onclick="closeUtilityModal('bses')"></div>
+    <div class="modal-card bg-white dark:bg-slate-900 w-full rounded-t-[2rem]">
+        
+        <div class="bg-gradient-to-r from-orange-400 to-amber-500 p-6 pb-8 rounded-t-[2rem] relative">
+            <button onclick="closeUtilityModal('bses')" class="absolute top-5 right-5 text-white/80 hover:text-white transition"><i class="fas fa-times-circle text-2xl"></i></button>
+            <p class="text-[10px] font-bold text-white/80 uppercase tracking-widest mb-1">BSES YAMUNA</p>
+            <h2 id="bsesModalTitle" class="text-2xl font-black text-white">New Bill</h2>
+        </div>
+
+        <div class="p-6 -mt-6 bg-white dark:bg-slate-900 rounded-t-[1.5rem] relative z-10 space-y-5">
+            <form id="bsesForm" onsubmit="event.preventDefault(); saveUtilityEntry('bses');">
+                <input type="hidden" id="bsesId">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Floor</label>
+                        <select id="bsesFloor" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-sm rounded-xl h-12 px-3 outline-none border border-transparent focus:border-orange-400 transition-all appearance-none">
+                            <option value="Ground Floor">Ground Floor</option>
+                            <option value="1st Floor">1st Floor</option>
+                            <option value="2nd Floor">2nd Floor</option>
+                            <option value="3rd Floor">3rd Floor</option>
+                            <option value="4th Floor">4th Floor</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Bill Date</label>
+                        <input type="date" id="bsesDate" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-sm rounded-xl h-12 px-3 outline-none border border-transparent focus:border-orange-400 transition-all">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Units (kWh)</label>
+                        <input type="number" id="bsesUnits" step="0.01" placeholder="0" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-black text-lg rounded-xl h-14 px-4 outline-none border border-transparent focus:border-orange-400 transition-all">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Bill Amount (₹)</label>
+                        <input type="number" id="bsesAmount" step="0.01" placeholder="0" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-black text-lg rounded-xl h-14 px-4 outline-none border border-transparent focus:border-orange-400 transition-all">
+                    </div>
+                </div>
+
+                <div class="mt-4 space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Subsidy Saved (₹)</label>
+                    <input type="number" id="bsesSubsidy" step="0.01" placeholder="0" class="w-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 font-bold text-lg rounded-xl h-12 px-4 outline-none border border-transparent focus:border-emerald-400 transition-all">
+                </div>
+
+                <div class="flex gap-3 mt-8">
+                    <button type="button" id="bsesDeleteBtn" onclick="deleteUtilityEntry('bses')" class="hidden w-14 h-14 rounded-xl bg-rose-50 dark:bg-rose-900/20 text-rose-500 hover:bg-rose-100 flex items-center justify-center transition"><i class="fas fa-trash-can"></i></button>
+                    <button type="submit" id="bsesSaveBtn" class="flex-1 h-14 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-base tracking-wide shadow-lg shadow-orange-200 dark:shadow-none hover:opacity-90 active:scale-[0.98] transition flex items-center justify-center gap-2">SAVE BILL</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="iglModal" class="modal-overlay">
+    <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" onclick="closeUtilityModal('igl')"></div>
+    <div class="modal-card bg-white dark:bg-slate-900 w-full rounded-t-[2rem]">
+        
+        <div class="bg-gradient-to-r from-blue-500 to-cyan-500 p-6 pb-8 rounded-t-[2rem] relative">
+            <button onclick="closeUtilityModal('igl')" class="absolute top-5 right-5 text-white/80 hover:text-white transition"><i class="fas fa-times-circle text-2xl"></i></button>
+            <p class="text-[10px] font-bold text-white/80 uppercase tracking-widest mb-1">IGL PIPELINE</p>
+            <h2 id="iglModalTitle" class="text-2xl font-black text-white">New Reading</h2>
+        </div>
+
+        <div class="p-6 -mt-6 bg-white dark:bg-slate-900 rounded-t-[1.5rem] relative z-10 space-y-5">
+            <form id="iglForm" onsubmit="event.preventDefault(); saveUtilityEntry('igl');">
+                <input type="hidden" id="iglId">
+                
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Reading Date</label>
+                    <input type="date" id="iglDate" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-sm rounded-xl h-12 px-3 outline-none border border-transparent focus:border-blue-400 transition-all">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center px-1">
+    <label class="text-[10px] font-bold text-slate-400 uppercase">Reading (SCM)</label>
+    <span id="iglPrevDisplay" class="text-[9px] font-bold text-indigo-500"></span>
+</div>
+                        <input type="number" 
+       id="iglReading" 
+       oninput="calculateIglCost()" 
+       onkeyup="calculateIglCost()" 
+       step="0.001" 
+       placeholder="0.000" 
+       class="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-black text-lg rounded-xl h-14 px-4 outline-none border border-transparent focus:border-blue-400 transition-all font-mono">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Cost (₹)</label>
+                        <input type="number" id="iglCost" step="0.01" placeholder="0" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-black text-lg rounded-xl h-14 px-4 outline-none border border-transparent focus:border-blue-400 transition-all">
+                    </div>
+                </div>
+
+                <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800 flex items-center gap-3">
+                    <i class="fas fa-info-circle text-blue-500"></i>
+                    <p class="text-[10px] font-medium text-blue-600 dark:text-blue-300">Rate applied: ₹47.89 / SCM</p>
+                </div>
+
+                <div class="flex gap-3 mt-8">
+                    <button type="button" id="iglDeleteBtn" onclick="deleteUtilityEntry('igl')" class="hidden w-14 h-14 rounded-xl bg-rose-50 dark:bg-rose-900/20 text-rose-500 hover:bg-rose-100 flex items-center justify-center transition"><i class="fas fa-trash-can"></i></button>
+                    <button type="submit" id="iglSaveBtn" class="flex-1 h-14 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold text-base tracking-wide shadow-lg shadow-blue-200 dark:shadow-none hover:opacity-90 active:scale-[0.98] transition flex items-center justify-center gap-2">SAVE READING</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 </body>
 
 </html>
