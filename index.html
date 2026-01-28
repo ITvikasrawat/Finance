@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1387,6 +1386,93 @@
     animation: rotateBall 3s infinite linear;
 }
 
+/* --- 🚀 NEW MODERN MODAL STYLES --- */
+.rich-modal-bg {
+    background: white;
+}
+.dark .rich-modal-bg {
+    background: #0f172a;
+}
+
+/* Custom Slider for Safe Limit */
+.modern-range {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 99px;
+    outline: none;
+}
+.dark .modern-range { background: #334155; }
+
+.modern-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #4f46e5;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4);
+    border: 2px solid white;
+    transition: transform 0.1s;
+}
+.modern-range::-webkit-slider-thumb:active { transform: scale(1.1); }
+
+/* Gradient Text */
+.text-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(to right, #4f46e5, #8b5cf6);
+}
+
+/* --- 🚀 UNIVERSAL MODAL ANIMATION (Bottom Sheet) --- */
+#universalModal {
+    z-index: 100; /* Sabse upar */
+    align-items: flex-end; /* Bottom alignment */
+}
+
+/* Default State: Screen ke neeche chupa hua */
+#universalModal .modal-card {
+    width: 100%;
+    border-radius: 2.5rem 2.5rem 0 0;
+    max-height: 85vh;
+    transform: translate3d(0, 100%, 0); /* Off-screen bottom */
+    transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1); /* Smooth iOS Curve */
+    will-change: transform;
+}
+
+/* Active State: Screen par visible */
+#universalModal.active .modal-card {
+    transform: translate3d(0, 0, 0); /* Slide Up position */
+}
+
+/* Modern Slider Styling */
+.modern-range {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 99px;
+    outline: none;
+}
+.dark .modern-range { background: #334155; }
+.modern-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #4f46e5;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4);
+    border: 2px solid white;
+    transition: transform 0.1s;
+}
+.modern-range::-webkit-slider-thumb:active { transform: scale(1.1); }
+
+
     </style>
 </head>
 <body class="font-sans text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 h-screen flex flex-col overflow-hidden">
@@ -1648,40 +1734,33 @@
             <!-- HYBRID STATS CARDS (Trend + Smart Controller) -->
 			<div class="grid grid-cols-2 gap-3 mb-6">
 				
-				<!-- 1. Trend Analyst (Past) -->
-				<div id="card-trend" class="relative bg-white dark:bg-slate-800 p-4 rounded-[24px] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col justify-between h-[110px]">
-					<!-- Graph Background Layer -->
-					<div id="trend-bg" class="absolute bottom-0 left-0 w-full h-12 opacity-20 pointer-events-none"></div>
-					
-					<div class="relative z-10">
-						<p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Vs Last Month</p>
-						<div class="flex items-baseline gap-1">
-							<span id="trend-val" class="text-xl font-black text-slate-800 dark:text-white">--</span>
-							<i id="trend-icon" class="fas fa-minus text-[10px] text-slate-400"></i>
-						</div>
-					</div>
-					<!-- Context Text -->
-					<p id="trend-context" class="relative z-10 text-[10px] font-bold text-slate-500 truncate">Analyzing...</p>
+				<div id="card-trend" onclick="vibrate(20); openTrendModal()" class="relative bg-white dark:bg-slate-800 p-4 rounded-[24px] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col justify-between h-[110px] cursor-pointer transition-transform active:scale-95 group">
+			<div id="trend-bg" class="absolute bottom-0 left-0 w-full h-12 opacity-20 pointer-events-none transition-opacity group-hover:opacity-30"></div>
+			<div class="relative z-10">
+				<p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 group-hover:text-indigo-500 transition-colors">Vs Last Month</p>
+				<div class="flex items-baseline gap-1">
+					<span id="trend-val" class="text-xl font-black text-slate-800 dark:text-white">--</span>
+					<i id="trend-icon" class="fas fa-minus text-[10px] text-slate-400"></i>
 				</div>
+			</div>
+			<p id="trend-context" class="relative z-10 text-[10px] font-bold text-slate-500 truncate">Tap for Analysis</p>
+		</div>
 
-				<!-- 2. Smart Controller (Future) -->
-				<div id="card-safe" class="relative bg-white dark:bg-slate-800 p-4 rounded-[24px] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col justify-between h-[110px]">
-					<div>
-						<p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Safe Daily Limit</p>
-						<span id="safe-val" class="text-xl font-black text-indigo-600 dark:text-indigo-400">₹--</span>
-					</div>
-					
-					<!-- Budget Meter -->
-					<div class="w-full">
-						<div class="flex justify-between text-[8px] font-bold text-slate-400 mb-1">
-							<span>Used</span>
-							<span id="safe-status">On Track</span>
-						</div>
-						<div class="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-							<div id="safe-bar" class="h-full bg-indigo-500 rounded-full transition-all duration-500" style="width: 0%"></div>
-						</div>
-					</div>
+		<div id="card-safe" onclick="vibrate(20); openSafeLimitModal()" class="relative bg-white dark:bg-slate-800 p-4 rounded-[24px] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col justify-between h-[110px] cursor-pointer transition-transform active:scale-95 group">
+			<div>
+				<p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 group-hover:text-indigo-500 transition-colors">Safe Daily Limit</p>
+				<span id="safe-val" class="text-xl font-black text-indigo-600 dark:text-indigo-400">₹--</span>
+			</div>
+			<div class="w-full">
+				<div class="flex justify-between text-[8px] font-bold text-slate-400 mb-1">
+					<span>Used</span>
+					<span id="safe-status">Tap to Plan</span>
 				</div>
+				<div class="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+					<div id="safe-bar" class="h-full bg-indigo-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+				</div>
+			</div>
+		</div>
 			</div>
 
 			<!-- ⚡ MODERN STATS TOGGLE (Expense vs Income) -->
@@ -1981,7 +2060,7 @@
     // ********************************************
     // 1. CONFIGURATION & STATE
     // ********************************************
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyI-l5MTdZoyXqtw2L7OgY8xS5ynz7Pw6FUMlgB5fzxT5ElXLvM0Tt9nXhOH8hUGfnH/exec'; 
+    const API_URL = 'https://script.google.com/macros/s/AKfycbytXbe6r6uO5PuPH8QRrD7pzkUrN3usgx7jm9jj6acghAMwQIAKJb8IAK2EkzHvJy5L/exec'; 
     const CACHE_KEY = 'finance_v3_cache';
 
     let allData = [];
@@ -3291,24 +3370,31 @@ function updateSubCategories() {
         // --- 5. LIST GENERATION ---
         const listColors = ['#4f46e5', '#ef4444', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899', '#06b6d4'];
         Object.entries(totals).sort((a,b) => b[1]-a[1]).forEach(([k,v], i) => {
-            const pct = total > 0 ? ((v/total)*100).toFixed(1) : 0;
-            const col = listColors[i % listColors.length];
-            const safeKey = encodeURIComponent(k);
-            const uniqueID = `detail-${i}`;
+		const pct = total > 0 ? ((v/total)*100).toFixed(1) : 0;
+		const col = listColors[i % listColors.length];
+		const safeKey = encodeURIComponent(k);
+		const uniqueID = `detail-${i}`;
 
-            listDiv.innerHTML += `
-                <div class="stat-card cursor-pointer transition active:scale-[0.99] dark:bg-slate-800 dark:border-slate-700" onclick="toggleStatDetails('${safeKey}', '${uniqueID}')">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center gap-3">
-                            <div class="w-3 h-3 rounded-full shadow-sm" style="background:${col}"></div>
-                            <div><p class="text-sm font-bold text-slate-700 dark:text-slate-200 truncate w-36">${k}</p><p class="text-[10px] font-bold text-slate-400">${pct}% of Total</p></div>
-                        </div>
-                        <div class="text-right"><p class="text-sm font-black text-slate-800 dark:text-white">₹${v.toLocaleString()}</p><p class="text-[10px] text-indigo-500 font-bold">View <i class="fas fa-chevron-down ml-0.5"></i></p></div>
+		listDiv.innerHTML += `
+        <div class="stat-card cursor-pointer transition-colors duration-200 active:bg-slate-50 dark:active:bg-slate-700 dark:bg-slate-800 dark:border-slate-700" onclick="toggleStatDetails('${safeKey}', '${uniqueID}')">
+            
+            <div class="flex justify-between items-center mb-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-3 h-3 rounded-full shadow-sm" style="background:${col}"></div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-700 dark:text-slate-200 truncate w-36">${k}</p>
+                        <p class="text-[10px] font-bold text-slate-400">${pct}% of Total</p>
                     </div>
-                    <div class="progress-track mb-1 dark:bg-slate-700"><div class="progress-fill" style="width:${pct}%; background:${col}"></div></div>
-                    <div id="${uniqueID}" class="hidden mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 space-y-2 bg-slate-50 dark:bg-slate-900/50 rounded-xl p-2"></div>
-                </div>`;
-        });
+                </div>
+                <div class="text-right">
+                    <p class="text-sm font-black text-slate-800 dark:text-white">₹${v.toLocaleString()}</p>
+                    <p class="text-[10px] text-indigo-500 font-bold">View <i class="fas fa-chevron-down ml-0.5"></i></p>
+                </div>
+            </div>
+            <div class="progress-track mb-1 dark:bg-slate-700"><div class="progress-fill" style="width:${pct}%; background:${col}"></div></div>
+            <div id="${uniqueID}" class="hidden mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 space-y-2 bg-slate-50 dark:bg-slate-900/50 rounded-xl p-2"></div>
+        </div>`;
+	});
     }
 
 		// --- Helper Function: Reset Center Text (FIXED) ---
@@ -3414,8 +3500,8 @@ function updateSubCategories() {
                 const safeName = cleanName.replace(/'/g, "\\'"); 
 
                 html += `
-                    <div class="subcat-card relative bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm transition-all duration-200 active:scale-[0.98] cursor-pointer group"
-                         onclick="handleSubCatFilter(event, '${safeName}', '${containerId}', this)"
+					<div class="subcat-card relative bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm transition-colors duration-200 active:bg-slate-50 dark:active:bg-slate-700 cursor-pointer group"
+						 onclick="handleSubCatFilter(event, '${safeName}', '${containerId}', this)"
                          data-name="${cleanName}">
                         
                         <div class="flex justify-between items-center mb-3">
@@ -3470,28 +3556,29 @@ function updateSubCategories() {
             // 2. TRANSACTIONS LIST (Indent with Border)
             html += `<div class="ml-2 pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-3">`;
             
-            dayTxns.forEach(item => {
-                let note = item.Note || 'No Title';
-                let rawSub = item['Sub-Category'] ? item['Sub-Category'] : 'General';
-                const itemCleanSub = rawSub.replace(/[\p{Emoji}\u200d]+/u, '').trim();
-                const safeItem = encodeURIComponent(JSON.stringify(item));
-                
-                html += `
-                    <div class="txn-row relative flex justify-between items-start cursor-pointer active:opacity-70 transition-opacity"
-                         data-subcat="${itemCleanSub}"
-                         onclick="event.stopPropagation(); vibrate(15); handleItemClick('${safeItem}')">
-                        
-                        <!-- Dot Connector -->
-                        <div class="absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full bg-white dark:bg-slate-800 border-2 border-indigo-400 ring-2 ring-slate-50 dark:ring-slate-900"></div>
+            		dayTxns.forEach(item => {
+					let note = item.Note || 'No Title';
+					let rawSub = item['Sub-Category'] ? item['Sub-Category'] : 'General';
+					const itemCleanSub = rawSub.replace(/[\p{Emoji}\u200d]+/u, '').trim();
+					
+					// 🔥 FIX: Replace single quote (') with %27
+					const safeItem = encodeURIComponent(JSON.stringify(item)).replace(/'/g, "%27");
+					
+					html += `
+						<div class="txn-row relative flex justify-between items-start cursor-pointer active:opacity-70 transition-opacity"
+							 data-subcat="${itemCleanSub}"
+							 onclick="event.stopPropagation(); vibrate(15); handleItemClick('${safeItem}')">
+							 
+							<div class="absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full bg-white dark:bg-slate-800 border-2 border-indigo-400 ring-2 ring-slate-50 dark:ring-slate-900"></div>
 
-                        <div class="flex-1 min-w-0 pr-3">
-                            <p class="text-sm font-bold text-slate-700 dark:text-slate-200 truncate leading-tight">${note}</p>
-                            <p class="text-[10px] text-slate-400 truncate mt-0.5">${item.Account} • ${rawSub}</p>
-                        </div>
-                        <span class="text-sm font-black text-slate-800 dark:text-white whitespace-nowrap">₹${parseFloat(item.Amount).toLocaleString()}</span>
-                    </div>
-                `;
-            });
+							<div class="flex-1 min-w-0 pr-3">
+								<p class="text-sm font-bold text-slate-700 dark:text-slate-200 truncate leading-tight">${note}</p>
+								<p class="text-[10px] text-slate-400 truncate mt-0.5">${item.Account} • ${rawSub}</p>
+							</div>
+							<span class="text-sm font-black text-slate-800 dark:text-white whitespace-nowrap">₹${parseFloat(item.Amount).toLocaleString()}</span>
+						</div>
+					`;
+				});
             
             html += `</div></div>`; // Close Items & Group
         });
@@ -5961,6 +6048,176 @@ function toggleComparisonMode() {
     renderStats(); 
 }
 
+// --- 🚀 NEW MODERN POPUP LOGIC ---
+
+// 1. Helper to Open/Close
+// --- 🚀 NEW RICH POPUP LOGIC ---
+
+// 1. Open/Close Helpers
+function openUniversalModal(html) {
+    document.getElementById('um-content').innerHTML = html;
+    document.getElementById('universalModal').classList.add('active'); // Triggers Slide Up
+}
+
+function closeUniversalModal() {
+    if(typeof vibrate === 'function') vibrate(15);
+    document.getElementById('universalModal').classList.remove('active'); // Triggers Slide Down
+}
+
+// 2. TREND MODAL (Battle Style)
+function openTrendModal() {
+    // Data Calculation
+    const curMonthExp = parseFloat(document.getElementById('total-expense').innerText.replace(/[^\d.]/g, '')) || 0;
+    const prevDate = new Date(currentFilter.year, currentFilter.month - 1, 1);
+    let prevExp = 0;
+    allData.forEach(item => {
+        const d = parseDate(item.Date);
+        if (d.getMonth() === prevDate.getMonth() && d.getFullYear() === prevDate.getFullYear() && item.Type === 'Expense') {
+            prevExp += parseFloat(String(item.Amount).replace(/,/g, '')) || 0;
+        }
+    });
+
+    const diff = curMonthExp - prevExp;
+    const isSaved = diff < 0;
+    const pct = prevExp > 0 ? Math.round((Math.abs(diff) / prevExp) * 100) : 100;
+    const color = isSaved ? 'emerald' : 'rose';
+    const msgHeader = isSaved ? "You are winning! 🏆" : "Spending Alert! 🚨";
+    const msgBody = isSaved ? "Great discipline! You beat your past self." : "You've spent more than last month.";
+
+    // Rich Content HTML
+    const html = `
+        <div class="text-center mb-6">
+            <span class="px-3 py-1 rounded-full bg-${color}-50 dark:bg-${color}-900/30 text-${color}-600 dark:text-${color}-400 text-[10px] font-bold uppercase tracking-widest border border-${color}-100 dark:border-${color}-800">
+                Month Comparison
+            </span>
+            <h2 class="text-3xl font-black text-slate-800 dark:text-white mt-3 mb-1">${msgHeader}</h2>
+            <p class="text-xs font-medium text-slate-500">Vs Last Month Performance</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-700 relative overflow-hidden shadow-inner mb-6">
+            <div class="flex justify-between items-end mb-4 relative z-10">
+                <div class="text-left">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Last Month</p>
+                    <p class="text-xl font-black text-slate-400">₹${(prevExp/1000).toFixed(1)}k</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] font-bold text-${color}-500 uppercase">This Month</p>
+                    <p class="text-3xl font-black text-${color}-500">₹${(curMonthExp/1000).toFixed(1)}k</p>
+                </div>
+            </div>
+
+            <div class="w-full h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden flex">
+                <div class="h-full bg-slate-400 w-1/2 border-r-2 border-white dark:border-slate-800"></div>
+                <div class="h-full bg-${color}-500 w-1/2 relative">
+                    <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+                </div>
+            </div>
+            
+            <div class="mt-4 text-center">
+                <p class="text-sm font-bold text-slate-600 dark:text-slate-300">
+                    Difference: <span class="font-black text-${color}-500">${isSaved?'-':'+'} ₹${Math.abs(diff).toLocaleString()}</span>
+                    <span class="text-xs text-slate-400">(${pct}%)</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="bg-${color}-50 dark:bg-${color}-900/10 p-4 rounded-2xl border border-${color}-100 dark:border-${color}-800/30 flex gap-3 items-center">
+            <div class="w-10 h-10 rounded-full bg-${color}-100 dark:bg-${color}-900/50 flex items-center justify-center text-${color}-600 shrink-0">
+                <i class="fas ${isSaved ? 'fa-piggy-bank' : 'fa-fire'}"></i>
+            </div>
+            <p class="text-xs font-bold text-${color}-700 dark:text-${color}-300 leading-tight">${msgBody}</p>
+        </div>
+    `;
+    openUniversalModal(html);
+}
+
+// 3. SAFE LIMIT MODAL (Simulator Style)
+function openSafeLimitModal() {
+    // Data Calculation
+    const totalExp = parseFloat(document.getElementById('total-expense').innerText.replace(/[^\d.]/g, '')) || 0;
+    const totalBudget = 44635; 
+    const today = new Date();
+    const daysInMonth = new Date(currentFilter.year, currentFilter.month + 1, 0).getDate();
+    const daysLeft = Math.max(1, daysInMonth - today.getDate());
+    const remaining = Math.max(0, totalBudget - totalExp);
+    const safeDaily = Math.round(remaining / daysLeft);
+
+    // Rich Content HTML
+    const html = `
+        <div class="text-center">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Budget Runway</p>
+            <h1 class="text-5xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight">₹${safeDaily.toLocaleString()}</h1>
+            <p class="text-xs font-bold text-slate-500 mt-1">Safe Daily Limit</p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 mt-4 mb-6">
+            <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
+                <p class="text-[9px] font-bold text-slate-400 uppercase">Left</p>
+                <p class="text-sm font-black text-slate-700 dark:text-slate-200">₹${(remaining/1000).toFixed(1)}k</p>
+            </div>
+            <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
+                <p class="text-[9px] font-bold text-slate-400 uppercase">Days</p>
+                <p class="text-sm font-black text-slate-700 dark:text-slate-200">${daysLeft}</p>
+            </div>
+            <div class="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 text-center">
+                <p class="text-[9px] font-bold text-indigo-400 uppercase">Daily</p>
+                <p class="text-sm font-black text-indigo-600 dark:text-indigo-400">₹${safeDaily}</p>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 rounded-[2rem] p-6 shadow-lg border border-slate-100 dark:border-slate-700">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-flask text-indigo-500"></i>
+                    <span class="text-xs font-black text-slate-700 dark:text-white uppercase">Spending Simulator</span>
+                </div>
+                <span id="sim-amt" class="text-xs font-bold text-rose-500">₹0</span>
+            </div>
+
+            <input type="range" min="0" max="${Math.min(remaining, 10000)}" step="100" value="0" 
+                class="modern-range mb-6"
+                oninput="updateSimulator(this.value, ${remaining}, ${daysLeft})">
+
+            <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl flex justify-between items-center">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Tomorrow's Limit</p>
+                    <p id="sim-new-limit" class="text-xl font-black text-emerald-500 transition-all">₹${safeDaily}</p>
+                </div>
+                <div id="sim-impact" class="px-3 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
+                    No Impact
+                </div>
+            </div>
+        </div>
+    `;
+    openUniversalModal(html);
+}
+
+// 4. Simulator Logic
+function updateSimulator(val, remaining, daysLeft) {
+    const spend = parseInt(val);
+    document.getElementById('sim-amt').innerText = `- ₹${spend.toLocaleString()}`;
+    
+    const newRem = remaining - spend;
+    const newDays = daysLeft - 1; 
+    const newLimit = newDays > 0 ? Math.round(newRem / newDays) : 0;
+    
+    const limitEl = document.getElementById('sim-new-limit');
+    limitEl.innerText = `₹${newLimit.toLocaleString()}`;
+    
+    const impactEl = document.getElementById('sim-impact');
+    const originalLimit = Math.round(remaining / daysLeft);
+    const drop = originalLimit - newLimit;
+
+    if (spend === 0) {
+        impactEl.className = "px-3 py-1 rounded-lg bg-emerald-100 text-emerald-700";
+        impactEl.innerText = "No Impact";
+        limitEl.className = "text-xl font-black text-emerald-500";
+    } else {
+        impactEl.className = "px-3 py-1 rounded-lg bg-rose-100 text-rose-700 animate-pulse";
+        impactEl.innerText = `-${drop}/day Drop`;
+        limitEl.className = "text-xl font-black text-rose-500";
+    }
+}
 
 </script>
 
@@ -6217,7 +6474,19 @@ function toggleComparisonMode() {
     </div>
 </div>
 
+<div id="universalModal" class="modal-overlay">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeUniversalModal()"></div>
+    
+    <div class="modal-card bg-white dark:bg-slate-900 flex flex-col shadow-[0_-10px_60px_rgba(0,0,0,0.3)]">
+        
+        <div class="w-full flex justify-center pt-4 pb-2 cursor-pointer" onclick="closeUniversalModal()">
+            <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+        </div>
 
+        <div id="um-content" class="flex-1 overflow-y-auto p-6 space-y-6 no-scrollbar pb-10">
+            </div>
+    </div>
+</div>
 
 </body>
 
