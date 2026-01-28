@@ -2845,13 +2845,26 @@ if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > threshold) {
     const prevDate = new Date(currentFilter.year, currentFilter.month - 1, 1);
     let prevExp = 0;
     
-    // Global data se pichle mahine ka kharcha jodo
-    allData.forEach(item => {
+// ... inside openTrendModal() ...
+
+        allData.forEach(item => {
         const d = parseDate(item.Date);
-        if (d.getMonth() === prevDate.getMonth() && d.getFullYear() === prevDate.getFullYear() && item.Type === 'Expense') {
+        const cat = (item.Category || '').toUpperCase(); // 🔥 Category nikali
+
+        // 🟢 FIX: Added check to exclude 'INVEST' category
+        if (d.getMonth() === prevDate.getMonth() && 
+            d.getFullYear() === prevDate.getFullYear() && 
+            item.Type === 'Expense' && 
+            !cat.includes('INVEST')) { 
+            
             prevExp += parseFloat(String(item.Amount).replace(/,/g, '')) || 0;
         }
     });
+
+
+// ...
+
+
 
     const trendVal = document.getElementById('trend-val');
     const trendIcon = document.getElementById('trend-icon');
@@ -6093,27 +6106,44 @@ function closeUniversalModal() {
     document.getElementById('universalModal').classList.remove('active'); // Triggers Slide Down
 }
 
-// 2. TREND MODAL (Battle Style)
+// 3. TREND MODAL (Battle Style) - Updated Fix
 function openTrendModal() {
-    // Data Calculation
+    vibrate(20); // Thoda vibration effect
+
+    // --- 1. Current Month (Sahi value DOM se uthayega) ---
+    // Note: Ensure karein ki Dashboard par Total Expense bina investment ke ho
     const curMonthExp = parseFloat(document.getElementById('total-expense').innerText.replace(/[^\d.]/g, '')) || 0;
+
+    // --- 2. Last Month Calculation (FIXED LOGIC) ---
     const prevDate = new Date(currentFilter.year, currentFilter.month - 1, 1);
     let prevExp = 0;
+
+    // 🔥 Yahan hum loop chala kar Last Month ka "Asli Kharcha" nikalenge
     allData.forEach(item => {
         const d = parseDate(item.Date);
-        if (d.getMonth() === prevDate.getMonth() && d.getFullYear() === prevDate.getFullYear() && item.Type === 'Expense') {
+        const cat = (item.Category || '').toUpperCase(); // Category check ke liye
+
+        // ✅ Check: Month match kare + Expense ho + Investment NA ho
+        if (d.getMonth() === prevDate.getMonth() && 
+            d.getFullYear() === prevDate.getFullYear() && 
+            item.Type === 'Expense' && 
+            !cat.includes('INVEST')) { // 👈 Yeh line zaroori hai
+            
             prevExp += parseFloat(String(item.Amount).replace(/,/g, '')) || 0;
         }
     });
 
+    // --- 3. Calculation for Diff & Percentage ---
     const diff = curMonthExp - prevExp;
-    const isSaved = diff < 0;
+    const isSaved = diff < 0; // Agar negative hai toh saving hui
     const pct = prevExp > 0 ? Math.round((Math.abs(diff) / prevExp) * 100) : 100;
+    
+    // --- 4. Styling Logic ---
     const color = isSaved ? 'emerald' : 'rose';
     const msgHeader = isSaved ? "You are winning! 🏆" : "Spending Alert! 🚨";
     const msgBody = isSaved ? "Great discipline! You beat your past self." : "You've spent more than last month.";
 
-    // Rich Content HTML
+    // --- 5. HTML Generation (Dynamic Content) ---
     const html = `
         <div class="text-center mb-6">
             <span class="px-3 py-1 rounded-full bg-${color}-50 dark:bg-${color}-900/30 text-${color}-600 dark:text-${color}-400 text-[10px] font-bold uppercase tracking-widest border border-${color}-100 dark:border-${color}-800">
@@ -6157,40 +6187,95 @@ function openTrendModal() {
             <p class="text-xs font-bold text-${color}-700 dark:text-${color}-300 leading-tight">${msgBody}</p>
         </div>
     `;
+
+    // Popup kholne wala function call
     openUniversalModal(html);
 }
 
+
 // 3. SAFE LIMIT MODAL (Simulator Style)
+// 3. SAFE LIMIT MODAL (Dynamic Income Based)
 function openSafeLimitModal() {
-    // Data Calculation
-    const totalExp = parseFloat(document.getElementById('total-expense').innerText.replace(/[^\d.]/g, '')) || 0;
-    const totalBudget = 44635; 
+    vibrate(20);
+
+    // --- 1. Calculate Total Income for THIS Selected Month ---
+    let totalIncome = 0;
+    
+    // Current Filter (Month/Year) ke hisaab se Income jodo
+    allData.forEach(item => {
+        const d = parseDate(item.Date);
+        // Check: Same Month + Same Year + Type is Income
+        if (d.getMonth() === currentFilter.month && 
+            d.getFullYear() === currentFilter.year && 
+            item.Type === 'Income') {
+            
+            totalIncome += parseFloat(String(item.Amount).replace(/,/g, '')) || 0;
+        }
+    });
+
+    // Agar Income 0 hai (Data nahi dala), toh Budget 0 maano
+    const totalBudget = totalIncome > 0 ? totalIncome : 0; 
+
+    // --- 2. Calculate Expense (Needs + Wants only) ---
+    // Note: Hum Investment ko expense nahi maante safe limit ke liye
+    let totalExp = 0;
+    allData.forEach(item => {
+        const d = parseDate(item.Date);
+        const type = (item.Type || '').toLowerCase();
+        const cat = (item.Category || '').toUpperCase();
+
+        if (d.getMonth() === currentFilter.month && 
+            d.getFullYear() === currentFilter.year && 
+            type === 'expense' && 
+            !cat.includes('INVEST')) { // Investment hata ke
+            
+            totalExp += parseFloat(String(item.Amount).replace(/,/g, '')) || 0;
+        }
+    });
+
+    // --- 3. Calculate Safe Limit ---
     const today = new Date();
+    // Check agar hum future/past month dekh rahe hain ya current
+    const isCurrentMonth = today.getMonth() === currentFilter.month && today.getFullYear() === currentFilter.year;
+    
     const daysInMonth = new Date(currentFilter.year, currentFilter.month + 1, 0).getDate();
-    const daysLeft = Math.max(1, daysInMonth - today.getDate());
+    
+    // Agar current month hai toh bache hue din, nahi toh 1 (divide by 0 error rokne ke liye)
+    let daysLeft = 1; 
+    
+    if (isCurrentMonth) {
+        daysLeft = Math.max(1, daysInMonth - today.getDate());
+    } else if (today < new Date(currentFilter.year, currentFilter.month, 1)) {
+        // Future month (Pura mahina bacha hai)
+        daysLeft = daysInMonth;
+    } else {
+        // Past month (0 days left - Logic ke liye 1 rakhte hain)
+        daysLeft = 1;
+    }
+
     const remaining = Math.max(0, totalBudget - totalExp);
     const safeDaily = Math.round(remaining / daysLeft);
 
-    // Rich Content HTML
+    // --- 4. Render HTML ---
     const html = `
         <div class="text-center">
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Budget Runway</p>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Budget Runway (Based on Income)</p>
             <h1 class="text-5xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight">₹${safeDaily.toLocaleString()}</h1>
             <p class="text-xs font-bold text-slate-500 mt-1">Safe Daily Limit</p>
         </div>
 
         <div class="grid grid-cols-3 gap-2 mt-4 mb-6">
             <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
+                <p class="text-[9px] font-bold text-slate-400 uppercase">Total Income</p>
+                <p class="text-sm font-black text-emerald-600 dark:text-emerald-400">₹${(totalBudget/1000).toFixed(1)}k</p>
+            </div>
+            <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
                 <p class="text-[9px] font-bold text-slate-400 uppercase">Left</p>
                 <p class="text-sm font-black text-slate-700 dark:text-slate-200">₹${(remaining/1000).toFixed(1)}k</p>
             </div>
-            <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
-                <p class="text-[9px] font-bold text-slate-400 uppercase">Days</p>
-                <p class="text-sm font-black text-slate-700 dark:text-slate-200">${daysLeft}</p>
-            </div>
             <div class="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 text-center">
-                <p class="text-[9px] font-bold text-indigo-400 uppercase">Daily</p>
-                <p class="text-sm font-black text-indigo-600 dark:text-indigo-400">₹${safeDaily}</p>
+                <p class="text-[9px] font-bold text-indigo-400 uppercase">Days Left</p>
+                <p class="text-sm font-black text-indigo-600 dark:text-indigo-400">${isCurrentMonth ? daysLeft : '-'}</p>
             </div>
         </div>
 
@@ -6203,7 +6288,7 @@ function openSafeLimitModal() {
                 <span id="sim-amt" class="text-xs font-bold text-rose-500">₹0</span>
             </div>
 
-            <input type="range" min="0" max="${Math.min(remaining, 10000)}" step="100" value="0" 
+            <input type="range" min="0" max="${Math.min(remaining, 20000)}" step="100" value="0" 
                 class="modern-range mb-6"
                 oninput="updateSimulator(this.value, ${remaining}, ${daysLeft})">
 
@@ -6220,6 +6305,7 @@ function openSafeLimitModal() {
     `;
     openUniversalModal(html);
 }
+
 
 // 4. Simulator Logic
 function updateSimulator(val, remaining, daysLeft) {
