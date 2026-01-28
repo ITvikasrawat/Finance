@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1524,25 +1525,37 @@
 
         <!-- STATS TAB -->
 		<div id="tab-stats" class="tab-content px-5 -mt-4 pb-24">
-			<!-- AFTER: New Power Header -->
-			<div class="flex justify-between items-center mb-6">
-				<h2 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Analytics</h2>
+			
+			<!-- COMMAND DECK HEADER (Text Left + Buttons Right) -->
+			<div class="flex justify-between items-center mb-6 mt-2 relative z-10 px-1">
 				
-				<div class="flex items-center gap-2 bg-white dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
+				<!-- LEFT: Modern Analytics Text -->
+				<div class="flex flex-col justify-center">
+					<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Overview</span>
+					<h1 class="text-2xl font-black text-slate-800 dark:text-white leading-none tracking-tight">Analytics</h1>
+				</div>
+
+				<!-- RIGHT: Unified Utility Cluster (SAME AS BEFORE) -->
+				<div class="flex items-center gap-1.5 bg-white dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
 					
-					<!-- 1. Month/Year Toggle -->
-					<button id="viewModeBtn" onclick="toggleViewMode()" class="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all active:scale-95">
+					<!-- 1. Month/Year Toggle (Single Button) -->
+					<button id="btn-view-mode" onclick="toggleViewMode()" class="h-8 px-3 rounded-lg flex items-center justify-center text-[10px] font-black uppercase tracking-wider text-slate-500 hover:text-indigo-600 bg-slate-50 dark:bg-slate-700/50 hover:bg-indigo-50 border border-transparent hover:border-indigo-100 transition-all active:scale-95 min-w-[3rem]">
 						MTH
 					</button>
 
-					<div class="w-px h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
+					<div class="w-px h-4 bg-slate-200 dark:bg-slate-600 mx-0.5"></div>
 
-					<!-- 2. Chart Switcher (Pie <-> Bar) -->
-					<button id="chartTypeBtn" onclick="toggleChartType()" class="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-indigo-500 transition-all active:scale-95">
-						<i class="fas fa-chart-bar text-xs"></i>
+					<!-- 2. Career -->
+					<button onclick="openSalaryModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-700/50 transition-all active:scale-90">
+						<i class="fas fa-briefcase text-xs"></i>
 					</button>
 
-					<!-- 3. AI Insight (NEW PREMIUM) -->
+					<!-- 3. Chart Toggle -->
+					<button id="chartTypeBtn" onclick="toggleChartType()" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-slate-700/50 transition-all active:scale-90">
+						<i class="fas fa-chart-pie text-xs"></i>
+					</button>
+
+					<!-- 4. AI Insight -->
 					<button onclick="showInsight()" class="group relative outline-0 [--sz-btn:25px] [--space:calc(var(--sz-btn)/5.5)] [--gen-sz:calc(var(--space)*2)] [--sz-text:calc(var(--sz-btn)-var(--gen-sz))] h-[var(--sz-btn)] w-[var(--sz-btn)] border border-solid border-transparent rounded-xl flex items-center justify-center aspect-square cursor-pointer transition-transform duration-200 active:scale-[0.95] bg-[linear-gradient(45deg,#efad21,#ffd60f)] shadow-sm hover:shadow-lg hover:shadow-amber-400/40">
 					  
 					  <!-- Star Icon (Animated) -->
@@ -1898,6 +1911,8 @@ let iglData = [];
     let currentViewItem = null;
 	let statsViewMode = 'Month'; // 'Month' or 'Year'
 	let statsChartType = 'Doughnut'; // 'Doughnut' or 'Bar'
+	let isComparisonMode = false; // Default OFF
+
 
     const categoryMap = {
         "🏠 NEEDS": ["🛒 Food & Groceries", "🏠 Housing & Utilities", "🛵 Transportation", "🌪️ Healthcare & Buffers", "🛡️ Insurance", "🎓 Child's Education", "🔧 Home Maintenance"],
@@ -4185,19 +4200,32 @@ function switchTab(id) {
 	}
 	// --- 1. View Mode Toggle (Month vs Year) ---
 	function toggleViewMode() {
-    vibrate(20); // 📳 Haptics ON
-    const btn = document.getElementById('viewModeBtn');
+    vibrate(20);
+    const btn = document.getElementById('btn-view-mode');
     
-    if (statsViewMode === 'Month') {
-        statsViewMode = 'Year';
-        btn.innerText = 'YTD';
-        btn.className = "px-3 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-xl bg-indigo-600 text-white shadow-md transition-all active:scale-95";
+    // 1. Flip State
+    statsViewMode = (statsViewMode === 'Month') ? 'Year' : 'Month';
+    
+    // 2. Update Button Text
+    btn.innerText = (statsViewMode === 'Month') ? 'MTH' : 'YR';
+    
+    // 3. Visual Feedback (Flash Color)
+    // Indigo flash to show change happened
+    btn.classList.add('text-indigo-600', 'bg-indigo-50', 'border-indigo-100');
+    btn.classList.remove('text-slate-500', 'bg-slate-50');
+    
+    // Remove flash after animation (optional, or keep it active)
+    // Main ise active state ke liye rakhta hoon
+    if (statsViewMode === 'Year') {
+        // Year Mode: Highlighted
+        btn.classList.add('text-indigo-600', 'bg-indigo-50');
     } else {
-        statsViewMode = 'Month';
-        btn.innerText = 'MTH';
-        btn.className = "px-3 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all active:scale-95";
+        // Month Mode: Default Grey
+        btn.classList.remove('text-indigo-600', 'bg-indigo-50', 'border-indigo-100');
+        btn.classList.add('text-slate-500', 'bg-slate-50');
     }
-    renderStats(); 
+
+    renderStats();
 }
 
 	// --- 2. Chart Type Toggle (Doughnut vs Bar) ---
@@ -5101,121 +5129,131 @@ function renderBSES(container, isMatch) {
 
     let html = `<h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 px-1">Floor Details</h3><div class="space-y-3 pb-24">`;
 
+    // ... inside renderBSES function ...
+
     floors.forEach(f => {
         const data = bills.find(b => b.Floor.includes(f.name));
         
-        // Default Variables (Empty State)
-        let opacity = "opacity-60 grayscale";
+        let opacity = "opacity-50 grayscale"; // Default ghost state
         let clickAction = "";
         let detailsHtml = "";
-        let statusBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-[9px] font-bold text-slate-400 uppercase tracking-wider">No Data</span>`;
-        let amountHtml = `<span class="text-lg font-black text-slate-300">--</span>`;
+        let unitsDisplay = `<span class="text-[10px] text-slate-400">No Data</span>`;
+        let amountHtml = `<span class="text-xl font-black text-slate-200 dark:text-slate-700">--</span>`;
+        let statusColor = "bg-slate-100 text-slate-400 border-slate-200";
+        let subsidyBarHtml = "";
 
         if (data) {
             opacity = "opacity-100";
             const amt = parseFloat(data.Amount) || 0;
+            const units = parseFloat(data.Units) || 0;
             const subsidy = parseFloat(data.Subsidy) || 0;
             
             // Map Static Data
             let activeCA = "N/A";
             let activeMeter = "N/A";
-            
             if (data.Floor.includes("Ground")) { activeCA = floorMap["Ground"].ca; activeMeter = floorMap["Ground"].meter; }
             else if (data.Floor.includes("1st")) { activeCA = floorMap["1st"].ca; activeMeter = floorMap["1st"].meter; }
             else if (data.Floor.includes("2nd")) { activeCA = floorMap["2nd"].ca; activeMeter = floorMap["2nd"].meter; }
             else if (data.Floor.includes("3rd")) { activeCA = floorMap["3rd"].ca; activeMeter = floorMap["3rd"].meter; }
             else if (data.Floor.includes("4th")) { activeCA = floorMap["4th"].ca; activeMeter = floorMap["4th"].meter; }
 
-            // Logic for Badge & Amount Color
+            // Logic: Subsidy vs Bill
             if (amt > 0) {
-                statusBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-md bg-rose-50 dark:bg-rose-900/30 border border-rose-100 dark:border-rose-800 text-[9px] font-bold text-rose-500 uppercase tracking-wider">Bill Generated</span>`;
-                amountHtml = `<span class="text-lg font-black text-slate-800 dark:text-white">₹${amt.toLocaleString()}</span>`;
+                amountHtml = `<span class="text-xl font-black text-slate-800 dark:text-white">₹${amt.toLocaleString()}</span>`;
+                statusColor = "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-900/30 dark:border-rose-800";
+                unitsDisplay = `<span class="text-xs font-bold text-rose-500">Bill Generated</span>`;
             } else {
-                statusBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800 text-[9px] font-bold text-emerald-500 uppercase tracking-wider">Subsidy Covered</span>`;
-                amountHtml = `<span class="text-lg font-black text-emerald-500">Zero Bill</span>`;
+                amountHtml = `<span class="text-xl font-black text-emerald-500">₹0</span>`;
+                statusColor = "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/30 dark:border-emerald-800";
+                // 🔥 Show Units instead of generic text
+                unitsDisplay = `<span class="text-xs font-bold text-slate-500 dark:text-slate-400">${units} kWh <span class="text-[9px] text-emerald-500 font-normal">(Subsidy Active)</span></span>`;
             }
 
-            // Click Action Enable
             clickAction = `onclick="toggleUtilRow(this)"`;
 
-            // Expanded Details (Modern Cards)
+            // 🔥 SUBSIDY METER (Visual Bar inside Accordion)
+            // Delhi Subsidy Limit is usually 200 Units for full waiver
+            const limit = 200;
+            const pct = Math.min((units / limit) * 100, 100);
+            let barColor = pct > 90 ? 'bg-orange-500' : 'bg-emerald-500';
+            if(amt > 0) barColor = 'bg-rose-500';
+
+            subsidyBarHtml = `
+            <div class="mb-4">
+                <div class="flex justify-between text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                    <span>Usage: ${units} Units</span>
+                    <span>Limit: ${limit} Units</span>
+                </div>
+                <div class="w-full h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div class="h-full ${barColor} transition-all duration-1000" style="width: ${pct}%"></div>
+                </div>
+                <p class="text-[9px] text-slate-400 mt-1 text-right">${(limit - units).toFixed(1)} Units left for zero bill</p>
+            </div>`;
+
+            // Modern Accordion Details
             detailsHtml = `
-            <div class="util-row-body bg-slate-50/80 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
-                <div class="p-4 space-y-3">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
-                             <div class="absolute right-[-10px] top-[-5px] opacity-5 -rotate-12"><i class="fas fa-bolt text-5xl"></i></div>
-                             <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">⚡ Units Used</p>
-                             <div class="flex items-baseline gap-1 relative z-10">
-                                <span class="text-2xl font-black text-slate-700 dark:text-white leading-none">${data.Units}</span>
-                                <span class="text-[10px] font-bold text-slate-400">kWh</span>
+            <div class="util-row-body bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
+                <div class="p-4">
+                    ${subsidyBarHtml}
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <!-- Copy-Friendly Cards -->
+                        <div class="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm group active:scale-95 transition-transform">
+                             <p class="text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">CA Number</p>
+                             <div class="flex items-center gap-2">
+                                <span class="font-mono font-bold text-slate-700 dark:text-slate-200 text-sm select-all">${activeCA}</span>
+                                <i class="far fa-copy text-indigo-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
                              </div>
                         </div>
-                        <div class="bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-2xl border border-emerald-100 dark:border-emerald-800 shadow-sm relative overflow-hidden">
-                             <div class="absolute right-[-10px] top-[-5px] opacity-10 -rotate-12"><i class="fas fa-leaf text-5xl text-emerald-600"></i></div>
-                             <p class="text-[9px] font-bold text-emerald-600/70 dark:text-emerald-400 uppercase tracking-wider mb-1 flex items-center gap-1">🌿 Subsidy Saved</p>
-                             <div class="flex items-baseline gap-1 relative z-10">
-                                <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400 leading-none">₹${subsidy.toFixed(0)}</span>
+                        <div class="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm group active:scale-95 transition-transform">
+                             <p class="text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Meter No</p>
+                             <div class="flex items-center gap-2">
+                                <span class="font-mono font-bold text-slate-700 dark:text-slate-200 text-sm select-all">${activeMeter}</span>
+                                <i class="far fa-copy text-indigo-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
                              </div>
                         </div>
-                    </div>
-                    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-                        <div class="flex justify-between items-center p-3 border-b border-dashed border-slate-100 dark:border-slate-700">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-full bg-indigo-50 dark:bg-slate-700 flex items-center justify-center text-xs shadow-sm">🆔</div>
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">CA Number</span>
-                            </div>
-                            <span class="font-mono font-bold text-slate-700 dark:text-slate-200 text-sm tracking-wider select-all">${activeCA}</span>
-                        </div>
-                        <div class="flex justify-between items-center p-3">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-full bg-orange-50 dark:bg-slate-700 flex items-center justify-center text-xs shadow-sm">📟</div>
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Meter No</span>
-                            </div>
-                            <span class="font-mono font-bold text-slate-700 dark:text-slate-200 text-sm tracking-wider select-all">${activeMeter}</span>
-                        </div>
-                    </div>
-                    <div class="flex justify-end pt-1">
-                         <div class="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-full shadow-sm">
-                            <span class="text-xs">🗓️</span>
-                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wide mr-1">Bill Date</span>
-                            <span class="text-[11px] font-black text-slate-700 dark:text-white">
-                                ${new Date(data.Bill_Date).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'})}
-                            </span>
-                         </div>
                     </div>
 
-                    <div class="mt-2 pt-3 border-t border-dashed border-slate-200 dark:border-slate-700 flex justify-end">
+                    <div class="flex justify-end gap-3">
+                        <button onclick="event.stopPropagation(); deleteUtilityEntry('bses')" class="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-900/20 text-rose-500 hover:bg-rose-100 flex items-center justify-center transition"><i class="fas fa-trash-alt text-xs"></i></button>
                         <button onclick="event.stopPropagation(); openUtilityModal('bses', 'edit', ${JSON.stringify(data).replace(/"/g, '&quot;')})" 
-                                class="w-full py-2 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 font-bold text-xs rounded-xl hover:bg-orange-100 transition flex items-center justify-center gap-2">
-                            <i class="fas fa-edit"></i> Edit Bill Details
+                                class="px-4 py-1.5 bg-slate-800 dark:bg-slate-700 text-white font-bold text-xs rounded-lg hover:bg-slate-900 transition flex items-center gap-2">
+                            Edit Bill <i class="fas fa-pen text-[10px]"></i>
                         </button>
                     </div>
-
                 </div>
             </div>`;
         }
 
-        // Main List Item HTML (Header)
+        // --- THE MODERN CARD UI ---
+        // Strip Color Mapping
+        const stripColor = f.id === 'G' ? 'border-emerald-500' : 
+                           f.id === '1' ? 'border-blue-500' : 
+                           f.id === '2' ? 'border-violet-500' : 
+                           f.id === '3' ? 'border-rose-500' : 'border-orange-500';
+
         html += `
-        <div class="util-row-wrapper bg-white dark:bg-slate-800 rounded-[1.25rem] border border-slate-100 dark:border-slate-700 shadow-sm mb-3 overflow-hidden transition-all duration-200 hover:shadow-md hover:scale-[1.01] ${opacity}">
-            <div class="util-row-header p-4 flex items-center justify-between cursor-pointer active:bg-slate-50 dark:active:bg-slate-700/50" ${clickAction}>
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-2xl ${f.color} shadow-lg shadow-${f.color.replace('bg-', '')}/20 flex items-center justify-center text-white font-black text-xl relative overflow-hidden">
-                        <div class="absolute inset-0 bg-white opacity-10 blur-md rounded-full -translate-x-4 -translate-y-4"></div>
-                        <span class="relative z-10">${f.id}</span>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <h4 class="text-sm font-black text-slate-700 dark:text-slate-100 leading-none">${f.name}</h4>
-                        <div>${statusBadge}</div>
-                    </div>
+        <div class="util-row-wrapper bg-white dark:bg-slate-800 rounded-[1rem] shadow-sm mb-3 overflow-hidden transition-all duration-200 hover:shadow-md ${opacity}">
+            
+            <!-- Header: Left Strip + Clean Layout -->
+            <div class="util-row-header p-0 flex items-stretch border-l-[6px] ${stripColor} cursor-pointer active:bg-slate-50 dark:active:bg-slate-800/50" ${clickAction}>
+                
+                <!-- Floor Indicator (Subtle Watermark) -->
+                <div class="w-12 flex items-center justify-center bg-slate-50 dark:bg-slate-900/30 border-r border-dashed border-slate-100 dark:border-slate-700">
+                    <span class="text-xl font-black text-slate-300 dark:text-slate-700">${f.id}</span>
                 </div>
-                <div class="flex items-center gap-3">
-                    ${amountHtml}
-                    ${data ? `
-                    <div class="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center border border-slate-100 dark:border-slate-700">
-                        <i class="fas fa-chevron-down text-[10px] text-slate-400 transition-transform duration-300 chevron-icon"></i>
-                    </div>` : ''}
+
+                <!-- Main Content -->
+                <div class="flex-1 flex items-center justify-between p-3.5">
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-700 dark:text-slate-200 leading-tight mb-0.5">${f.name}</h4>
+                        ${unitsDisplay}
+                    </div>
+                    
+                    <div class="flex flex-col items-end">
+                        ${amountHtml}
+                        ${data ? `<i class="fas fa-chevron-down text-[8px] text-slate-300 mt-1 transition-transform chevron-icon"></i>` : ''}
+                    </div>
                 </div>
             </div>
             ${detailsHtml}
@@ -5250,69 +5288,122 @@ function renderIGL(container, isMatch) {
         html += `<div class="text-center py-8 opacity-50"><p class="text-xs font-bold text-slate-400">No logs found</p></div>`;
     }
 
+    // ... inside renderIGL function ...
+
     readings.forEach((item, idx) => {
         const d = new Date(item.Date);
-        const dateStr = d.toLocaleDateString('en-US', {day: '2-digit', month: 'short'});
-        const fullDate = d.toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric'});
+        const dayNum = d.getDate();
+        const monthShort = d.toLocaleDateString('en-US', { month: 'short' });
+        const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+        
         const costVal = parseFloat(item.Cost);
         const cost = isNaN(costVal) ? 0 : costVal;
-        const readingVal = item.Reading || "0";
+        const currentReading = parseFloat(item.Reading || 0);
+
+        // 🔥 LOGIC: Calculate Consumption (Current - Previous)
+        // Since array is sorted Newest -> Oldest, next item is Previous log
+        let prevReading = 0;
+        let consumption = 0;
+        let diffHtml = '<span class="text-xs text-slate-400">First Record</span>';
+
+        if (idx + 1 < readings.length) {
+            const prevItem = readings[idx + 1];
+            prevReading = parseFloat(prevItem.Reading || 0);
+            
+            if (prevReading > 0) {
+                consumption = (currentReading - prevReading).toFixed(3);
+                // Badge Logic based on consumption
+                const badgeColor = consumption > 15 ? 'text-rose-500 bg-rose-50 border-rose-100' : 'text-emerald-500 bg-emerald-50 border-emerald-100';
+                diffHtml = `<span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeColor}">+${consumption} SCM Used</span>`;
+            }
+        }
 
         html += `
-        <div class="util-row-wrapper bg-white dark:bg-slate-800 rounded-[1.25rem] border border-slate-100 dark:border-slate-700 shadow-sm mb-3 overflow-hidden transition-all duration-200 hover:shadow-md hover:scale-[1.01]">
-            <div class="util-row-header p-4 flex items-center justify-between cursor-pointer active:bg-slate-50 dark:active:bg-slate-700/50" onclick="toggleUtilRow(this)">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-900/20 text-orange-500 shadow-sm flex items-center justify-center text-xl relative overflow-hidden">
-                         <i class="fas fa-fire relative z-10"></i>
-                         <div class="absolute inset-0 bg-orange-500 opacity-10 blur-md"></div>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <h4 class="text-sm font-black text-slate-700 dark:text-slate-100 leading-none">Log #${readings.length - idx}</h4>
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 text-[9px] font-bold text-blue-500 uppercase tracking-wider">${dateStr}</span>
+        <div class="util-row-wrapper bg-white dark:bg-slate-800 rounded-[1.25rem] border border-slate-100 dark:border-slate-700 shadow-sm mb-3 overflow-hidden transition-all duration-200 group">
+            
+            <!-- HEADER: Clean "Ticket" Look -->
+            <div class="util-row-header p-0 flex items-stretch cursor-pointer min-h-[70px] active:bg-slate-50 dark:active:bg-slate-800/80" onclick="toggleUtilRow(this)">
+                
+                <!-- Left: Date Ticket Stub -->
+                <div class="w-[70px] bg-slate-50 dark:bg-slate-900/50 border-r border-dashed border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center shrink-0">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase leading-none mb-1">${monthShort}</span>
+                    <span class="text-2xl font-black text-slate-700 dark:text-slate-200 leading-none">${dayNum}</span>
+                    <span class="text-[9px] font-bold text-slate-400 uppercase leading-none mt-1">${dayName}</span>
+                </div>
+
+                <!-- Middle: Reading Info -->
+                <div class="flex-1 flex flex-col justify-center px-4 py-2">
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Meter Reading</p>
+                    <div class="flex items-baseline gap-1.5">
+                        <span class="text-lg font-black text-slate-800 dark:text-white font-mono tracking-tight">${currentReading}</span>
+                        <span class="text-[9px] font-bold text-slate-400">SCM</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-3">
-                    <span class="text-lg font-black text-slate-800 dark:text-white">₹${cost.toLocaleString()}</span>
-                    <div class="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center border border-slate-100 dark:border-slate-700">
-                        <i class="fas fa-chevron-down text-[10px] text-slate-400 transition-transform duration-300 chevron-icon"></i>
-                    </div>
+
+                <!-- Right: Cost & Arrow -->
+                <div class="flex flex-col justify-center items-end px-4 py-2">
+                     <span class="text-base font-black text-indigo-600 dark:text-indigo-400">₹${cost.toFixed(0)}</span>
+                     <div class="flex items-center gap-1 mt-1">
+                        <span class="text-[9px] font-bold text-slate-400 group-hover:text-indigo-500 transition-colors">Details</span>
+                        <i class="fas fa-chevron-down text-[8px] text-slate-300 group-hover:text-indigo-500 transition-transform duration-300 chevron-icon"></i>
+                     </div>
                 </div>
             </div>
-            <div class="util-row-body bg-slate-50/80 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
-                <div class="p-4 space-y-3">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
-                             <div class="absolute right-[-10px] top-[-5px] opacity-5 -rotate-12"><i class="fas fa-tachometer-alt text-5xl"></i></div>
-                             <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">📟 Meter Reading</p>
-                             <div class="flex items-baseline gap-1 relative z-10">
-                                <span class="text-xl font-black text-slate-700 dark:text-white leading-none font-mono">${readingVal}</span>
-                                <span class="text-[9px] font-bold text-slate-400">SCM</span>
-                             </div>
-                        </div>
-                        <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-2xl border border-blue-100 dark:border-blue-800 shadow-sm relative overflow-hidden">
-                             <div class="absolute right-[-10px] top-[-5px] opacity-10 -rotate-12"><i class="fas fa-rupee-sign text-5xl text-blue-600"></i></div>
-                             <p class="text-[9px] font-bold text-blue-600/70 dark:text-blue-400 uppercase tracking-wider mb-1 flex items-center gap-1">💰 Billed Amount</p>
-                             <div class="flex items-baseline gap-1 relative z-10">
-                                <span class="text-xl font-black text-blue-600 dark:text-blue-400 leading-none">₹${cost.toFixed(0)}</span>
-                             </div>
-                        </div>
-                    </div>
-                    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-                        <div class="flex justify-between items-center p-3 border-b border-dashed border-slate-100 dark:border-slate-700">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Entry Date</span>
-                            <span class="font-bold text-slate-700 dark:text-slate-200 text-xs tracking-wider">${fullDate}</span>
-                        </div>
-                        <div class="flex justify-between items-center p-3">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Applied Rate</span>
-                            <span class="font-bold text-slate-700 dark:text-slate-200 text-xs tracking-wider">₹47.89 / SCM</span>
+
+            <!-- BODY: The "Bill Calculation" Logic -->
+            <div class="util-row-body bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
+                <div class="p-4">
+                    
+                    <!-- 1. The Math Equation (Visual Breakdown) -->
+                    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-3 mb-3 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">Consumption Logic</p>
+                        
+                        <div class="flex items-center justify-between text-xs font-mono font-bold text-slate-600 dark:text-slate-300">
+                            <div class="flex flex-col">
+                                <span>${currentReading}</span>
+                                <span class="text-[8px] text-slate-400 font-sans uppercase">Current</span>
+                            </div>
+                            <span class="text-slate-300 mx-1">-</span>
+                            <div class="flex flex-col text-right">
+                                <span>${prevReading}</span>
+                                <span class="text-[8px] text-slate-400 font-sans uppercase">Previous</span>
+                            </div>
+                            <span class="text-slate-300 mx-1">=</span>
+                            <div class="flex flex-col text-right">
+                                <span class="text-indigo-600 dark:text-indigo-400 border-b border-indigo-200 dark:border-indigo-800/50 pb-0.5">${consumption}</span>
+                                <span class="text-[8px] text-indigo-400 font-sans uppercase">Used</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="mt-2 pt-3 border-t border-dashed border-slate-200 dark:border-slate-700 flex justify-end">
-                        <button onclick="event.stopPropagation(); openUtilityModal('igl', 'edit', ${JSON.stringify(item).replace(/"/g, '&quot;')})" 
-                                class="w-full py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-bold text-xs rounded-xl hover:bg-blue-100 transition flex items-center justify-center gap-2">
-                            <i class="fas fa-edit"></i> Edit Reading
+
+                    <!-- 2. Rate & Total -->
+                    <div class="flex justify-between items-center px-2 mb-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-500 flex items-center justify-center text-xs">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            <div>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase">Rate Applied</p>
+                                <p class="text-xs font-bold text-slate-700 dark:text-slate-200">₹47.89 <span class="text-[9px] text-slate-400">/ SCM</span></p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                             ${diffHtml}
+                        </div>
+                    </div>
+
+                    <!-- 3. Actions -->
+                    <div class="flex gap-3 pt-2 border-t border-dashed border-slate-200 dark:border-slate-700">
+                         <button onclick="event.stopPropagation(); deleteUtilityEntry('igl')" class="w-10 h-10 rounded-lg bg-rose-50 dark:bg-rose-900/20 text-rose-500 hover:bg-rose-100 flex items-center justify-center transition">
+                            <i class="fas fa-trash-alt text-xs"></i>
+                         </button>
+                         <button onclick="event.stopPropagation(); openUtilityModal('igl', 'edit', ${JSON.stringify(item).replace(/"/g, '&quot;')})" 
+                                class="flex-1 h-10 bg-slate-800 dark:bg-slate-700 text-white font-bold text-xs rounded-lg hover:bg-slate-900 transition flex items-center justify-center gap-2">
+                            Edit Entry <i class="fas fa-pen text-[10px]"></i>
                         </button>
                     </div>
+
                 </div>
             </div>
         </div>`;
@@ -5468,6 +5559,247 @@ function toggleCardMenu(menuId) {
     }
 }
 
+// ********************************************
+// 💼 SALARY VAULT LOGIC (2006-2025)
+// ********************************************
+
+// 1. THE MASTER DATA (From your Excel)
+const salaryHistory = [
+    { y: 2006, gross: 54000, m_gross: 4500, basic: 3200, hra: 1300, pf: 384, esi: 78.75, inhand: 4037.25, inc_amt: 1500, inc_pct: "50.00%", b_may: "N/A", b_diwali: "N/A", leave_d: "N/A", leave_tot: "N/A" },
+    { y: 2007, gross: 61200, m_gross: 5100, basic: 3600, hra: 1500, pf: 432, esi: 82.50, inhand: 4527.00, inc_amt: 600, inc_pct: "13.33%", b_may: 3000, b_diwali: 3200, leave_d: "N/A", leave_tot: "N/A" },
+    { y: 2008, gross: 74400, m_gross: 6200, basic: 3700, hra: 2500, pf: 444, esi: 108.50, inhand: 5647.50, inc_amt: 1100, inc_pct: "21.57%", b_may: 3500, b_diwali: 3800, leave_d: 15.5, leave_tot: 5174.62 },
+    { y: 2009, gross: 82800, m_gross: 6900, basic: 4100, hra: 2800, pf: 492, esi: 120.75, inhand: 6287.25, inc_amt: 700, inc_pct: "11.29%", b_may: 4000, b_diwali: 4300, leave_d: 19.0, leave_tot: 7059.23 },
+    { y: 2010, gross: 93600, m_gross: 7800, basic: 4700, hra: 3100, pf: 564, esi: 136.50, inhand: 7099.50, inc_amt: 900, inc_pct: "13.04%", b_may: 5200, b_diwali: 5300, leave_d: 20.5, leave_tot: 8610.00 },
+    { y: 2011, gross: 103200, m_gross: 8600, basic: 5200, hra: 3400, pf: 624, esi: 150.50, inhand: 7830.50, inc_amt: 800, inc_pct: "10.26%", b_may: 5300, b_diwali: 6300, leave_d: 21.0, leave_tot: 9724.62 },
+    { y: 2012, gross: 114000, m_gross: 9500, basic: 5300, hra: 4200, pf: 636, esi: 166.25, inhand: 8606.50, inc_amt: 900, inc_pct: "10.47%", b_may: 6300, b_diwali: 6700, leave_d: 27.0, leave_tot: 13811.54 },
+    { y: 2013, gross: 138000, m_gross: 11500, basic: 6000, hra: 5500, pf: 720, esi: 201.25, inhand: 10392.00, inc_amt: 2000, inc_pct: "21.05%", b_may: 7000, b_diwali: 8000, leave_d: 24.0, leave_tot: 14861.54 },
+    { y: 2014, gross: 177600, m_gross: 14800, basic: 7500, hra: 7300, pf: 900, esi: 259.00, inhand: 13065.00, inc_amt: 3300, inc_pct: "28.70%", b_may: 9000, b_diwali: 9500, leave_d: 20.5, leave_tot: 16336.92 },
+    { y: 2015, gross: 204000, m_gross: 17000, basic: 8600, hra: 8400, pf: 1032, esi: 297.50, inhand: 14851.00, inc_amt: 2200, inc_pct: "14.86%", b_may: 10000, b_diwali: 8000, leave_d: 24.5, leave_tot: 22426.92 },
+    { y: 2016, gross: 234000, m_gross: 19500, basic: 10000, hra: 9500, pf: 1200, esi: 341.00, inhand: 17959.00, inc_amt: 2500, inc_pct: "14.71%", b_may: 10000, b_diwali: 11500, leave_d: 20.5, leave_tot: 21525.00 },
+    { y: 2017, gross: 261600, m_gross: 21800, basic: 11500, hra: 10300, pf: 1380, esi: 0, inhand: 20420.00, inc_amt: 2300, inc_pct: "11.79%", b_may: 11000, b_diwali: 11000, leave_d: 26.5, leave_tot: 31106.92 },
+    { y: 2018, gross: 290400, m_gross: 24200, basic: 13000, hra: 11200, pf: 1560, esi: 0, inhand: 22640.00, inc_amt: 2400, inc_pct: "11.01%", b_may: 12000, b_diwali: 12000, leave_d: 6.5, leave_tot: 8470.00 },
+    { y: 2019, gross: 319200, m_gross: 26600, basic: 15000, hra: 11600, pf: 1800, esi: 0, inhand: 24800.00, inc_amt: 2400, inc_pct: "9.92%", b_may: 13000, b_diwali: 13000, leave_d: 24.0, leave_tot: 34375.38 },
+    { y: 2020, gross: 345600, m_gross: 28800, basic: 16000, hra: 12800, pf: 1920, esi: 0, inhand: 26880.00, inc_amt: 2200, inc_pct: "8.27%", b_may: 12500, b_diwali: "NIL", leave_d: 25.0, leave_tot: 36000.00 },
+    { y: 2021, gross: 369600, m_gross: 30800, basic: 17000, hra: 13800, pf: 2040, esi: 0, inhand: 28760.00, inc_amt: 2000, inc_pct: "6.94%", b_may: 12500, b_diwali: 12500, leave_d: 24.5, leave_tot: 39181.15 },
+    { y: 2022, gross: 393600, m_gross: 32800, basic: 18500, hra: 14300, pf: 2220, esi: 0, inhand: 30580.00, inc_amt: 2000, inc_pct: "6.49%", b_may: 13000, b_diwali: 13000, leave_d: 22.0, leave_tot: 38855.38 },
+    { y: 2023, gross: 423600, m_gross: 35300, basic: 23600, hra: 11700, pf: 2832, esi: 0, inhand: 32468.00, inc_amt: 2500, inc_pct: "7.62%", b_may: 13000, b_diwali: 13000, leave_d: 28.0, leave_tot: 53221.54 },
+    { y: 2024, gross: 456000, m_gross: 38000, basic: 25300, hra: 12700, pf: 3036, esi: 0, inhand: 34963.95, inc_amt: 2700, inc_pct: "7.65%", b_may: 13000, b_diwali: 13500, leave_d: 31.0, leave_tot: 63430.77 },
+    { y: 2025, gross: 489600, m_gross: 40800, basic: 27000, hra: 13800, pf: 3240, esi: 0, inhand: 37560.00, inc_amt: 2800, inc_pct: "7.37%", b_may: 13500, b_diwali: 13500, leave_d: 28.0, leave_tot: 61513.85 }
+];
+
+let careerChartInstance = null;
+
+function openSalaryModal() {
+    vibrate(30);
+    const modal = document.getElementById('salaryModal');
+    modal.classList.add('active');
+    renderSalaryTimeline();
+    
+    // Render Chart after animation
+    setTimeout(renderCareerChart, 300);
+}
+
+function closeSalaryModal() {
+    vibrate(20);
+    document.getElementById('salaryModal').classList.remove('active');
+}
+
+function renderSalaryTimeline() {
+    const container = document.getElementById('salary-timeline');
+    container.innerHTML = '';
+
+    // Sort Newest First
+    const sorted = [...salaryHistory].reverse();
+
+    sorted.forEach((d, idx) => {
+        const isLatest = idx === 0;
+        
+        // Formatter
+        const fmt = n => typeof n === 'number' ? '₹' + n.toLocaleString('en-IN') : n;
+        
+        const html = `
+        <div class="salary-card bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm transition-all duration-300">
+            
+            <!-- 1. Header (Always Visible) -->
+            <div class="p-4 flex items-center justify-between cursor-pointer active:bg-slate-50 dark:active:bg-slate-700" onclick="toggleSalaryCard(this)">
+                <!-- Connector Dot -->
+                <div class="absolute -left-[21px] mt-1.5 w-3 h-3 rounded-full border-2 border-slate-200 dark:border-slate-700 bg-emerald-500 z-10 shadow-sm"></div>
+
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center flex-col border border-slate-200 dark:border-slate-700">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">Year</span>
+                        <span class="text-lg font-black text-slate-700 dark:text-slate-200 leading-none">${d.y}</span>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Gross Annual</p>
+                        <h3 class="text-base font-black text-slate-800 dark:text-white leading-tight">${fmt(d.gross)}</h3>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-end">
+                    <span class="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-[10px] font-bold text-emerald-600 border border-emerald-100 dark:border-emerald-800">
+                        +${d.inc_pct} <i class="fas fa-level-up-alt ml-0.5"></i>
+                    </span>
+                    <i class="fas fa-chevron-down text-xs text-slate-300 mt-2 transition-transform duration-300 chevron"></i>
+                </div>
+            </div>
+
+            <!-- 2. Expanded Details (Hidden) -->
+            <div class="salary-details hidden border-t border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50">
+                <div class="p-4 space-y-4">
+                    
+                    <!-- A. Monthly Breakdown -->
+                    <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <h4 class="text-[10px] font-bold text-slate-400 uppercase mb-2">Monthly Breakdown</h4>
+                        <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-xs">
+                            <div class="flex justify-between"><span>Basic:</span> <span class="font-bold text-slate-700 dark:text-slate-300">${fmt(d.basic)}</span></div>
+                            <div class="flex justify-between"><span>HRA:</span> <span class="font-bold text-slate-700 dark:text-slate-300">${fmt(d.hra)}</span></div>
+                            <div class="flex justify-between text-rose-500"><span>PF:</span> <span class="font-bold">-${fmt(d.pf)}</span></div>
+                            <div class="flex justify-between text-rose-500"><span>ESI:</span> <span class="font-bold">-${fmt(d.esi)}</span></div>
+                            <div class="col-span-2 pt-2 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center mt-1">
+                                <span class="font-bold text-slate-500 uppercase text-[10px]">In-Hand Salary</span>
+                                <span class="text-sm font-black text-indigo-600 dark:text-indigo-400">${fmt(d.inhand)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- B. Windfalls (Bonus + Leave) -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-amber-50 dark:bg-amber-900/10 p-3 rounded-xl border border-amber-100 dark:border-amber-800/30">
+                            <h4 class="text-[9px] font-bold text-amber-600/70 uppercase mb-1">🎁 Bonuses</h4>
+                            <div class="text-xs space-y-1">
+                                <div class="flex justify-between"><span class="text-slate-500">May:</span> <span class="font-bold text-amber-700 dark:text-amber-400">${fmt(d.b_may)}</span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Diwali:</span> <span class="font-bold text-amber-700 dark:text-amber-400">${fmt(d.b_diwali)}</span></div>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 dark:bg-blue-900/10 p-3 rounded-xl border border-blue-100 dark:border-blue-800/30">
+                            <h4 class="text-[9px] font-bold text-blue-600/70 uppercase mb-1">🏖️ Leave Encash</h4>
+                            <div class="text-xs space-y-1">
+                                <div class="flex justify-between"><span class="text-slate-500">Days:</span> <span class="font-bold text-blue-700 dark:text-blue-400">${d.leave_d}</span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Total:</span> <span class="font-bold text-blue-700 dark:text-blue-400">${fmt(d.leave_tot)}</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>`;
+        
+        container.innerHTML += html;
+    });
+}
+
+function toggleSalaryCard(header) {
+    vibrate(20);
+    const card = header.parentElement;
+    const details = card.querySelector('.salary-details');
+    const chevron = card.querySelector('.chevron');
+    
+    // Close others
+    document.querySelectorAll('.salary-details').forEach(el => {
+        if(el !== details) el.classList.add('hidden');
+    });
+    document.querySelectorAll('.chevron').forEach(el => {
+        if(el !== chevron) el.style.transform = 'rotate(0deg)';
+    });
+
+    // Toggle current
+    details.classList.toggle('hidden');
+    if(!details.classList.contains('hidden')) {
+        chevron.style.transform = 'rotate(180deg)';
+    } else {
+        chevron.style.transform = 'rotate(0deg)';
+    }
+}
+
+function renderCareerChart() {
+    const ctx = document.getElementById('careerChart').getContext('2d');
+    
+    if(careerChartInstance) {
+        careerChartInstance.destroy();
+    }
+
+    const labels = salaryHistory.map(d => d.y);
+    const grossData = salaryHistory.map(d => d.gross);
+    const inHandData = salaryHistory.map(d => d.inhand * 12); // Annualized In-hand
+
+    careerChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Gross Annual',
+                    data: grossData,
+                    borderColor: '#10b981', // Emerald
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    fill: true
+                },
+                {
+                    label: 'In-Hand Annual',
+                    data: inHandData,
+                    borderColor: '#6366f1', // Indigo
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    tension: 0.4,
+                    pointRadius: 0,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#cbd5e1',
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) label += ': ';
+                            if (context.parsed.y !== null) label += '₹' + (context.parsed.y/100000).toFixed(2) + 'L';
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { display: false },
+                y: { display: false }
+            }
+        }
+    });
+}
+
+function toggleComparisonMode() {
+    vibrate(20);
+    isComparisonMode = !isComparisonMode; // Flip State
+    
+    const btn = document.getElementById('btn-compare');
+    
+    // Visual Feedback on Button
+    if (isComparisonMode) {
+        btn.classList.add('text-indigo-600', 'bg-indigo-50', 'dark:bg-indigo-900/30', 'border', 'border-indigo-100');
+        btn.classList.remove('text-slate-400');
+        showToast("Comparison Mode: ON 🆚");
+    } else {
+        btn.classList.remove('text-indigo-600', 'bg-indigo-50', 'dark:bg-indigo-900/30', 'border', 'border-indigo-100');
+        btn.classList.add('text-slate-400');
+        showToast("Comparison Mode: OFF");
+    }
+
+    // 🔥 CRITICAL: Re-render stats to show changes
+    renderStats(); 
+}
+
 
 </script>
 
@@ -5616,6 +5948,53 @@ function toggleCardMenu(menuId) {
         </div>
     </div>
 </div>
+
+<!-- 💼 SALARY HISTORY MODAL -->
+<div id="salaryModal" class="modal-overlay">
+    <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" onclick="closeSalaryModal()"></div>
+    <div class="modal-card bg-slate-50 dark:bg-slate-900 w-full h-[95vh] rounded-t-[2rem] flex flex-col">
+        
+        <!-- Header -->
+        <div class="bg-white dark:bg-slate-950 p-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center shrink-0 rounded-t-[2rem]">
+            <div>
+                <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-0.5">Career Timeline</p>
+                <h2 class="text-xl font-black text-slate-800 dark:text-white">Salary Vault (2006-25)</h2>
+            </div>
+            <button onclick="closeSalaryModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 transition flex items-center justify-center">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto no-scrollbar p-5">
+            
+            <!-- Growth Chart -->
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 mb-6">
+                <div class="flex justify-between items-end mb-4">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Total Growth</p>
+                        <h3 class="text-2xl font-black text-emerald-600 dark:text-emerald-400">+806% <span class="text-xs text-slate-400 font-bold">(Gross)</span></h3>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Latest Annual</p>
+                        <h3 class="text-xl font-black text-slate-800 dark:text-white">₹4.89L</h3>
+                    </div>
+                </div>
+                <div class="h-40 w-full relative">
+                    <canvas id="careerChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Timeline List -->
+            <div id="salary-timeline" class="space-y-4 relative pl-4 border-l-2 border-slate-200 dark:border-slate-800 ml-2">
+                <!-- JS will inject cards here -->
+            </div>
+            
+            <div class="h-12"></div> <!-- Spacer -->
+        </div>
+    </div>
+</div>
+
 
 </body>
 
