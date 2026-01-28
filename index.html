@@ -1311,6 +1311,82 @@
 @keyframes spin-slow { to { transform: rotate(360deg); } }
 .animate-spin-slow { animation: spin-slow 3s linear infinite; }
 
+/* --- 🤖 NEW NEUMORPHIC AI LOADER --- */
+.custom-loader-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: scale(0.7); /* Mobile Fit ke liye Scale Down */
+}
+
+.custom-loader span {
+    position: relative;
+    width: 250px;
+    height: 250px;
+    background-color: #eaeef0;
+    border: 6px solid #eaeef0;
+    box-shadow: -8px -8px 15px rgba(255, 255, 255, 1), 8px 8px 25px rgba(0, 0, 0, 0.15);
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.custom-loader span:before {
+    content: "AI INSIGHT"; /* 🔥 Relevant Text */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    color: #bbb9b9;
+    letter-spacing: 3px;
+    font-size: 24px; /* Thoda bada kiya */
+    font-family: 'Outfit', sans-serif;
+    position: absolute;
+    inset: 40px;
+    background-color: #eaeef0;
+    box-shadow: -8px -8px 25px rgba(255, 255, 255, 1), 8px 8px 25px rgba(0, 0, 0, 0.15), inset 3px 3px 10px rgba(0, 0, 0, 0.1), inset -1px -1px 15px rgba(255, 255, 255, 1);
+    border: 2px solid #eaeef0;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.custom-loader span i {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(#4f46e5, #ec4899, #f59e0b); /* Theme Colors: Indigo, Pink, Amber */
+    border-radius: 50%;
+    filter: blur(5px);
+    animation: animateLoader 1s linear infinite;
+}
+
+@keyframes animateLoader {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loader-orbit { /* Renamed from .text to avoid conflict */
+    position: absolute;
+    width: 279px;
+    height: 279px;
+    border-radius: 50%;
+    animation: animateText 6s linear infinite;
+}
+
+@keyframes animateText {
+    0% { transform: rotate(360deg); }
+    100% { transform: rotate(0deg); }
+}
+
+.loader-ball { /* Renamed from .ball */
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(#4f46e5, #ec4899, #f59e0b);
+    border: 6px solid #eaeef0;
+    border-radius: 50%;
+    box-shadow: -8px -8px 15px rgba(255, 255, 255, 1), 8px 8px 25px rgba(0, 0, 0, 0.15);
+    animation: rotateBall 3s infinite linear;
+}
+
     </style>
 </head>
 <body class="font-sans text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 h-screen flex flex-col overflow-hidden">
@@ -1608,19 +1684,27 @@
 				</div>
 			</div>
 
-			<!-- ⚡ New Compact Toggle -->
-			<div class="radio-inputs">
-			<!-- EXPENSE: Subtle Red -->
-			<label class="radio">
-				<input type="radio" name="statsType" class="peer" checked onclick="vibrate(20); statsState.type='Expense'; renderStats();">
-				<span class="name peer-checked:!bg-rose-50 peer-checked:!text-rose-600 peer-checked:!border-rose-100 peer-checked:!shadow-none">Expense</span>
-			</label>
-			
-			<!-- INCOME: Subtle Green -->
-			<label class="radio">
-				<input type="radio" name="statsType" class="peer" onclick="vibrate(20); statsState.type='Income'; renderStats();">
-				<span class="name peer-checked:!bg-emerald-50 peer-checked:!text-emerald-600 peer-checked:!border-emerald-100 peer-checked:!shadow-none">Income</span>
-			</label>
+			<!-- ⚡ MODERN STATS TOGGLE (Expense vs Income) -->
+			<div class="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl flex relative mb-4 shadow-inner border border-slate-200 dark:border-slate-700">
+				
+				<!-- EXPENSE BUTTON (Active: Red BG + White Text) -->
+				<label class="flex-1 cursor-pointer">
+					<input type="radio" name="statsType" class="peer sr-only" checked onclick="vibrate(20); statsState.type='Expense'; renderStats();">
+					<div class="flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold text-slate-500 transition-all duration-300 peer-checked:bg-rose-500 peer-checked:text-white peer-checked:shadow-lg peer-checked:shadow-rose-500/30">
+						<i class="fas fa-arrow-down transform rotate-45"></i>
+						<span>EXPENSE</span>
+					</div>
+				</label>
+
+				<!-- INCOME BUTTON (Active: Green BG + White Text) -->
+				<label class="flex-1 cursor-pointer">
+					<input type="radio" name="statsType" class="peer sr-only" onclick="vibrate(20); statsState.type='Income'; renderStats();">
+					<div class="flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold text-slate-500 transition-all duration-300 peer-checked:bg-emerald-500 peer-checked:text-white peer-checked:shadow-lg peer-checked:shadow-emerald-500/30">
+						<i class="fas fa-arrow-up transform rotate-45"></i>
+						<span>INCOME</span>
+					</div>
+				</label>
+
 			</div>
 
 			<!-- Row 2: Account Chips (Full Width Scrollable) -->
@@ -1984,16 +2068,30 @@ let iglData = [];
 			else if (lowerAcc.includes('cash')) { displayName = 'Cash'; icon = 'fa-money-bill-wave'; }
 			else if (lowerAcc.includes('sunita')) { icon = 'fa-user-circle'; }
 
-			// --- 🎨 COLOR LOGIC ---
-			let colorClass = 'peer-checked:!bg-indigo-50 peer-checked:!text-indigo-700 peer-checked:!border-indigo-100';
+			// --- 🎨 COLOR LOGIC (NEW: Solid Brand Colors) ---
+			// Default (All): Solid Slate/Dark Grey
+			let colorClass = 'peer-checked:!bg-slate-800 dark:peer-checked:!bg-slate-200 peer-checked:!text-white dark:peer-checked:!text-slate-900 peer-checked:!border-slate-800';
 
-			if (lowerAcc.includes('axis')) { colorClass = 'peer-checked:!bg-rose-100 peer-checked:!text-rose-900 peer-checked:!border-rose-200'; } 
-			else if (lowerAcc.includes('flipkart')) { colorClass = 'peer-checked:!bg-blue-50 peer-checked:!text-blue-700 peer-checked:!border-blue-200'; } 
-            // 🔥 REMOVED: Amazon special color logic
-			// else if (lowerAcc.includes('amazon')) { colorClass = 'peer-checked:!bg-orange-100 peer-checked:!text-orange-900 peer-checked:!border-orange-200'; } 
-			else if (lowerAcc.includes('sbi')) { colorClass = 'peer-checked:!bg-sky-100 peer-checked:!text-sky-700 peer-checked:!border-sky-200'; } 
-			else if (lowerAcc.includes('cash')) { colorClass = 'peer-checked:!bg-emerald-100 peer-checked:!text-emerald-800 peer-checked:!border-emerald-200'; }
-			else if (lowerAcc.includes('sunita')) { colorClass = 'peer-checked:!bg-fuchsia-100 peer-checked:!text-fuchsia-800 peer-checked:!border-fuchsia-200'; }
+			if (lowerAcc.includes('axis')) { 
+				// Axis: Deep Maroon/Rose
+				colorClass = 'peer-checked:!bg-rose-700 peer-checked:!text-white peer-checked:!border-rose-700'; 
+			} 
+			else if (lowerAcc.includes('flipkart')) { 
+				// Flipkart: Bright Blue
+				colorClass = 'peer-checked:!bg-blue-600 peer-checked:!text-white peer-checked:!border-blue-600'; 
+			} 
+			else if (lowerAcc.includes('sbi')) { 
+				// SBI: Sky/Cyan Blue
+				colorClass = 'peer-checked:!bg-sky-600 peer-checked:!text-white peer-checked:!border-sky-600'; 
+			} 
+			else if (lowerAcc.includes('cash')) { 
+				// Cash: Solid Emerald Green
+				colorClass = 'peer-checked:!bg-emerald-600 peer-checked:!text-white peer-checked:!border-emerald-600'; 
+			}
+			else if (lowerAcc.includes('sunita')) { 
+				// Sunita: Solid Pink
+				colorClass = 'peer-checked:!bg-pink-600 peer-checked:!text-white peer-checked:!border-pink-600'; 
+			}
 
 			const label = document.createElement('label');
 			label.className = "radio";
@@ -4247,366 +4345,429 @@ function switchTab(id) {
     renderStats();
 }
 
-	function showInsight() {
+	// --- HELPER FUNCTIONS FOR INFO MODAL ---
+function openInfoModal() { vibrate(20); document.getElementById('infoModal').classList.add('active'); }
+function closeInfoModal() { vibrate(20); document.getElementById('infoModal').classList.remove('active'); }
+
+// --- MAIN INSIGHT ENGINE (FIXED) ---
+function showInsight() {
     vibrate(30);
     
     const aiModal = document.getElementById('aiModal');
     const contentDiv = document.getElementById('aiContent');
     const closeBtn = document.getElementById('aiCloseBtn'); 
     
-    // 1. Reset UI (Hide Bottom Button Permanently)
     if(closeBtn) closeBtn.style.display = 'none'; 
     
-    // Modern Loader
+    // 1. LOADER HTML (With Modern Header Integrated)
     contentDiv.innerHTML = `
         <div class="flex flex-col items-center justify-center h-full min-h-[500px]">
+            <!-- Modern Info Button Integrated Here -->
+            <div class="absolute top-6 right-16 z-50">
+                <button onclick="openInfoModal()" class="flex items-center gap-1 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-full shadow-sm hover:bg-white dark:hover:bg-slate-700 transition active:scale-95 group">
+                    <i class="fas fa-sparkles text-indigo-500 text-xs group-hover:animate-pulse"></i>
+                    <span class="text-[10px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">Guide</span>
+                </button>
+            </div>
+
             <div class="relative w-24 h-24">
                 <div class="absolute inset-0 rounded-full border-4 border-slate-100 dark:border-slate-800 opacity-20"></div>
                 <div class="absolute inset-0 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
                 <div class="absolute inset-0 flex items-center justify-center font-black text-2xl text-indigo-500 animate-pulse">AI</div>
             </div>
-            <p class="text-[10px] font-bold text-slate-400 mt-6 animate-pulse uppercase tracking-widest">Scanning 30 Financial Data Points...</p>
+            <p class="text-[10px] font-bold text-slate-400 mt-6 animate-pulse uppercase tracking-widest">Decoding your finances...</p>
         </div>
     `;
     
     aiModal.classList.add('active');
 
-    // 2. DATA ENGINE
     const filterFunc = window.currentStatsFilter || (() => true);
     const filtered = allData.filter(filterFunc);
     
     setTimeout(() => {
-        if(filtered.length === 0) { 
-            contentDiv.innerHTML = `<div class="flex flex-col items-center justify-center h-64"><i class="fas fa-ghost text-4xl text-slate-300 mb-3"></i><p class="text-slate-400 font-bold">Ghost Town! No data found.</p></div>`;
-            return; 
-        }
-
-        // --- 🧠 30-POINT CALCULATION ENGINE ---
-        
-        // Variables
-        let totalExp = 0, totalInc = 0;
-        let wants = 0, needs = 0, invest = 0;
-        let smallLeaks = 0, cashSpend = 0, digitalSpend = 0;
-        let weekendSum = 0, weekdaySum = 0;
-        let weekendCount = 0, weekdayCount = 0;
-        let latteSum = 0, frictionSum = 0, regretSum = 0;
-        let salarySpikeSum = 0; // First 3 days
-        let maxTxn = { amount: 0, note: '-' };
-        
-        const dayMap = {}; const timeMap = { M:0, A:0, E:0, N:0 };
-        const merchantMap = {}; const catMap = {}; const dateSet = new Set();
-        const amtFrequencyMap = {}; // For Subscription Hunter
-        
-        // Context
-        const today = new Date();
-        const curMonth = currentFilter.month;
-        const curYear = currentFilter.year;
-        const daysInMonth = new Date(curYear, curMonth + 1, 0).getDate();
-        
-        // 🔥 FIX: 0 Spend Day Calculation (Count passed days only, not whole month)
-        const isCurMonth = today.getMonth() === curMonth && today.getFullYear() === curYear;
-        const daysPassed = isCurMonth ? today.getDate() : daysInMonth;
-
-        // --- MASTER LOOP ---
-        filtered.forEach(i => {
-            let val = parseFloat(String(i.Amount).replace(/,/g, '')) || 0;
-            let type = (i.Type || '').toLowerCase();
-            let cat = (i.Category || '').toUpperCase();
-            let desc = (i.Description || i.Note || 'Misc').trim();
-            let lowerDesc = desc.toLowerCase();
-            let d = parseDate(i.Date);
-            let dayNum = d.getDay(); 
-            let dateNum = d.getDate();
-            let hr = d.getHours();
-            let min = d.getMinutes();
-
-            // 1. Income Logic
-            if(type === 'income') { totalInc += val; return; }
-            if(type !== 'expense' && type !== 'investment') return;
-
-            totalExp += val;
-            dateSet.add(d.toDateString()); // Track active spending days
-
-            // 2. Needs/Wants/Invest
-            if(cat.includes('WANTS')) wants += val;
-            else if(cat.includes('INVEST') || type === 'investment') invest += val;
-            else needs += val;
-
-            // 3. Cash/Digital
-            if(i.Account.toLowerCase().includes('cash')) cashSpend += val;
-            else digitalSpend += val;
-
-            // 4. Weekend
-            if(dayNum === 0 || dayNum === 6) { weekendSum += val; weekendCount++; }
-            else { weekdaySum += val; weekdayCount++; }
-
-            // 🔥 FIX: 12 AM Exclusion Logic (Default Timestamp)
-            // Agar exact 00:00 hai, to ise "Time Analysis" se exclude karo
-            const isDefaultTime = (hr === 0 && min === 0);
-
-            // 5. Detectives (Latte, Friction, Regret, Spike)
-            if(lowerDesc.match(/chai|tea|coffee|sutta|cig|pan|snack|maggi|coke/)) latteSum += val;
-            if(lowerDesc.match(/fee|charge|delivery|fine|interest|tax/)) frictionSum += val;
+        try { // 🔥 Added Error Handling
             
-            // Only calc Regret Window if time is NOT default 12 AM
-            if (!isDefaultTime) {
-                if(hr >= 23 || hr < 4) regretSum += val; // 11 PM - 4 AM
+            if(filtered.length === 0) { 
+                contentDiv.innerHTML = `<div class="flex flex-col items-center justify-center h-64"><i class="fas fa-ghost text-4xl text-slate-300 mb-3"></i><p class="text-slate-400 font-bold">No Data Found</p></div>`;
+                return; 
             }
 
-            if(dateNum <= 3) salarySpikeSum += val; // First 3 days
+            // --- 📅 CONTEXT DEFINITIONS (MOVED TO TOP TO FIX ERROR) ---
+            const today = new Date();
+            const curMonth = currentFilter.month;
+            const curYear = currentFilter.year;
+            
+            // Fix: Check if viewing current month or past month
+            const isCurMonth = today.getMonth() === curMonth && today.getFullYear() === curYear;
+            const daysInMonth = new Date(curYear, curMonth + 1, 0).getDate();
+            
+            // 🔥 CRITICAL FIX: daysPassed Defined HERE
+            const daysPassed = isCurMonth ? Math.max(1, today.getDate()) : daysInMonth; 
 
-            // 6. Subscription Logic (Repeated Amounts)
-            amtFrequencyMap[val] = (amtFrequencyMap[val] || 0) + 1;
+            // --- 🧮 MASTER CALCULATION ENGINE ---
+            let totalExp = 0, totalInc = 0;
+            let wants = 0, needs = 0, invest = 0;
+            let cashSpend = 0, digitalSpend = 0, creditSpend = 0;
+            let dining = 0, grocery = 0;
+            let smallLeaks = 0, latteSum = 0, frictionSum = 0, regretSum = 0;
+            let weekendSum = 0, weekdaySum = 0;
+            let weekendCount = 0, weekdayCount = 0;
+            let salarySpikeSum = 0;
+            
+            // Breakdown Buckets
+            let wantsBreakdown = { shopping: 0, food: 0, habits: 0, entertainment: 0, other: 0 };
+            let needsBreakdown = { kids: 0, home: 0, kitchen: 0, commute: 0, other: 0 };
 
-            // 7. Time & Maps (Exclude 12 AM)
-            if (!isDefaultTime) {
-                if(hr < 12) timeMap.M += val;
-                else if(hr < 17) timeMap.A += val;
-                else if(hr < 21) timeMap.E += val;
-                else timeMap.N += val;
-            }
+            const merchantMap = {};
+            const dateSet = new Set();
 
-            let dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
-            dayMap[dayName] = (dayMap[dayName] || 0) + val;
-            merchantMap[desc] = (merchantMap[desc] || 0) + val;
-            catMap[cat] = (catMap[cat] || 0) + val;
-
-            if(val < 100) smallLeaks += val;
-            if(val > maxTxn.amount) maxTxn = { amount: val, note: desc };
-        });
-
-        // --- DERIVED METRICS ---
-        
-        // 🔥 FIX: Zero Spend Days Calculation
-        // Active Days (dateSet.size) ko total passed days se minus karo
-        const zeroSpendDays = Math.max(0, daysPassed - dateSet.size);
-
-        const dailyAvg = totalExp / Math.max(1, dateSet.size); // Avg on spending days
-        const projected = isCurMonth ? (totalExp / daysPassed) * daysInMonth : totalExp;
-        const budget = totalInc > 0 ? totalInc : (totalExp * 1.2); 
-        
-        // Category 1: Overview
-        const burnDay = Math.min(daysInMonth, Math.floor(budget / (dailyAvg || 1)));
-        const savingsRate = totalInc > 0 ? ((totalInc - totalExp)/totalInc)*100 : 0;
-        let healthScore = 50; 
-        if(savingsRate > 20) healthScore += 20;
-        if(wants < needs) healthScore += 10;
-        if(invest > 0) healthScore += 20;
-        healthScore = Math.min(100, Math.max(0, healthScore));
-
-        const paycheckEndurance = burnDay >= 28 ? "High (30+ Days)" : `Low (${burnDay} Days)`;
-        const survivalDays = Math.floor((budget - totalExp) / (needs/daysPassed || 1));
-
-        // Category 2: Psychology
-        const hourlyRate = (budget / 160); 
-        const timeCost = totalExp / hourlyRate;
-        const freedomPct = Math.round(((budget - needs) / budget) * 100) || 0;
-        const plasticRatio = cashSpend > 0 ? (digitalSpend / cashSpend).toFixed(1) : "∞";
-        
-        let persona = "Balanced 🧘";
-        if(wants > needs) persona = "Hedonist 🕺";
-        if(regretSum > 2000) persona = "Night Owl 🦉";
-        if(invest > wants) persona = "Visionary 🚀";
-
-        // Category 3: Patterns
-        const spikePct = Math.round((salarySpikeSum / totalExp) * 100);
-        const heaviestDay = Object.entries(dayMap).sort((a,b)=>b[1]-a[1])[0] || ['-',0];
-        const wkndMult = weekdaySum > 0 ? ((weekendSum/weekendCount) / (weekdaySum/weekdayCount)).toFixed(1) : 0;
-
-        // Category 4: Detective
-        const impulseScore = (dateSet.size > 0) ? Math.round(filtered.length / dateSet.size) : 0; 
-
-        // Category 5: Trends (MoM)
-        let lastMonthTotal = 0;
-        let lastMonthCount = 0;
-        const prevM = curMonth === 0 ? 11 : curMonth - 1;
-        const prevY = curMonth === 0 ? curYear - 1 : curYear;
-        allData.forEach(i => {
-            let d = parseDate(i.Date);
-            if(d.getMonth() === prevM && d.getFullYear() === prevY && d.getDate() <= daysPassed && i.Type === 'Expense') {
-                lastMonthTotal += parseFloat(String(i.Amount).replace(/,/g, '')) || 0;
-                lastMonthCount++;
-            }
-        });
-        const momDiff = totalExp - lastMonthTotal;
-        const momSign = momDiff > 0 ? '+' : '';
-        const curAvgTicket = filtered.length > 0 ? totalExp/filtered.length : 0;
-        const lastAvgTicket = lastMonthCount > 0 ? lastMonthTotal/lastMonthCount : 0;
-        const inflation = lastAvgTicket > 0 ? ((curAvgTicket - lastAvgTicket)/lastAvgTicket)*100 : 0;
-        
-        const topMerch = Object.entries(merchantMap).sort((a,b)=>b[1]-a[1])[0] || ['-',0];
-        
-        // Category 6: Actionable
-        const potentialSave = wants * 0.2;
-        const onePercent = totalExp * 0.01;
-        const nextMonthPred = totalExp * 1.05; 
-
-        // Formatting Helper
-        const fmt = n => '₹' + Math.round(n).toLocaleString('en-IN');
-
-        // --- 🎨 HTML GENERATION ---
-        contentDiv.innerHTML = `
-            <div class="space-y-4 pb-6">
+            // --- LOOP ---
+            filtered.forEach(i => {
+                let val = parseFloat(String(i.Amount).replace(/,/g, '')) || 0;
+                let type = (i.Type || '').toLowerCase();
+                let cat = (i.Category || '').toUpperCase();
+                let sub = (i['Sub-Category'] || '').toUpperCase();
+                let acc = (i.Account || '').toLowerCase();
+                let note = (i.Note || '').toLowerCase();
+                let desc = (i.Description || '').toLowerCase();
+                let combinedText = (note + " " + desc + " " + sub).toLowerCase();
                 
-                <!-- 1. HEALTH SCORE HEADER -->
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-2xl font-black text-slate-800 dark:text-white">Financial IQ</h2>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">30-Point Analysis</p>
-                    </div>
-                    <div class="relative w-16 h-16 flex items-center justify-center">
-                        <svg class="w-full h-full transform -rotate-90">
-                            <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="6" fill="none" class="text-slate-100 dark:text-slate-800" />
-                            <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="6" fill="none" class="${healthScore > 70 ? 'text-emerald-500' : healthScore > 40 ? 'text-amber-500' : 'text-rose-500'}" stroke-dasharray="175" stroke-dashoffset="${175 - (175 * healthScore) / 100}" />
-                        </svg>
-                        <span class="absolute text-sm font-black text-slate-700 dark:text-white">${healthScore}</span>
-                    </div>
-                </div>
+                let d = parseDate(i.Date);
+                let dayNum = d.getDay(); 
+                let dateNum = d.getDate();
+                let hr = d.getHours();
+                let min = d.getMinutes();
 
-                <!-- CATEGORY 1: OVERVIEW -->
-                <div class="relative bg-slate-900 text-white p-5 rounded-3xl overflow-hidden shadow-xl">
-                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-600 rounded-full blur-[60px] opacity-50"></div>
-                    <div class="grid grid-cols-2 gap-4 relative z-10">
-                        <div>
-                            <p class="text-[9px] text-slate-400 font-bold uppercase">Projected End</p>
-                            <h3 class="text-2xl font-black text-white">${fmt(projected)}</h3>
-                        </div>
-                        <div class="text-right">
-                             <p class="text-[9px] text-slate-400 font-bold uppercase">Burn Date</p>
-                             <span class="inline-block px-2 py-0.5 rounded bg-rose-500 text-white text-xs font-bold">${burnDay} ${new Date(curYear, curMonth).toLocaleString('default', {month:'short'})}</span>
-                        </div>
-                        <div class="col-span-2 pt-2 border-t border-slate-700 flex justify-between">
-                            <div class="text-center">
-                                <p class="text-[8px] text-slate-400 uppercase">Endurance</p>
-                                <p class="text-xs font-bold text-indigo-300">${paycheckEndurance}</p>
+                if(type === 'income') { totalInc += val; return; }
+                if(type !== 'expense' && type !== 'investment') return;
+
+                totalExp += val;
+                dateSet.add(d.toDateString());
+                merchantMap[desc || note] = (merchantMap[desc || note] || 0) + val;
+
+                // 1. Main Buckets & Breakdowns
+                if(cat.includes('WANTS')) {
+                    wants += val;
+                    if(combinedText.match(/zomato|swiggy|pizza|burger|restaurant|cafe|food/)) wantsBreakdown.food += val;
+                    else if(combinedText.match(/amazon|flipkart|myntra|clothes|shoe|shop/)) wantsBreakdown.shopping += val;
+                    else if(combinedText.match(/chai|tea|coffee|sutta|paan|cig/)) wantsBreakdown.habits += val;
+                    else if(combinedText.match(/netflix|prime|hotstar|movie|game/)) wantsBreakdown.entertainment += val;
+                    else wantsBreakdown.other += val;
+                }
+                else if(cat.includes('INVEST') || type === 'investment') {
+                    invest += val;
+                }
+                else {
+                    needs += val;
+                    if(combinedText.match(/fee|school|doctor|med|toy|baby|diaper|siya|georgie|kids/)) needsBreakdown.kids += val;
+                    else if(combinedText.match(/bill|bses|igl|wifi|rent|maintenance|home|repair/)) needsBreakdown.home += val;
+                    else if(combinedText.match(/petrol|fuel|metro|uber|ola|service|scooty|car/)) needsBreakdown.commute += val;
+                    else if(combinedText.match(/grocery|blinkit|zepto|milk|veg|fruit|bigbasket/)) needsBreakdown.kitchen += val;
+                    else needsBreakdown.other += val;
+                }
+
+                // 2. Payment Modes
+                if(acc.includes('flipkart') || acc.includes('amazon') || acc.includes('credit')) { creditSpend += val; digitalSpend += val; }
+                else if(acc.includes('cash')) cashSpend += val;
+                else digitalSpend += val;
+
+                // 3. Food Habits
+                if(sub.includes('FOOD') || combinedText.match(/zomato|swiggy|restaurant|burger|pizza/)) dining += val;
+                if(sub.includes('GROCERY') || combinedText.match(/grocery|veg|blinkit|zepto|milk/)) grocery += val;
+
+                // 4. Detective Metrics
+                if(combinedText.match(/chai|tea|coffee|sutta|cig|pan|snack|maggi|coke/)) latteSum += val;
+                if(combinedText.match(/fee|charge|delivery|fine|interest|tax/)) frictionSum += val;
+                if(val < 100) smallLeaks += val;
+
+                // 5. Time Patterns
+                if(dayNum === 0 || dayNum === 6) { weekendSum += val; weekendCount++; }
+                else { weekdaySum += val; weekdayCount++; }
+                if(dateNum <= 3) salarySpikeSum += val;
+
+                // Midnight Fix
+                const isDefaultTime = (hr === 0 && min === 0);
+                if (!isDefaultTime) {
+                    if(hr >= 23 || hr < 4) regretSum += val; 
+                }
+            });
+
+            // --- 📊 DERIVED METRICS ---
+
+            const wealthVelocity = totalExp > 0 ? (invest / totalExp).toFixed(2) : 0;
+            const netSavings = totalInc - totalExp - invest;
+            
+            // Runway Calculation
+            const monthlyNeeds = needs > 0 ? (needs / daysPassed) * 30 : 20000;
+            const runway = (netSavings > 0) ? (netSavings / monthlyNeeds).toFixed(1) : 0;
+            
+            const savingsRate = totalInc > 0 ? ((totalInc - totalExp) / totalInc) * 100 : 0;
+            let yearsToFreedom = "Never";
+            if(savingsRate > 60) yearsToFreedom = "10 Yrs";
+            else if(savingsRate > 40) yearsToFreedom = "18 Yrs";
+            else if(savingsRate > 20) yearsToFreedom = "30 Yrs";
+            else if(savingsRate > 0) yearsToFreedom = "45+ Yrs";
+
+            const needsPct = totalInc > 0 ? Math.round((needs / totalInc) * 100) : 0;
+            let creepStatus = "Stable 🛡️";
+            if(needsPct > 60) creepStatus = "High ⚠️"; else if(needsPct < 40) creepStatus = "Lean 💪";
+
+            const creditRatio = totalExp > 0 ? Math.round((creditSpend / totalExp) * 100) : 0;
+            const foodTotal = dining + grocery;
+            const diningPct = foodTotal > 0 ? Math.round((dining / foodTotal) * 100) : 0;
+            const plateRatio = grocery > 0 ? (dining/grocery).toFixed(1) : (dining > 0 ? "∞" : "0");
+
+            const dailyAvg = totalExp / Math.max(1, dateSet.size);
+            const budget = totalInc > 0 ? totalInc : (totalExp * 1.2);
+            const burnDay = Math.min(daysInMonth, Math.floor(budget / (dailyAvg || 1)));
+            const survivalDays = Math.floor((budget - totalExp) / (needs/30 || 1));
+            const paycheckEndurance = burnDay >= 28 ? "High (30+ D)" : `Low (${burnDay} D)`;
+            
+            const hourlyRate = (budget / 160); 
+            const timeCost = totalExp / (hourlyRate || 1);
+            const spikePct = Math.round((salarySpikeSum / totalExp) * 100);
+            const zeroSpendDays = Math.max(0, daysPassed - dateSet.size);
+            const impulseScore = (dateSet.size > 0) ? Math.round(filtered.length / dateSet.size) : 0;
+            
+            let healthScore = 50; 
+            if(savingsRate > 20) healthScore += 20; if(wants < needs) healthScore += 10; if(invest > 0) healthScore += 20;
+            healthScore = Math.min(100, Math.max(0, healthScore));
+
+            // MoM
+            let lastMonthTotal = 0;
+            const prevM = curMonth === 0 ? 11 : curMonth - 1;
+            const prevY = curMonth === 0 ? curYear - 1 : curYear;
+            allData.forEach(i => {
+                let d = parseDate(i.Date);
+                if(d.getMonth() === prevM && d.getFullYear() === prevY && d.getDate() <= daysPassed && i.Type === 'Expense') {
+                    lastMonthTotal += parseFloat(String(i.Amount).replace(/,/g, '')) || 0;
+                }
+            });
+            const momDiff = totalExp - lastMonthTotal;
+            const momSign = momDiff > 0 ? '+' : '';
+
+            // Persona & Merchant
+            const topMerch = Object.entries(merchantMap).sort((a,b)=>b[1]-a[1])[0] || ['-',0];
+            let persona = "Balanced 🧘";
+            if(wants > needs) persona = "Hedonist 🕺"; if(regretSum > 2000) persona = "Night Owl 🦉"; if(invest > wants) persona = "Visionary 🚀";
+
+            const potentialSave = wants * 0.2;
+            const onePercent = totalExp * 0.01;
+            const nextMonthPred = totalExp * 1.05;
+
+            const fmt = n => '₹' + Math.round(n).toLocaleString('en-IN');
+            const getPct = (val, tot) => tot > 0 ? Math.round((val/tot)*100) : 0;
+
+            // --- 🎨 RENDER HTML ---
+            contentDiv.innerHTML = `
+                <div class="space-y-4 pb-6">
+                    
+                    <!-- RE-INSERT INFO BUTTON (Because innerHTML wipe removed it) -->
+                    <div class="absolute top-6 right-16 z-50">
+                        <button onclick="openInfoModal()" class="flex items-center gap-1 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-full shadow-sm hover:bg-white dark:hover:bg-slate-700 transition active:scale-95 group">
+                            <i class="fas fa-sparkles text-indigo-500 text-xs group-hover:animate-pulse"></i>
+                            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">Guide</span>
+                        </button>
+                    </div>
+
+                    <!-- 1. HERO: Wealth Velocity -->
+                    <div class="relative bg-gradient-to-r from-indigo-600 to-blue-600 p-5 rounded-[24px] text-white shadow-xl shadow-indigo-200 dark:shadow-none overflow-hidden">
+                        <div class="absolute -right-6 -top-6 w-32 h-32 bg-white opacity-10 rounded-full blur-3xl"></div>
+                        <div class="flex justify-between items-start relative z-10">
+                            <div>
+                                <p class="text-[10px] font-bold text-indigo-200 uppercase tracking-widest mb-1">Wealth Velocity</p>
+                                <h2 class="text-4xl font-black">${wealthVelocity}x</h2>
+                                <p class="text-[9px] text-indigo-100 opacity-80 mt-1">Invest vs Spend</p>
                             </div>
-                            <div class="text-center">
-                                <p class="text-[8px] text-slate-400 uppercase">Survival</p>
-                                <p class="text-xs font-bold text-emerald-300">${survivalDays} Days</p>
+                             <div class="text-right">
+                                 <p class="text-[10px] font-bold text-indigo-200 uppercase">Freedom In</p>
+                                 <h3 class="text-xl font-black">${yearsToFreedom}</h3>
+                                 <p class="text-[9px] text-indigo-100 opacity-80 mt-1">Retirement Est.</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 h-1.5 bg-black/20 rounded-full overflow-hidden">
+                            <div class="h-full bg-white/90 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]" style="width: ${Math.min(wealthVelocity*100, 100)}%"></div>
+                        </div>
+                    </div>
+
+                    <!-- 2. WANTS BREAKDOWN -->
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="text-[10px] font-bold text-rose-500 uppercase flex items-center gap-2"><i class="fas fa-heart"></i> Wants Analysis</h4>
+                            <span class="text-xs font-black text-slate-800 dark:text-white">${fmt(wants)}</span>
+                        </div>
+                        <div class="flex h-4 w-full rounded-full overflow-hidden mb-3">
+                            <div class="bg-rose-500 h-full" style="width: ${getPct(wantsBreakdown.food, wants)}%"></div>
+                            <div class="bg-blue-500 h-full" style="width: ${getPct(wantsBreakdown.shopping, wants)}%"></div>
+                            <div class="bg-amber-500 h-full" style="width: ${getPct(wantsBreakdown.habits, wants)}%"></div>
+                            <div class="bg-slate-200 h-full" style="width: ${getPct(wantsBreakdown.other, wants)}%"></div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-[10px]">
+                            <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-rose-500"></div> <span class="text-slate-500">Food: ${fmt(wantsBreakdown.food)}</span></div>
+                            <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-blue-500"></div> <span class="text-slate-500">Shop: ${fmt(wantsBreakdown.shopping)}</span></div>
+                            <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-amber-500"></div> <span class="text-slate-500">Habits: ${fmt(wantsBreakdown.habits)}</span></div>
+                            <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-slate-200"></div> <span class="text-slate-500">Other: ${fmt(wantsBreakdown.other)}</span></div>
+                        </div>
+                    </div>
+
+                    <!-- 3. NEEDS BREAKDOWN -->
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="text-[10px] font-bold text-indigo-500 uppercase flex items-center gap-2"><i class="fas fa-home"></i> Needs Breakdown</h4>
+                            <span class="text-xs font-black text-slate-800 dark:text-white">${fmt(needs)}</span>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500 flex items-center gap-2"><i class="fas fa-child text-pink-400"></i> Kids</span>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-pink-400" style="width: ${getPct(needsBreakdown.kids, needs)}%"></div></div>
+                                    <span class="font-bold text-slate-700 dark:text-slate-200 w-10 text-right">${fmt(needsBreakdown.kids)}</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500 flex items-center gap-2"><i class="fas fa-home text-indigo-400"></i> Home</span>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-indigo-400" style="width: ${getPct(needsBreakdown.home, needs)}%"></div></div>
+                                    <span class="font-bold text-slate-700 dark:text-slate-200 w-10 text-right">${fmt(needsBreakdown.home)}</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500 flex items-center gap-2"><i class="fas fa-carrot text-emerald-400"></i> Kitchen</span>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-400" style="width: ${getPct(needsBreakdown.kitchen, needs)}%"></div></div>
+                                    <span class="font-bold text-slate-700 dark:text-slate-200 w-10 text-right">${fmt(needsBreakdown.kitchen)}</span>
+                                </div>
+                            </div>
+                             <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500 flex items-center gap-2"><i class="fas fa-motorcycle text-orange-400"></i> Commute</span>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-orange-400" style="width: ${getPct(needsBreakdown.commute, needs)}%"></div></div>
+                                    <span class="font-bold text-slate-700 dark:text-slate-200 w-10 text-right">${fmt(needsBreakdown.commute)}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- CATEGORY 2: PSYCHOLOGY -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-gradient-to-br from-violet-50 to-fuchsia-50 dark:from-violet-900/20 dark:to-fuchsia-900/20 p-3 rounded-2xl border border-violet-100 dark:border-violet-800/50">
-                        <p class="text-[9px] text-violet-500 font-bold uppercase">Time Cost</p>
-                        <p class="text-lg font-black text-violet-700 dark:text-violet-200">${Math.round(timeCost)} Hours</p>
-                        <p class="text-[8px] text-violet-400 leading-tight">Work to pay bills</p>
+                    <!-- 4. PLATE VS PANTRY -->
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
+                        <h4 class="text-[10px] font-bold text-slate-400 uppercase mb-3 flex items-center gap-2"><i class="fas fa-utensils"></i> Plate vs Pantry</h4>
+                        <div class="flex items-center justify-between text-xs font-bold mb-1">
+                            <span class="text-rose-500">Dining (${diningPct}%)</span>
+                            <span class="text-emerald-500">Grocery (${100-diningPct}%)</span>
+                        </div>
+                        <div class="h-3 w-full bg-emerald-200 dark:bg-emerald-900/30 rounded-full overflow-hidden flex">
+                            <div class="h-full bg-rose-500" style="width: ${diningPct}%"></div>
+                        </div>
+                        <p class="text-[9px] text-slate-400 mt-2 text-center">
+                            You spend <b>₹${plateRatio}</b> on Zomato for every ₹1 on Grocery.
+                        </p>
                     </div>
-                    <div class="bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 p-3 rounded-2xl border border-cyan-100 dark:border-cyan-800/50">
-                        <p class="text-[9px] text-cyan-600 font-bold uppercase">Freedom</p>
-                        <p class="text-lg font-black text-cyan-700 dark:text-cyan-200">${freedomPct}%</p>
-                        <p class="text-[8px] text-cyan-500 leading-tight">Money you control</p>
-                    </div>
-                </div>
 
-                <!-- CATEGORY 3: TIME & PATTERNS -->
-                <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-700">
-                    <h4 class="text-xs font-black text-slate-800 dark:text-white uppercase mb-3 flex items-center gap-2"><i class="fas fa-clock text-amber-500"></i> Timing Analysis</h4>
-                    <div class="space-y-3">
-                        
-                        <!-- 🔥 No-Spend Days Added Here -->
+                    <!-- 5. FINANCIAL IQ & DETECTIVE -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 flex flex-col justify-center items-center text-center">
+                            <p class="text-[9px] font-bold text-slate-400 uppercase mb-2">Financial IQ</p>
+                            <div class="relative w-12 h-12 flex items-center justify-center">
+                                <svg class="w-full h-full transform -rotate-90">
+                                    <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="4" fill="none" class="text-slate-100 dark:text-slate-700" />
+                                    <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="4" fill="none" class="${healthScore > 70 ? 'text-emerald-500' : 'text-amber-500'}" stroke-dasharray="125" stroke-dashoffset="${125 - (125 * healthScore) / 100}" />
+                                </svg>
+                                <span class="absolute text-xs font-black text-slate-700 dark:text-white">${healthScore}</span>
+                            </div>
+                        </div>
+                        <div class="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-2xl border border-indigo-100 dark:border-indigo-800/50">
+                            <p class="text-[9px] font-bold text-indigo-400 uppercase mb-1">Midnight (11-4)</p>
+                            <h3 class="text-lg font-black text-indigo-600 dark:text-indigo-300">${fmt(regretSum)}</h3>
+                            <p class="text-[8px] text-indigo-400">Late night impulse</p>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-100 dark:border-slate-700">
+                             <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Burn Date</p>
+                             <h3 class="text-lg font-black text-slate-800 dark:text-white">${burnDay}th</h3>
+                             <p class="text-[8px] font-bold text-indigo-500">${paycheckEndurance}</p>
+                        </div>
+                        <div class="bg-rose-50 dark:bg-rose-900/20 p-3 rounded-2xl border border-rose-100 dark:border-rose-800/50">
+                            <p class="text-[9px] font-bold text-rose-400 uppercase mb-1">Latte Factor</p>
+                            <h3 class="text-lg font-black text-rose-600 dark:text-rose-300">${fmt(latteSum)}</h3>
+                        </div>
+                    </div>
+
+                    <!-- 6. PSYCHOLOGY & CREDIT -->
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-700 space-y-3">
                         <div class="flex justify-between items-center text-xs">
-                            <span class="text-slate-500 dark:text-slate-400">No-Spend Days</span>
-                            <span class="font-bold text-emerald-500">${zeroSpendDays} Days</span>
+                            <span class="text-slate-500 dark:text-slate-400">Time Cost (Hrs)</span>
+                            <span class="font-bold text-slate-800 dark:text-white">${Math.round(timeCost)} Hrs</span>
                         </div>
-
                         <div class="flex justify-between items-center text-xs">
                             <span class="text-slate-500 dark:text-slate-400">Salary Spike (Days 1-3)</span>
                             <span class="font-bold text-rose-500">${spikePct}% Spent</span>
                         </div>
                         <div class="flex justify-between items-center text-xs">
-                            <span class="text-slate-500 dark:text-slate-400">Regret Window (11PM-4AM)</span>
-                            <span class="font-bold text-slate-800 dark:text-white">${fmt(regretSum)}</span>
+                            <span class="text-slate-500 dark:text-slate-400">No-Spend Days</span>
+                            <span class="font-bold text-emerald-500">${zeroSpendDays} Days</span>
                         </div>
-                        <div class="flex justify-between items-center text-xs">
-                            <span class="text-slate-500 dark:text-slate-400">Heaviest Day</span>
-                            <span class="font-bold text-slate-800 dark:text-white">${heaviestDay[0]} (${fmt(heaviestDay[1])})</span>
+                        <div class="flex justify-between items-center text-xs border-t border-slate-100 dark:border-slate-700 pt-2 mt-2">
+                            <span class="text-slate-500 dark:text-slate-400">Credit Usage</span>
+                            <span class="font-black text-blue-500">${creditRatio}%</span>
                         </div>
                     </div>
-                </div>
 
-                <!-- CATEGORY 4: DETECTIVE -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-rose-50 dark:bg-rose-900/20 p-3 rounded-2xl border border-rose-100 dark:border-rose-800/50">
-                        <i class="fas fa-mug-hot text-rose-400 text-xs mb-1"></i>
-                        <p class="text-[9px] text-rose-400 font-bold uppercase">Latte Factor</p>
-                        <p class="text-sm font-black text-rose-600 dark:text-rose-300">${fmt(latteSum)}</p>
+                    <!-- 7. LEAKS & TRENDS -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-amber-50 dark:bg-amber-900/10 p-3 rounded-2xl border border-amber-100 dark:border-amber-800/30">
+                            <p class="text-[9px] text-amber-600 font-bold uppercase mb-1">Small Leaks</p>
+                            <h3 class="text-lg font-black text-amber-700 dark:text-amber-400">${fmt(smallLeaks)}</h3>
+                        </div>
+                        <div class="bg-rose-50 dark:bg-rose-900/20 p-3 rounded-2xl border border-rose-100 dark:border-rose-800/50">
+                            <p class="text-[9px] text-rose-400 font-bold uppercase mb-1">Friction Cost</p>
+                            <h3 class="text-lg font-black text-rose-600 dark:text-rose-300">${fmt(frictionSum)}</h3>
+                        </div>
                     </div>
-                    <div class="bg-rose-50 dark:bg-rose-900/20 p-3 rounded-2xl border border-rose-100 dark:border-rose-800/50">
-                        <i class="fas fa-file-invoice text-rose-400 text-xs mb-1"></i>
-                        <p class="text-[9px] text-rose-400 font-bold uppercase">Friction Cost</p>
-                        <p class="text-sm font-black text-rose-600 dark:text-rose-300">${fmt(frictionSum)}</p>
-                    </div>
-                    <div class="bg-rose-50 dark:bg-rose-900/20 p-3 rounded-2xl border border-rose-100 dark:border-rose-800/50">
-                        <i class="fas fa-droplet text-rose-400 text-xs mb-1"></i>
-                        <p class="text-[9px] text-rose-400 font-bold uppercase">Small Leaks</p>
-                        <p class="text-sm font-black text-rose-600 dark:text-rose-300">${fmt(smallLeaks)}</p>
-                    </div>
-                    <div class="bg-rose-50 dark:bg-rose-900/20 p-3 rounded-2xl border border-rose-100 dark:border-rose-800/50">
-                        <i class="fas fa-bolt text-rose-400 text-xs mb-1"></i>
-                        <p class="text-[9px] text-rose-400 font-bold uppercase">Impulse</p>
-                        <p class="text-sm font-black text-rose-600 dark:text-rose-300">${impulseScore} Txn/Day</p>
-                    </div>
-                </div>
 
-                <!-- CATEGORY 5: TRENDS -->
-                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-                    <div class="grid grid-cols-3 divide-x divide-slate-100 dark:divide-slate-700 text-center">
+                    <!-- 8. TRENDS & IDENTITY -->
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 grid grid-cols-3 divide-x divide-slate-100 dark:divide-slate-700 text-center">
                         <div>
                             <p class="text-[8px] text-slate-400 font-bold uppercase">Vs Last Mo</p>
                             <p class="text-xs font-black ${momDiff > 0 ? 'text-rose-500' : 'text-emerald-500'}">${momSign}${fmt(Math.abs(momDiff))}</p>
                         </div>
                         <div>
-                            <p class="text-[8px] text-slate-400 font-bold uppercase">Inflation</p>
-                            <p class="text-xs font-black ${inflation > 0 ? 'text-rose-500' : 'text-emerald-500'}">${Math.round(inflation)}%</p>
+                            <p class="text-[8px] text-slate-400 font-bold uppercase">Persona</p>
+                            <p class="text-xs font-black text-slate-800 dark:text-white truncate px-1">${persona}</p>
                         </div>
                         <div>
-                            <p class="text-[8px] text-slate-400 font-bold uppercase">Plastic Use</p>
-                            <p class="text-xs font-black text-indigo-500">${plasticRatio}x</p>
+                            <p class="text-[8px] text-slate-400 font-bold uppercase">Top Merch</p>
+                            <p class="text-xs font-black text-indigo-600 truncate px-1">${topMerch[0]}</p>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Merchant & Persona -->
-                <div class="flex gap-3">
-                    <div class="flex-1 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-700">
-                        <p class="text-[9px] text-slate-400 font-bold uppercase">Top Merchant</p>
-                        <p class="text-xs font-black text-slate-800 dark:text-white truncate">${topMerch[0]}</p>
-                        <p class="text-[9px] text-slate-400">${fmt(topMerch[1])}</p>
-                    </div>
-                    <div class="flex-1 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-700">
-                        <p class="text-[9px] text-slate-400 font-bold uppercase">Persona</p>
-                        <p class="text-xs font-black text-slate-800 dark:text-white truncate">${persona}</p>
-                        <p class="text-[9px] text-slate-400">Based on habits</p>
-                    </div>
-                </div>
 
-                <!-- CATEGORY 6: ACTIONABLE -->
-                <div class="bg-emerald-50 dark:bg-emerald-900/10 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-800/30">
-                    <h4 class="text-xs font-black text-emerald-700 dark:text-emerald-400 uppercase mb-2">💡 Savings Opportunities</h4>
-                    <div class="flex justify-between text-xs mb-1">
-                        <span class="text-emerald-600/70 dark:text-emerald-400/70">Cut 'Wants' by 20%</span>
-                        <span class="font-bold text-emerald-700 dark:text-emerald-300">+${fmt(potentialSave)}</span>
+                    <!-- 9. FOOTER -->
+                    <div class="bg-emerald-50 dark:bg-emerald-900/10 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-800/30">
+                        <h4 class="text-xs font-black text-emerald-700 dark:text-emerald-400 uppercase mb-2">💡 Savings Opportunities</h4>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-emerald-600/70 dark:text-emerald-400/70">Cut 'Wants' by 20%</span>
+                            <span class="font-bold text-emerald-700 dark:text-emerald-300">+${fmt(potentialSave)}</span>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-emerald-200 dark:border-emerald-800/50 text-center">
+                            <p class="text-[9px] text-emerald-600 dark:text-emerald-400 uppercase">Next Month Prediction</p>
+                            <p class="text-sm font-black text-emerald-800 dark:text-emerald-200">${fmt(nextMonthPred)}</p>
+                        </div>
                     </div>
-                    <div class="flex justify-between text-xs mb-1">
-                        <span class="text-emerald-600/70 dark:text-emerald-400/70">The 1% Rule</span>
-                        <span class="font-bold text-emerald-700 dark:text-emerald-300">+${fmt(onePercent)}/mo</span>
-                    </div>
-                    <div class="mt-3 pt-2 border-t border-emerald-200 dark:border-emerald-800/50 text-center">
-                        <p class="text-[9px] text-emerald-600 dark:text-emerald-400 uppercase">Next Month Prediction</p>
-                        <p class="text-sm font-black text-emerald-800 dark:text-emerald-200">${fmt(nextMonthPred)}</p>
-                    </div>
-                </div>
 
-            </div>
-        `;
+                </div>
+            `;
+            
+            vibrate(50);
+
+        } catch (e) {
+            console.error("AI Insight Error:", e);
+            contentDiv.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-64 text-center p-4">
+                    <i class="fas fa-exclamation-triangle text-4xl text-rose-400 mb-3"></i>
+                    <p class="text-slate-600 font-bold">Analysis Failed</p>
+                    <p class="text-xs text-slate-400 mt-1">Error: ${e.message}</p>
+                </div>`;
+        }
         
-        vibrate(50);
-        
-    }, 2500); 
+    }, 2000); 
 }
 	
 	// --- AI MODAL CLOSE LOGIC ---
@@ -5994,6 +6155,68 @@ function toggleComparisonMode() {
         </div>
     </div>
 </div>
+
+<!-- ℹ️ INFO GUIDE MODAL -->
+<div id="infoModal" class="modal-overlay" style="z-index: 60;">
+    <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" onclick="closeInfoModal()"></div>
+    <div class="modal-card bg-white dark:bg-slate-900 w-full max-h-[85vh] rounded-t-[2rem] flex flex-col">
+        
+        <!-- Header -->
+        <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center shrink-0">
+            <div>
+                <p class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-0.5">Guide</p>
+                <h2 class="text-xl font-black text-slate-800 dark:text-white">Metrics Samjho 🤓</h2>
+            </div>
+            <button onclick="closeInfoModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center"><i class="fas fa-times"></i></button>
+        </div>
+
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto p-5 space-y-4">
+            
+            <div class="info-item">
+                <h3 class="text-sm font-black text-indigo-600">🚀 Wealth Velocity</h3>
+                <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Ameeri ki speed. Agar <b>1.0x</b> hai, iska matlab jitna kharch rahe ho, utna hi invest kar rahe ho.</p>
+            </div>
+
+            <div class="info-item">
+                <h3 class="text-sm font-black text-emerald-600">🏖️ Freedom Age</h3>
+                <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Current savings ke hisaab se aap kab retire ho sakte ho.</p>
+            </div>
+
+            <div class="info-item">
+                <h3 class="text-sm font-black text-rose-500">🎉 Wants Analysis</h3>
+                <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Aapke shaukh kahan pure ho rahe hain (Shopping, Masti, Habits).</p>
+            </div>
+
+            <div class="info-item">
+                <h3 class="text-sm font-black text-blue-500">🏠 Needs Breakdown</h3>
+                <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Ghar ki zimmedari kahan ja rahi hai (Kids, Home, Kitchen).</p>
+            </div>
+
+            <div class="info-item">
+                <h3 class="text-sm font-black text-slate-700 dark:text-white">🍽️ Plate vs Pantry</h3>
+                <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Bahar ka khana (Zomato) vs Ghar ka rashan ratio.</p>
+            </div>
+
+            <div class="info-item">
+                <h3 class="text-sm font-black text-slate-700 dark:text-white">🦉 Midnight (Regret)</h3>
+                <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Raat ko 11 PM se 4 AM ke beech kiya gaya kharcha (aksar impulse hota hai).</p>
+            </div>
+
+            <div class="info-item">
+                <h3 class="text-sm font-black text-slate-700 dark:text-white">📅 Burn Date</h3>
+                <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Salary mahine ki kis taarikh ko khatam ho jayegi.</p>
+            </div>
+
+             <div class="info-item">
+                <h3 class="text-sm font-black text-slate-700 dark:text-white">💳 Credit Usage</h3>
+                <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Jeb se paisa gaya (Cash) ya udhaar (Credit Card) se.</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 
 
 </body>
