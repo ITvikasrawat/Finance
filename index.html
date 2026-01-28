@@ -319,7 +319,7 @@
             backdrop-filter: blur(4px); 
             position: fixed; 
             inset: 0; 
-            z-index: 50; 
+            z-index: 100; 
             opacity: 0; 
             visibility: hidden; 
             transition: opacity 0.3s ease, visibility 0.3s ease; 
@@ -332,6 +332,11 @@
             opacity: 1; 
             visibility: visible; 
         }
+		
+		/* Delete Modal (Must be HIGHEST) */
+		#deleteModal {
+			z-index: 9999 !important; /* Force to be on top of everything */
+		}
 
         /* 🔥 Common Animation Logic for ALL Modals */
         /* Entry, View, Day, AI sabhi par apply hoga */
@@ -2065,7 +2070,7 @@
 
     let allData = [];
 	let bsesData = [];
-let iglData = [];
+	let iglData = [];
     let currentFilter = { year: new Date().getFullYear(), month: new Date().getMonth() };
     let expenseChart = null;
     let showChartLegend = false;
@@ -2075,6 +2080,7 @@ let iglData = [];
 	let statsViewMode = 'Month'; // 'Month' or 'Year'
 	let statsChartType = 'Doughnut'; // 'Doughnut' or 'Bar'
 	let isComparisonMode = false; // Default OFF
+	let currentUtilityId = null;
 
 
     const categoryMap = {
@@ -3896,6 +3902,7 @@ function handleSubCatFilter(event, subName, containerId, cardEl) {
     // --- 🗑️ MODERN DELETE LOGIC ---
 
     let itemToDeleteId = null; // Store ID temporarily
+	let deleteActionContext = 'transaction'; // New: Tracks what we are deleting ('transaction', 'bses', 'igl')
 
     // 1. Open Delete Confirmation (From View Modal)
     function deleteFromView() {
@@ -3927,34 +3934,34 @@ function handleSubCatFilter(event, subName, containerId, cardEl) {
         itemToDeleteId = null;
     }
 
-    // 4. Confirm & Execute Delete
-    async function confirmDelete() {
-        vibrate(50);
-        if(!itemToDeleteId) return;
+    // ✅ UPDATE THIS FUNCTION TOO
+async function confirmDelete() {
+    if(!itemToDeleteId) return;
+    vibrate(50);
 
-        // UI Loading
-        const btn = document.querySelector('#deleteModal button:last-child'); // The YES button
-        const originalText = btn.innerText;
-        btn.innerText = "DELETING...";
-        btn.disabled = true;
+    try {
+        let payload = { ID: itemToDeleteId };
 
-        try {
-            await fetch(API_URL, { 
-                method: 'POST', 
-                body: JSON.stringify({ action: 'delete', ID: itemToDeleteId }) 
-            });
-            
-            showToast("Entry Deleted Successfully 🗑️");
-            closeDeleteModal();
-            fetchData(); // Refresh Data
+        // Context ke hisaab se sahi action chunna
+        if (deleteActionContext === 'bses') payload.action = 'delete_bses';
+        else if (deleteActionContext === 'igl') payload.action = 'delete_igl';
+        else payload.action = 'delete'; // Normal expense
 
-        } catch(e) {
-            showToast("Delete Failed", "error");
-        } finally {
-            btn.innerText = originalText;
-            btn.disabled = false;
+        await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+        
+        showToast("Entry Deleted! 🗑️");
+        document.getElementById('deleteModal').classList.remove('active');
+        
+        // Agar utility modal khula hai toh usey bhi band karo
+        if(deleteActionContext === 'bses' || deleteActionContext === 'igl') {
+            closeUtilityModal(deleteActionContext);
         }
+        
+        fetchData(); // Sab refresh
+    } catch(e) {
+        showToast("Delete Failed", "error");
     }
+}
     
     // Tab Switcher (With Force Animation Logic)
     // New Fixed Logic
@@ -4098,6 +4105,8 @@ function switchTab(id) {
 
             document.getElementById('entryId').value = data.ID || '';
             document.getElementById('amount').value = data.Amount || '';
+			
+			
             
             // 1. SET TYPE
             selectFormOption('type', data.Type, (data.Type === 'Income' ? '🟢 Income' : (data.Type === 'Investment' ? '🔵 Investment' : '🔴 Expense')));
@@ -4911,17 +4920,12 @@ function handleFabClick() {
 
 // --- 2. OPEN UTILITY MODAL ---
 function openUtilityModal(type, mode, data = null) {
-    vibrate(20);
+    if(typeof vibrate === 'function') vibrate(20);
     const modalId = type === 'bses' ? 'bsesModal' : 'iglModal';
     const modal = document.getElementById(modalId);
-	const sorted = [...iglData].sort((a, b) => new Date(b.Date) - new Date(a.Date));
-const lastR = sorted.length > 0 ? sorted[0].Reading : "0";
-document.getElementById('iglPrevDisplay').innerText = "Prev: " + lastR;
     
-    // Reset Form
+    // Form & Date Reset
     document.getElementById(`${type}Form`).reset();
-    
-    // Set Date Default to Today
     const today = new Date().toISOString().split('T')[0];
     document.getElementById(`${type}Date`).value = today;
 
@@ -4930,25 +4934,37 @@ document.getElementById('iglPrevDisplay').innerText = "Prev: " + lastR;
         document.getElementById(`${type}ModalTitle`).innerText = type === 'bses' ? 'Edit Bill' : 'Edit Log';
         document.getElementById(`${type}SaveBtn`).innerText = 'UPDATE ENTRY';
         document.getElementById(`${type}DeleteBtn`).classList.remove('hidden');
-        document.getElementById(`${type}Id`).value = data.ID || ''; // ID is crucial for Edit
-		
-		// openUtilityModal में IGL वाले सेक्शन के अंदर यह जोड़ें:
-if (type === 'igl') {
-    const otherReadingsForPrev = iglData.filter(item => String(item.ID) !== String(document.getElementById('iglId').value));
-    const sortedForPrev = otherReadingsForPrev.sort((a, b) => new Date(b.Date) - new Date(a.Date));
-    const lastR = sortedForPrev.length > 0 ? sortedForPrev[0].Reading : "0";
-    document.getElementById('iglPrevDisplay').innerText = "Prev: " + lastR;
-}
 
+        // Safe ID nikalein
+        const safeId = data.ID || data.id || ''; 
+        
+        // 1. Input mein value bharein
+        const targetIdInput = document.getElementById(type + 'Id');
+        if (targetIdInput) targetIdInput.value = safeId;
+
+        // 🔥 2. Global Backup (Safety Net)
+        if(typeof currentUtilityId !== 'undefined') currentUtilityId = safeId;
+
+        // 🔥🔥 3. BUTTON STAMP FIX (Direct Binding)
+		const deleteBtn = document.getElementById(`${type}DeleteBtn`);
+		if (deleteBtn) {
+			// Sidha ID aur Context set karke Delete Modal kholenge
+			deleteBtn.onclick = function() { 
+				vibrate(30);
+				itemToDeleteId = safeId;     // Global ID set karein
+				deleteActionContext = type;  // 'bses' context set karein
+				document.getElementById('deleteModal').classList.add('active'); // Modal open karein
+			};
+		}
+
+        // Fill Data
         if (type === 'bses') {
-            // Fill BSES Data
-            document.getElementById('bsesFloor').value = data.Floor;
-            document.getElementById('bsesUnits').value = data.Units;
-            document.getElementById('bsesAmount').value = data.Amount;
-            document.getElementById('bsesSubsidy').value = data.Subsidy;
+            document.getElementById('bsesFloor').value = data.Floor || '';
+            document.getElementById('bsesUnits').value = data.Units || 0;
+            document.getElementById('bsesAmount').value = data.Amount || 0;
+            document.getElementById('bsesSubsidy').value = data.Subsidy || 0;
             document.getElementById('bsesDate').value = formatDateForInput(data.Bill_Date);
         } else {
-            // Fill IGL Data
             document.getElementById('iglReading').value = data.Reading;
             document.getElementById('iglCost').value = data.Cost;
             document.getElementById('iglDate').value = formatDateForInput(data.Date);
@@ -4958,7 +4974,7 @@ if (type === 'igl') {
         document.getElementById(`${type}ModalTitle`).innerText = type === 'bses' ? 'New Bill' : 'New Reading';
         document.getElementById(`${type}SaveBtn`).innerText = 'SAVE ENTRY';
         document.getElementById(`${type}DeleteBtn`).classList.add('hidden');
-        document.getElementById(`${type}Id`).value = ''; // Clear ID
+        document.getElementById(`${type}Id`).value = '';
     }
 
     modal.classList.add('active');
@@ -5022,35 +5038,45 @@ async function saveUtilityEntry(type) {
     }
 }
 
-// --- 4. DELETE HANDLER ---
-async function deleteUtilityEntry(type) {
-    if(!confirm("Are you sure you want to delete this entry?")) return;
-    
-    vibrate(30);
-    const id = document.getElementById(`${type}Id`).value;
-    if(!id) return;
+// Function definition mein 'explicitId' add karein
+function deleteUtilityEntry(type) {
+    if(typeof vibrate === 'function') vibrate(30);
 
+    let idToDelete = null;
+
+    // 1. Check Button Attribute (Jo humne openUtilityModal mein set kiya tha)
     const btn = document.getElementById(`${type}DeleteBtn`);
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    if (btn && btn.hasAttribute('data-id')) {
+        idToDelete = btn.getAttribute('data-id');
+    }
 
-    try {
-        await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ 
-                action: type === 'bses' ? 'delete_bses' : 'delete_igl', // Backend identifier
-                ID: id 
-            })
-        });
+    // 2. Fallback: Check Input Value
+    if (!idToDelete) {
+        const input = document.getElementById(`${type}Id`);
+        if (input) idToDelete = input.value;
+    }
 
-        showToast("Entry Deleted 🗑️");
-        closeUtilityModal(type);
-        fetchData();
+    // 3. Fallback: Check Global Variable
+    if (!idToDelete && typeof currentUtilityId !== 'undefined') {
+        idToDelete = currentUtilityId;
+    }
 
-    } catch (e) {
-        showToast("Delete Failed", "error");
+    // Agar ab bhi ID nahi mili, tab error
+    if (!idToDelete || idToDelete === 'undefined') {
+        showToast("Error: ID missing. Close & Open card again.", "error");
+        return;
+    }
+
+    // 4. Set Global Context for Confirm Modal
+    itemToDeleteId = idToDelete;
+    deleteActionContext = type; // 'bses' or 'igl'
+
+    // 5. Show Confirm Popup
+    const deletePopUp = document.getElementById('deleteModal');
+    if (deletePopUp) {
+        deletePopUp.classList.add('active');
     }
 }
-
 // Helper for Date Input
 function formatDateForInput(dateStr) {
     try {
@@ -5463,7 +5489,9 @@ function renderBSES(container, isMatch) {
                     </div>
 
                     <div class="flex justify-end gap-3">
-                        <button onclick="event.stopPropagation(); deleteUtilityEntry('bses')" class="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-900/20 text-rose-500 hover:bg-rose-100 flex items-center justify-center transition"><i class="fas fa-trash-alt text-xs"></i></button>
+                        <button onclick="event.stopPropagation(); deleteUtilityEntryFromList('${data.ID}', 'bses')" class="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-900/20 text-rose-500 hover:bg-rose-100 flex items-center justify-center transition">
+    <i class="fas fa-trash-alt text-xs"></i>
+</button>
                         <button onclick="event.stopPropagation(); openUtilityModal('bses', 'edit', ${JSON.stringify(data).replace(/"/g, '&quot;')})" 
                                 class="px-4 py-1.5 bg-slate-800 dark:bg-slate-700 text-white font-bold text-xs rounded-lg hover:bg-slate-900 transition flex items-center gap-2">
                             Edit Bill <i class="fas fa-pen text-[10px]"></i>
@@ -5643,9 +5671,10 @@ function renderIGL(container, isMatch) {
 
                     <!-- 3. Actions -->
                     <div class="flex gap-3 pt-2 border-t border-dashed border-slate-200 dark:border-slate-700">
-                         <button onclick="event.stopPropagation(); deleteUtilityEntry('igl')" class="w-10 h-10 rounded-lg bg-rose-50 dark:bg-rose-900/20 text-rose-500 hover:bg-rose-100 flex items-center justify-center transition">
-                            <i class="fas fa-trash-alt text-xs"></i>
-                         </button>
+                         <button onclick="event.stopPropagation(); deleteUtilityEntryFromList('${item.ID}', 'igl')" class="w-10 h-10 rounded-lg bg-rose-50 text-rose-500...">
+							<i class="fas fa-trash-alt text-xs"></i>
+						</button>
+						
                          <button onclick="event.stopPropagation(); openUtilityModal('igl', 'edit', ${JSON.stringify(item).replace(/"/g, '&quot;')})" 
                                 class="flex-1 h-10 bg-slate-800 dark:bg-slate-700 text-white font-bold text-xs rounded-lg hover:bg-slate-900 transition flex items-center justify-center gap-2">
                             Edit Entry <i class="fas fa-pen text-[10px]"></i>
@@ -6219,6 +6248,12 @@ function updateSimulator(val, remaining, daysLeft) {
     }
 }
 
+function deleteUtilityEntryFromList(id, type) {
+    itemToDeleteId = id;
+    deleteActionContext = type;
+    document.getElementById('deleteModal').classList.add('active');
+}
+
 </script>
 
 <!-- UTILITY DETAIL MODAL (New Modern Popup) -->
@@ -6306,9 +6341,14 @@ function updateSimulator(val, remaining, daysLeft) {
                 </div>
 
                 <div class="flex gap-3 mt-8">
-                    <button type="button" id="bsesDeleteBtn" onclick="deleteUtilityEntry('bses')" class="hidden w-14 h-14 rounded-xl bg-rose-50 dark:bg-rose-900/20 text-rose-500 hover:bg-rose-100 flex items-center justify-center transition"><i class="fas fa-trash-can"></i></button>
-                    <button type="submit" id="bsesSaveBtn" class="flex-1 h-14 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-base tracking-wide shadow-lg shadow-orange-200 dark:shadow-none hover:opacity-90 active:scale-[0.98] transition flex items-center justify-center gap-2">SAVE BILL</button>
-                </div>
+    <button type="button" id="bsesDeleteBtn" class="hidden w-14 h-14 rounded-2xl bg-rose-50 dark:bg-rose-900/20 text-rose-500 border border-rose-100 dark:border-rose-900/50 hover:bg-rose-100 transition flex items-center justify-center shadow-sm active:scale-95">
+        <i class="fas fa-trash-alt text-lg"></i>
+    </button>
+    
+    <button type="submit" id="bsesSaveBtn" class="flex-1 h-14 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-base tracking-wide shadow-lg shadow-orange-200 dark:shadow-none hover:opacity-90 active:scale-[0.98] transition flex items-center justify-center gap-2">
+        SAVE BILL
+    </button>
+</div>
             </form>
         </div>
     </div>
@@ -6359,7 +6399,9 @@ function updateSimulator(val, remaining, daysLeft) {
                 </div>
 
                 <div class="flex gap-3 mt-8">
-                    <button type="button" id="iglDeleteBtn" onclick="deleteUtilityEntry('igl')" class="hidden w-14 h-14 rounded-xl bg-rose-50 dark:bg-rose-900/20 text-rose-500 hover:bg-rose-100 flex items-center justify-center transition"><i class="fas fa-trash-can"></i></button>
+                    <button type="button" id="iglDeleteBtn" onclick="deleteUtilityEntry('igl')" class="w-14 h-14 rounded-xl bg-rose-50 text-rose-500...">
+						<i class="fas fa-trash-can"></i>
+					</button>
                     <button type="submit" id="iglSaveBtn" class="flex-1 h-14 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold text-base tracking-wide shadow-lg shadow-blue-200 dark:shadow-none hover:opacity-90 active:scale-[0.98] transition flex items-center justify-center gap-2">SAVE READING</button>
                 </div>
             </form>
