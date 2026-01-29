@@ -5612,15 +5612,14 @@ function toggleUtilRow(header) {
     wrapper.classList.toggle('expanded');
 }
 
-// --- 6. IGL VIEW (Modern Minimalist + Yellow Alert) ---
+// --- 6. IGL VIEW (Fixed: 30 = Red) ---
 function renderIGL(container, isMatch) {
-    // 1. Filter & Sort (Latest Date First)
+    // 1. Filter & Sort
     let readings = iglData.filter(i => isMatch(i.Date));
     readings.sort((a,b) => new Date(b.Date) - new Date(a.Date));
 
-    // IGL Rate
+    // Config
     const RATE_PER_SCM = 47.89;
-    // Hardcoded BP Number as requested
     const BP_NUMBER = "4001473377";
 
     let html = `<h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 px-1">Gas Readings</h3><div class="space-y-3 pb-24">`;
@@ -5633,7 +5632,7 @@ function renderIGL(container, isMatch) {
         let opacity = "opacity-100";
         let clickAction = `onclick="toggleUtilRow(this)"`;
 
-        // --- SMART LOGIC ---
+        // --- CALCULATION LOGIC ---
         let currR = parseFloat(item.Reading || item.Current_Reading || 0);
         let prevR = 0;
         let units = 0;
@@ -5642,71 +5641,52 @@ function renderIGL(container, isMatch) {
         if (idx + 1 < readings.length) {
             const prevItem = readings[idx + 1];
             prevR = parseFloat(prevItem.Reading || prevItem.Current_Reading || 0);
-            if (currR > prevR) {
-                units = currR - prevR;
-            }
+            if (currR > prevR) units = currR - prevR;
         } else {
             isFirstRecord = true;
             if(item.Units) units = parseFloat(item.Units);
         }
 
-        let dailyCost = units * RATE_PER_SCM;
+        // Exact float value
+        let realCost = units * RATE_PER_SCM;
+        // Rounded value for Logic & Display (Taaki 29.6 bhi 30 bankar Red ho jaye)
+        let displayCost = Math.round(realCost); 
 
-        // --- NEW COLORS (Green - Yellow - Red) 🚦 ---
-        // Using 'amber-400' for a nice Traffic Yellow
-        
-        let statusColor = "bg-emerald-500"; 
-        let borderColor = "border-emerald-500";
+        // --- COLOR LOGIC (Strict: 0-10, 11-29, 30+) ---
+        let theme = "emerald"; 
         let statusText = "Safe";
-        let textColor = "text-emerald-600";
-        let lightBg = "bg-emerald-50 dark:bg-emerald-900/20";
         
-        // Progress Bar Widths
+        // Progress Percentages (based on realCost for smooth bars)
         let greenPct = 0, yellowPct = 0, redPct = 0;
-
-        // Calculation for 3-Segment Bar
-        // Zone 1: 0-10 (Green)
-        greenPct = Math.min(dailyCost, 10) / 10 * 100;
         
-        // Zone 2: 11-30 (Yellow) -> Range is 20
-        if (dailyCost > 10) {
-            yellowPct = Math.min(dailyCost - 10, 20) / 20 * 100;
-        }
+        greenPct = Math.min(realCost, 10) / 10 * 100;
+        if (realCost > 10) yellowPct = Math.min(realCost - 10, 20) / 20 * 100;
+        if (realCost > 30) redPct = Math.min(realCost - 30, 20) / 20 * 100;
 
-        // Zone 3: 30+ (Red) -> Visual range upto 50 cost
-        if (dailyCost > 30) {
-            redPct = Math.min(dailyCost - 30, 20) / 20 * 100;
-        }
-
-        // Status Logic
+        // Logic based on DISPLAY COST (Rounding Fix) 🧠
         if (isFirstRecord && units === 0) {
-            statusColor = "bg-slate-400";
-            borderColor = "border-slate-400";
+            theme = "slate";
             statusText = "Start";
-            textColor = "text-slate-500";
-        } else if (dailyCost <= 10) {
-            // GREEN ZONE
-            statusColor = "bg-emerald-500";
-            borderColor = "border-emerald-500";
+        } else if (displayCost <= 10) {
+            // 0 - 10
+            theme = "emerald";
             statusText = "Low";
-            textColor = "text-emerald-600";
-        } else if (dailyCost <= 30) {
-            // YELLOW ZONE (Amber)
-            statusColor = "bg-amber-400"; // Traffic Yellow
-            borderColor = "border-amber-400";
+        } else if (displayCost <= 29) { 
+            // 11 - 29 (Yellow)
+            theme = "amber";
             statusText = "Normal";
-            textColor = "text-amber-500";
-            lightBg = "bg-amber-50 dark:bg-amber-900/20";
         } else {
-            // RED ZONE
-            statusColor = "bg-rose-500";
-            borderColor = "border-rose-500";
-            statusText = "High!";
-            textColor = "text-rose-600";
-            lightBg = "bg-rose-50 dark:bg-rose-900/20";
+            // 30+ (Red)
+            theme = "rose";
+            statusText = "High";
         }
 
-        // --- DATE FORMATTING ---
+        // Dynamic Classes
+        const borderClass = `border-${theme}-500`; 
+        const textClass = `text-${theme}-600`;
+        const softBg = `bg-${theme}-50 dark:bg-${theme}-900/20`;
+
+        // Date Formatting
         let dateHtml = `<span class="text-[9px] font-bold text-slate-300">--</span>`;
         if (item.Date) {
             const d = new Date(item.Date);
@@ -5715,86 +5695,80 @@ function renderIGL(container, isMatch) {
             dateHtml = `<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-slate-700/50 px-1.5 py-0.5 rounded">${day} ${mNames[d.getMonth()]}</span>`;
         }
 
-        // --- RENDER HTML (Clean Modern Layout) ---
+        // --- RENDER HTML ---
         html += `
         <div class="util-row-wrapper bg-white dark:bg-slate-800 rounded-2xl shadow-sm mb-3 overflow-hidden transition-all duration-200 hover:shadow-lg border border-slate-100 dark:border-slate-700 ${opacity}">
             
-            <div class="util-row-header p-0 flex items-stretch cursor-pointer active:bg-slate-50 dark:active:bg-slate-800/50 min-h-[80px] relative border-l-[6px] ${borderColor}" ${clickAction}>
+            <div class="util-row-header p-0 flex items-stretch cursor-pointer active:bg-slate-50 dark:active:bg-slate-800/50 min-h-[80px] relative overflow-hidden" ${clickAction}>
                 
-                <i class="fas fa-fire absolute -left-2 -bottom-4 text-[4rem] opacity-[0.03] text-slate-800 dark:text-white pointer-events-none"></i>
+                <i class="fas fa-fire absolute -right-6 -bottom-6 text-[5rem] opacity-[0.04] text-slate-900 dark:text-white pointer-events-none transform rotate-12"></i>
 
-                <div class="flex-1 flex flex-col justify-center px-4 py-3">
-                    
-                    <div class="flex items-center gap-2 mb-1">
-                        <div class="w-5 h-5 rounded-full ${lightBg} flex items-center justify-center">
-                            <i class="fas fa-fire text-[10px] ${textColor}"></i>
-                        </div>
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Gas Usage</span>
+                <div class="w-12 flex flex-col items-center justify-center bg-${theme}-500 text-white shrink-0 shadow-sm relative overflow-hidden">
+                    <i class="fas fa-fire text-lg relative z-10 animate-pulse"></i>
+                </div>
+
+                <div class="flex-1 flex flex-col justify-center px-4 py-2 relative z-10">
+                    <div class="flex items-center gap-2 mb-0.5">
+                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Usage</span>
+                        ${(!isFirstRecord) ? `
+                        <div class="flex items-center gap-1 text-[8px] font-mono text-slate-300">
+                            <span>${prevR}</span>
+                            <i class="fas fa-arrow-right text-[6px]"></i>
+                            <span>${currR}</span>
+                        </div>` : ''}
                     </div>
 
-                    <div class="flex items-baseline gap-1.5 pl-0.5">
+                    <div class="flex items-baseline gap-1.5">
                         <span class="text-3xl font-black text-slate-700 dark:text-slate-200 leading-none tracking-tight">${units.toFixed(2)}</span>
                         <span class="text-xs font-bold text-slate-400">SCM</span>
                     </div>
-
-                    ${(!isFirstRecord) ? `
-                    <div class="flex items-center gap-1.5 mt-1.5 ml-0.5 text-[9px] font-mono text-slate-400 opacity-60">
-                        <span>${prevR}</span>
-                        <i class="fas fa-arrow-right text-[8px]"></i>
-                        <span>${currR}</span>
-                    </div>` : ''}
                 </div>
                 
-                <div class="flex flex-col justify-center items-end px-4 py-2 bg-slate-50/50 dark:bg-slate-900/30 min-w-[100px] border-l border-dashed border-slate-100 dark:border-slate-700">
+                <div class="flex flex-col justify-center items-end px-4 py-2 min-w-[100px] relative z-10">
+                    <span class="text-2xl font-black text-slate-800 dark:text-white leading-none">₹${displayCost}</span>
                     
-                    <span class="text-2xl font-black text-slate-800 dark:text-white leading-none">₹${dailyCost.toFixed(0)}</span>
-                    <span class="text-[9px] font-bold ${textColor} mt-0.5 mb-2">${statusText}</span>
-                    
-                    ${dateHtml}
-
+                    <div class="mt-1 flex items-center gap-1.5">
+                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold ${softBg} ${textClass}">
+                            ${statusText}
+                        </span>
+                        ${dateHtml}
+                    </div>
                     ${item ? `<i class="fas fa-chevron-down text-[8px] text-slate-300 mt-2 transition-transform chevron-icon"></i>` : ''}
                 </div>
             </div>
 
             <div class="util-row-body bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
-                <div class="p-4">
+                <div class="p-4 pt-3">
                     
-                    <div class="mb-5">
-                        <div class="grid grid-cols-3 text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">
+                    <div class="mb-4">
+                        <div class="flex justify-between text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
                             <span class="text-emerald-500">Safe (0-10)</span>
-                            <span class="text-amber-500">Caution (11-30)</span>
+                            <span class="text-amber-500">Normal (11-29)</span>
                             <span class="text-rose-500">High (30+)</span>
                         </div>
-                        
-                        <div class="grid grid-cols-3 gap-1 h-2">
-                            <div class="bg-slate-200 dark:bg-slate-700 rounded-l-full overflow-hidden">
-                                <div class="h-full bg-emerald-500 transition-all duration-500" style="width: ${greenPct}%"></div>
-                            </div>
-                            <div class="bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                                <div class="h-full bg-amber-400 transition-all duration-500" style="width: ${yellowPct}%"></div>
-                            </div>
-                            <div class="bg-slate-200 dark:bg-slate-700 rounded-r-full overflow-hidden">
-                                <div class="h-full bg-rose-500 transition-all duration-500" style="width: ${redPct}%"></div>
-                            </div>
+                        <div class="grid grid-cols-3 gap-1 h-1.5">
+                            <div class="bg-slate-200 dark:bg-slate-700 rounded-l-full overflow-hidden"><div class="h-full bg-emerald-500" style="width: ${greenPct}%"></div></div>
+                            <div class="bg-slate-200 dark:bg-slate-700 overflow-hidden"><div class="h-full bg-amber-500" style="width: ${yellowPct}%"></div></div>
+                            <div class="bg-slate-200 dark:bg-slate-700 rounded-r-full overflow-hidden"><div class="h-full bg-rose-500" style="width: ${redPct}%"></div></div>
                         </div>
                     </div>
 
-                    <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm mb-4 flex justify-between items-center">
-                         <div>
-                             <p class="text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">BP Number</p>
-                             <span class="font-mono font-bold text-slate-700 dark:text-slate-200 text-sm select-all tracking-wider">${BP_NUMBER}</span>
+                    <div class="flex items-center justify-between bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm mb-3">
+                         <div class="flex flex-col">
+                             <span class="text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">BP Number</span>
+                             <span class="font-mono font-bold text-slate-700 dark:text-slate-200 text-xs tracking-widest select-all">${BP_NUMBER}</span>
                          </div>
-                         <div class="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 flex items-center justify-center">
-                             <i class="far fa-id-card"></i>
+                         <div class="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-700 text-[9px] font-bold text-slate-500 uppercase">
+                             Indraprastha Gas
                          </div>
                     </div>
 
                     <div class="flex justify-end gap-3">
-                        <button onclick="event.stopPropagation(); vibrate(30); deleteUtilityEntryFromList('${item.ID}', 'igl')" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 text-slate-400 hover:text-rose-500 hover:bg-rose-50 border border-slate-200 dark:border-slate-700 transition flex items-center justify-center">
+                        <button onclick="event.stopPropagation(); vibrate(30); deleteUtilityEntryFromList('${item.ID}', 'igl')" class="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 text-slate-400 hover:text-rose-500 hover:bg-rose-50 border border-slate-200 dark:border-slate-700 transition flex items-center justify-center">
 							<i class="fas fa-trash-alt text-xs"></i>
 						</button>
                         <button onclick="event.stopPropagation(); openUtilityModal('igl', 'edit', ${JSON.stringify(item).replace(/"/g, '&quot;')})" 
-                                class="flex-1 px-4 py-2 bg-slate-800 dark:bg-slate-700 text-white font-bold text-xs rounded-xl hover:bg-slate-900 transition flex items-center justify-center gap-2 shadow-lg shadow-slate-200 dark:shadow-none">
+                                class="flex-1 px-4 py-1.5 bg-slate-800 dark:bg-slate-700 text-white font-bold text-xs rounded-lg hover:bg-slate-900 transition flex items-center justify-center gap-2 shadow-sm">
                             Edit Entry <i class="fas fa-pen text-[10px]"></i>
                         </button>
                     </div>
