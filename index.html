@@ -1477,6 +1477,135 @@
 }
 .modern-range::-webkit-slider-thumb:active { transform: scale(1.1); }
 
+/* --- 💼 SALARY VAULT: TITANIUM FULL SCREEN --- */
+
+/* 1. Full Screen Overlay */
+#salaryModal {
+    position: fixed;
+    inset: 0;
+    z-index: 200; /* Top most */
+    background: #f8fafc; /* Light Grey BG */
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+    display: flex;
+    flex-direction: column;
+}
+.dark #salaryModal { background: #020617; }
+
+#salaryModal.active {
+    transform: translateY(0);
+}
+
+/* 2. Titanium Card */
+.titan-card {
+    background: white;
+    border-radius: 1.25rem;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    box-shadow: 0 10px 20px -5px rgba(0,0,0,0.05);
+    border: 1px solid white;
+    transition: all 0.2s ease;
+}
+.dark .titan-card { 
+    background: #1e293b; 
+    border-color: #334155; 
+    box-shadow: 0 10px 20px -5px rgba(0,0,0,0.3);
+}
+
+/* 3. Left Color Strip */
+.titan-strip {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 6px;
+    background: linear-gradient(to bottom, #6366f1, #a855f7); /* Indigo to Purple */
+}
+
+/* 4. Year Calendar Badge */
+.calendar-badge {
+    background: #0f172a;
+    color: white;
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 15px -3px rgba(15, 23, 42, 0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.calendar-badge small { font-size: 8px; font-weight: 700; text-transform: uppercase; opacity: 0.6; margin-bottom: -2px; }
+.calendar-badge span { font-size: 18px; font-weight: 900; letter-spacing: -0.5px; }
+
+/* 5. Leave Progress Bar (32 Days Logic) */
+.leave-bar-bg {
+    height: 10px;
+    background: #f1f5f9;
+    border-radius: 99px;
+    overflow: hidden;
+    display: flex;
+    border: 1px solid #e2e8f0;
+}
+.dark .leave-bar-bg { background: #0f172a; border-color: #334155; }
+
+.leave-segment-taken { 
+    background: #fb7185; /* Redish Pink */
+    display: flex; align-items: center; justify-content: center;
+}
+.leave-segment-saved { 
+    background: #34d399; /* Emerald */
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* 6. Accordion Animation */
+.titan-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #f8fafc;
+}
+.dark .titan-body { background: #0f172a; }
+
+.titan-card.expanded .titan-body {
+    max-height: 800px; /* Enough space */
+    border-top: 1px dashed #cbd5e1;
+}
+.dark .titan-card.expanded .titan-body { border-top-color: #334155; }
+
+.titan-card.expanded .chevron-icon { transform: rotate(180deg); }
+
+/* --- 💳 TITANIUM CREDIT HEADER --- */
+.credit-header-card {
+    background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+    border-radius: 1.25rem;
+    position: relative;
+    overflow: hidden;
+    color: white;
+    box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.chip-icon {
+    width: 40px; height: 30px;
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+    border-radius: 6px;
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Bonus Grid Style */
+.bonus-grid-item {
+    background: white;
+    border: 1px solid #fef3c7;
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+.dark .bonus-grid-item { background: #1e293b; border-color: #451a03; }
 
     </style>
 </head>
@@ -5958,97 +6087,210 @@ const salaryHistory = [
 
 let careerChartInstance = null;
 
+// --- 🚀 TITANIUM RENDERER (Full Logic) ---
+
 function openSalaryModal() {
     vibrate(30);
     const modal = document.getElementById('salaryModal');
-    modal.classList.add('active');
+    modal.classList.add('active'); // Slide Up
     renderSalaryTimeline();
-    
-    // Render Chart after animation
-    setTimeout(renderCareerChart, 300);
 }
 
 function closeSalaryModal() {
     vibrate(20);
-    document.getElementById('salaryModal').classList.remove('active');
+    document.getElementById('salaryModal').classList.remove('active'); // Slide Down
+}
+
+function toggleTitanItem(id) {
+    vibrate(15);
+    const card = document.getElementById(`titan-${id}`);
+    
+    // Auto-Close Others
+    document.querySelectorAll('.titan-card.expanded').forEach(el => {
+        if(el !== card) el.classList.remove('expanded');
+    });
+
+    // Toggle
+    card.classList.toggle('expanded');
 }
 
 function renderSalaryTimeline() {
     const container = document.getElementById('salary-timeline');
     container.innerHTML = '';
-
+    
     // Sort Newest First
     const sorted = [...salaryHistory].reverse();
+    
+    // Update Header Stats (Latest Data)
+    const latest = sorted[0];
+    const fmt = n => '₹' + n.toLocaleString('en-IN');
+    
+    // Header Net Update
+    document.getElementById('header-net').innerText = fmt(latest.inhand);
 
+    // --- LOOP THROUGH YEARS ---
     sorted.forEach((d, idx) => {
-        const isLatest = idx === 0;
         
-        // Formatter
-        const fmt = n => typeof n === 'number' ? '₹' + n.toLocaleString('en-IN') : n;
-        
-        const html = `
-        <div class="salary-card bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm transition-all duration-300">
-            
-            <!-- 1. Header (Always Visible) -->
-            <div class="p-4 flex items-center justify-between cursor-pointer active:bg-slate-50 dark:active:bg-slate-700" onclick="toggleSalaryCard(this)">
-                <!-- Connector Dot -->
-                <div class="absolute -left-[21px] mt-1.5 w-3 h-3 rounded-full border-2 border-slate-200 dark:border-slate-700 bg-emerald-500 z-10 shadow-sm"></div>
+        // 1. Hike Logic (Right Side Display)
+        // Convert pct string to float, remove % sign if present
+        const rawPct = d.inc_pct.toString().replace('%','');
+        const hikeVal = parseFloat(rawPct);
+        const incAmount = d.inc_amt; 
 
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center flex-col border border-slate-200 dark:border-slate-700">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase">Year</span>
-                        <span class="text-lg font-black text-slate-700 dark:text-slate-200 leading-none">${d.y}</span>
+        let incrementHtml = '';
+        
+        // First year (2006) usually has no previous comparison or specific visual need, 
+        // but based on your data, 2006 has values.
+        if (hikeVal > 0 || incAmount > 0) {
+            const isHighGrowth = hikeVal > 15;
+            const colorClass = isHighGrowth ? 'text-emerald-500' : 'text-emerald-600';
+            const bgClass = isHighGrowth ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400';
+            
+            incrementHtml = `
+                <div class="flex flex-col items-end">
+                    <span class="text-xs font-black ${colorClass}">+₹${incAmount.toLocaleString()}</span>
+                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${bgClass} mt-0.5">
+                        <i class="fas fa-arrow-up text-[8px]"></i> ${d.inc_pct}
+                    </span>
+                </div>
+            `;
+        } else {
+            // No Increment (Start or flat year)
+            incrementHtml = `
+                <div class="flex flex-col items-end opacity-50">
+                    <span class="text-[10px] font-bold text-slate-400">--</span>
+                </div>
+            `;
+        }
+
+        // 2. Bonus Logic (Total Sum)
+        const may = (d.b_may !== 'N/A' && d.b_may !== 'NIL') ? d.b_may : 0;
+        const diwali = (d.b_diwali !== 'N/A' && d.b_diwali !== 'NIL') ? d.b_diwali : 0;
+        const totalBonus = may + diwali;
+
+        // 3. LEAVE LOGIC (The 32 Days Formula) 🏖️
+        let leaveSection = '';
+        const encashedDays = (d.leave_d !== 'N/A') ? parseFloat(d.leave_d) : 0;
+        const encashAmount = (d.leave_tot !== 'N/A') ? d.leave_tot : 0;
+
+        if (encashedDays > 0) {
+            const totalLeaves = 32;
+            const takenDays = totalLeaves - encashedDays;
+            const takenPct = (takenDays / totalLeaves) * 100;
+            const savedPct = (encashedDays / totalLeaves) * 100;
+
+            leaveSection = `
+            <div class="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800">
+                <div class="flex justify-between items-end mb-2">
+                    <p class="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
+                        <i class="fas fa-umbrella-beach text-blue-500"></i> Leave Analytics
+                    </p>
+                    <span class="text-xs font-black text-emerald-600 dark:text-emerald-400">+${fmt(encashAmount)}</span>
+                </div>
+                <div class="leave-bar-bg h-4 mb-1">
+                    <div class="leave-segment-taken text-[8px] font-bold text-white/90" style="width: ${takenPct}%" title="Taken"></div>
+                    <div class="leave-segment-saved text-[8px] font-bold text-white/90" style="width: ${savedPct}%" title="Saved">${encashedDays}</div>
+                </div>
+            </div>`;
+        }
+
+        // --- RENDER HTML ---
+        const html = `
+        <div id="titan-${idx}" class="titan-card group bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm mb-3 overflow-hidden transition-all duration-200" onclick="toggleTitanItem(${idx})">
+            
+            <div class="titan-strip"></div>
+
+            <div class="p-4 pl-5 flex items-center justify-between cursor-pointer">
+                
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-slate-900 text-white flex flex-col items-center justify-center shadow-lg shadow-slate-200 dark:shadow-none">
+                        <small class="text-[7px] font-bold opacity-60 uppercase">YEAR</small>
+                        <span class="text-sm font-black tracking-tighter">${d.y}</span>
                     </div>
+
                     <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Gross Annual</p>
-                        <h3 class="text-base font-black text-slate-800 dark:text-white leading-tight">${fmt(d.gross)}</h3>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Gross Annual</p>
+                        <h3 class="text-xl font-black text-slate-800 dark:text-white leading-none tracking-tight">${fmt(d.gross)}</h3>
                     </div>
                 </div>
 
-                <div class="flex flex-col items-end">
-                    <span class="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-[10px] font-bold text-emerald-600 border border-emerald-100 dark:border-emerald-800">
-                        +${d.inc_pct} <i class="fas fa-level-up-alt ml-0.5"></i>
-                    </span>
-                    <i class="fas fa-chevron-down text-xs text-slate-300 mt-2 transition-transform duration-300 chevron"></i>
+                <div class="flex items-center gap-3">
+                    ${incrementHtml}
+                    <i class="fas fa-chevron-down text-slate-300 text-xs transition-transform duration-300 chevron-icon"></i>
                 </div>
             </div>
 
-            <!-- 2. Expanded Details (Hidden) -->
-            <div class="salary-details hidden border-t border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50">
-                <div class="p-4 space-y-4">
+            <div class="titan-body bg-slate-50/50 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800">
+                <div class="p-5">
                     
-                    <!-- A. Monthly Breakdown -->
-                    <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
-                        <h4 class="text-[10px] font-bold text-slate-400 uppercase mb-2">Monthly Breakdown</h4>
-                        <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-xs">
-                            <div class="flex justify-between"><span>Basic:</span> <span class="font-bold text-slate-700 dark:text-slate-300">${fmt(d.basic)}</span></div>
-                            <div class="flex justify-between"><span>HRA:</span> <span class="font-bold text-slate-700 dark:text-slate-300">${fmt(d.hra)}</span></div>
-                            <div class="flex justify-between text-rose-500"><span>PF:</span> <span class="font-bold">-${fmt(d.pf)}</span></div>
-                            <div class="flex justify-between text-rose-500"><span>ESI:</span> <span class="font-bold">-${fmt(d.esi)}</span></div>
-                            <div class="col-span-2 pt-2 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center mt-1">
-                                <span class="font-bold text-slate-500 uppercase text-[10px]">In-Hand Salary</span>
-                                <span class="text-sm font-black text-indigo-600 dark:text-indigo-400">${fmt(d.inhand)}</span>
+                    <div class="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800 flex justify-between items-center mb-4 shadow-sm">
+                        <div>
+                            <p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-0.5">Monthly In-Hand</p>
+                            <p class="text-[9px] text-indigo-400/70">Take Home Salary</p>
+                        </div>
+                        <h2 class="text-2xl font-black text-indigo-700 dark:text-indigo-300 tracking-tight">${fmt(d.inhand)}</h2>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                            <p class="text-[9px] font-black text-slate-400 uppercase mb-2 border-b border-slate-100 pb-1">Earnings</p>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-500 font-bold">Basic</span>
+                                <span class="font-bold text-slate-700 dark:text-slate-200">${fmt(d.basic)}</span>
                             </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-500 font-bold">HRA</span>
+                                <span class="font-bold text-slate-700 dark:text-slate-200">${fmt(d.hra)}</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                            <p class="text-[9px] font-black text-rose-400 uppercase mb-2 border-b border-slate-100 pb-1">Deductions</p>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-500 font-bold">PF</span>
+                                <span class="font-bold text-rose-500">-${fmt(d.pf)}</span>
+                            </div>
+                            ${d.esi > 0 ? `
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-500 font-bold">ESI</span>
+                                <span class="font-bold text-rose-500">-${fmt(d.esi)}</span>
+                            </div>` : ''}
                         </div>
                     </div>
 
-                    <!-- B. Windfalls (Bonus + Leave) -->
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-amber-50 dark:bg-amber-900/10 p-3 rounded-xl border border-amber-100 dark:border-amber-800/30">
-                            <h4 class="text-[9px] font-bold text-amber-600/70 uppercase mb-1">🎁 Bonuses</h4>
-                            <div class="text-xs space-y-1">
-                                <div class="flex justify-between"><span class="text-slate-500">May:</span> <span class="font-bold text-amber-700 dark:text-amber-400">${fmt(d.b_may)}</span></div>
-                                <div class="flex justify-between"><span class="text-slate-500">Diwali:</span> <span class="font-bold text-amber-700 dark:text-amber-400">${fmt(d.b_diwali)}</span></div>
+                    ${totalBonus > 0 ? `
+                    <div class="mt-4 p-4 rounded-2xl border border-amber-100 dark:border-amber-800/30 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-3 opacity-10"><i class="fas fa-gift text-4xl text-amber-500"></i></div>
+                        
+                        <div class="relative z-10 flex justify-between items-center mb-3">
+                            <p class="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Bonus Breakdown</p>
+                            <span class="text-xs font-black text-amber-700 dark:text-amber-300 bg-white dark:bg-slate-900 px-2 py-0.5 rounded shadow-sm">Total: ${fmt(totalBonus)}</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 relative z-10">
+                            <div class="bg-white/80 dark:bg-slate-900/80 p-2 rounded-xl flex items-center gap-3 border border-amber-100 dark:border-amber-800">
+                                <div class="w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-500 shrink-0">
+                                    <i class="fas fa-sun text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] font-bold text-slate-400 uppercase">May</p>
+                                    <p class="text-xs font-black text-slate-800 dark:text-white">${may > 0 ? fmt(may) : '-'}</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/80 dark:bg-slate-900/80 p-2 rounded-xl flex items-center gap-3 border border-amber-100 dark:border-amber-800">
+                                <div class="w-8 h-8 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-yellow-600 shrink-0">
+                                    <i class="fas fa-star text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] font-bold text-slate-400 uppercase">Diwali</p>
+                                    <p class="text-xs font-black text-slate-800 dark:text-white">${diwali > 0 ? fmt(diwali) : '-'}</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="bg-blue-50 dark:bg-blue-900/10 p-3 rounded-xl border border-blue-100 dark:border-blue-800/30">
-                            <h4 class="text-[9px] font-bold text-blue-600/70 uppercase mb-1">🏖️ Leave Encash</h4>
-                            <div class="text-xs space-y-1">
-                                <div class="flex justify-between"><span class="text-slate-500">Days:</span> <span class="font-bold text-blue-700 dark:text-blue-400">${d.leave_d}</span></div>
-                                <div class="flex justify-between"><span class="text-slate-500">Total:</span> <span class="font-bold text-blue-700 dark:text-blue-400">${fmt(d.leave_tot)}</span></div>
-                            </div>
-                        </div>
-                    </div>
+                    </div>` : ''}
+
+                    ${leaveSection}
 
                 </div>
             </div>
@@ -6591,48 +6833,40 @@ function updateFabStyle() {
 </div>
 
 <!-- 💼 SALARY HISTORY MODAL -->
-<div id="salaryModal" class="modal-overlay">
-    <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" onclick="closeSalaryModal()"></div>
-    <div class="modal-card bg-slate-50 dark:bg-slate-900 w-full h-[95vh] rounded-t-[2rem] flex flex-col">
-        
-        <!-- Header -->
-        <div class="bg-white dark:bg-slate-950 p-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center shrink-0 rounded-t-[2rem]">
-            <div>
-                <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-0.5">Career Timeline</p>
-                <h2 class="text-xl font-black text-slate-800 dark:text-white">Salary Vault (2006-25)</h2>
-            </div>
-            <button onclick="closeSalaryModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 transition flex items-center justify-center">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-
-        <!-- Scrollable Content -->
-        <div class="flex-1 overflow-y-auto no-scrollbar p-5">
+<div id="salaryModal" class="fixed inset-0 z-[200] bg-slate-50 dark:bg-slate-950 transform translate-y-full transition-transform duration-300 flex flex-col">
+    
+    <div class="relative z-30 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-sm shrink-0">
+        <div class="p-5 flex flex-col gap-4">
             
-            <!-- Growth Chart -->
-            <div class="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 mb-6">
-                <div class="flex justify-between items-end mb-4">
+            <div class="flex justify-between items-center">
+                <button onclick="closeSalaryModal()" class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center transition active:scale-95">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="text-right">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Vault Access</p>
+                    <h2 class="text-lg font-black text-slate-800 dark:text-white tracking-tight">CAREER HISTORY</h2>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 dark:bg-black rounded-2xl p-5 text-white shadow-xl shadow-slate-300 dark:shadow-none relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500 opacity-20 rounded-full blur-3xl transform translate-x-10 -translate-y-10"></div>
+                
+                <div class="relative z-10 flex justify-between items-end">
                     <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Total Growth</p>
-                        <h3 class="text-2xl font-black text-emerald-600 dark:text-emerald-400">+806% <span class="text-xs text-slate-400 font-bold">(Gross)</span></h3>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Current Net (Monthly)</p>
+                        <h1 id="header-net" class="text-4xl font-black tracking-tight">₹0</h1>
                     </div>
-                    <div class="text-right">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Latest Annual</p>
-                        <h3 class="text-xl font-black text-slate-800 dark:text-white">₹4.89L</h3>
+                    <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-md">
+                        <i class="fas fa-briefcase text-white/80"></i>
                     </div>
-                </div>
-                <div class="h-40 w-full relative">
-                    <canvas id="careerChart"></canvas>
                 </div>
             </div>
 
-            <!-- Timeline List -->
-            <div id="salary-timeline" class="space-y-4 relative pl-4 border-l-2 border-slate-200 dark:border-slate-800 ml-2">
-                <!-- JS will inject cards here -->
-            </div>
-            
-            <div class="h-12"></div> <!-- Spacer -->
         </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar p-5 bg-slate-50 dark:bg-slate-950">
+        <div id="salary-timeline" class="space-y-4 pb-32"></div>
     </div>
 </div>
 
