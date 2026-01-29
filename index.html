@@ -3978,29 +3978,23 @@ function switchTab(id) {
     // 1. Reset All Tabs
     document.querySelectorAll('.tab-content').forEach(el => {
         el.classList.remove('active', 'anim-slide-right', 'anim-slide-left');
-        // 🔥 Hide explicitly to be safe
         if(!el.classList.contains('hidden')) el.classList.add('hidden'); 
     });
 
-    // -----------------------------------------------------------
-    // ⚡ FIX: Hide Global Header Dropdown when in Utility Tab
-    // -----------------------------------------------------------
+    // 2. Hide/Show Global Header Dropdown
     const globalMonthBtn = document.getElementById('monthTriggerBtn');
-    const globalMonthMenu = document.getElementById('customMonthMenu'); // Menu bhi close karein safety ke liye
+    const globalMonthMenu = document.getElementById('customMonthMenu');
 
     if (id === 'utility') {
-        // Agar Utility tab khula hai -> Header Dropdown HATAO
         if (globalMonthBtn) globalMonthBtn.classList.add('hidden');
         if (globalMonthMenu) globalMonthMenu.classList.add('hidden'); 
     } else {
-        // Agar Home ya Stats hai -> Header Dropdown DIKHAO
         if (globalMonthBtn) globalMonthBtn.classList.remove('hidden');
     }
-    // -----------------------------------------------------------
 
-    // 2. Activate Target Tab
+    // 3. Activate Target Tab
     const newTab = document.getElementById('tab-' + id);
-    newTab.classList.remove('hidden'); // Show div
+    newTab.classList.remove('hidden'); 
     void newTab.offsetWidth; // Force Reflow
     
     // Animation Logic
@@ -4011,7 +4005,7 @@ function switchTab(id) {
     }
     newTab.classList.add('active');
 
-    // 3. Button Styling
+    // 4. Button Styling
     const homeBtn = document.getElementById('nav-home');
     const statsBtn = document.getElementById('nav-stats');
     const utilBtn = document.getElementById('nav-utility'); 
@@ -4030,8 +4024,8 @@ function switchTab(id) {
         homeBtn.className = `${baseClass} ${activeClass}`;
     } else if (id === 'utility') {
         utilBtn.className = `${baseClass} ${activeClass.replace('indigo', 'slate')}`; 
-        utilBtn.classList.add('text-amber-600', 'bg-amber-50'); // Amber Theme for Utility
-        renderUtilities(); // 🔥 Render Data on Tab Switch
+        utilBtn.classList.add('text-amber-600', 'bg-amber-50'); 
+        renderUtilities(); 
     } else {
         statsBtn.className = `${baseClass} ${activeClass}`;
         setTimeout(() => { 
@@ -4039,6 +4033,9 @@ function switchTab(id) {
             renderHeatmap(); 
         }, 350); 
     }
+
+    // 🔥 UPDATE FAB COLOR HERE
+    updateFabStyle();
 }
     
     // 1. Toggle Search Bar (Open/Close Logic)
@@ -5795,15 +5792,16 @@ function toggleUtilityView() {
     // 2. Switch View State
     currentUtilityView = (currentUtilityView === 'BSES') ? 'IGL' : 'BSES';
 
+    // 🔥 UPDATE FAB COLOR IMMEDIATELY
+    updateFabStyle();
+
     // 3. Update Bottom List (Wait for animation)
     if (listWrapper) {
         listWrapper.style.opacity = '0';
         setTimeout(() => {
             listWrapper.innerHTML = '';
             
-            // ✅ Use the Correct Date for the Active View
             const activeDate = utilityState[currentUtilityView];
-            
             const isMatch = (dStr) => {
                 const d = new Date(dStr);
                 return !isNaN(d) && d.getMonth() === activeDate.getMonth() && d.getFullYear() === activeDate.getFullYear();
@@ -6410,6 +6408,31 @@ function deleteUtilityEntryFromList(id, type) {
     itemToDeleteId = id;
     deleteActionContext = type;
     document.getElementById('deleteModal').classList.add('active');
+}
+
+// --- 🎨 DYNAMIC FAB COLOR LOGIC ---
+function updateFabStyle() {
+    const fab = document.querySelector('.fab');
+    const isUtilityActive = document.getElementById('tab-utility').classList.contains('active');
+
+    // Transition for smooth color change
+    fab.style.transition = 'background 0.3s ease, box-shadow 0.3s ease, transform 0.1s';
+
+    if (isUtilityActive) {
+        if (currentUtilityView === 'BSES') {
+            // 🟠 BSES Theme (Orange Gradient Match)
+            fab.style.background = 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)';
+            fab.style.boxShadow = '0 8px 20px rgba(234, 88, 12, 0.4)'; // Orange Glow
+        } else {
+            // 🔵 IGL Theme (Blue Gradient Match)
+            fab.style.background = 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)';
+            fab.style.boxShadow = '0 8px 20px rgba(37, 99, 235, 0.4)'; // Blue Glow
+        }
+    } else {
+        // 🟣 Default Theme (Indigo)
+        fab.style.background = '#4f46e5';
+        fab.style.boxShadow = '0 8px 20px rgba(79, 70, 229, 0.4)';
+    }
 }
 
 </script>
