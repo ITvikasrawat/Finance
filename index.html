@@ -1828,195 +1828,155 @@
     </header>
     
     <!-- MAIN CONTENT -->
-    <main class="flex-1 overflow-y-auto pt-24 pb-24 w-full no-scrollbar" id="main-scroll">
-        
-        <!-- Pull to Refresh Spinner -->
-        <div id="pull-indicator" class="w-full bg-slate-50 dark:bg-slate-950">
-            <i class="fas fa-spinner fa-spin text-indigo-500 text-xl"></i>
-        </div>
-
-        <!-- FAB -->
-        <button class="fab" onclick="vibrate(50); handleFabClick()"><i class="fas fa-plus"></i></button>
-
-        <!-- FLOATING BOTTOM NAV -->
-<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[350px] h-[65px] bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.5)] rounded-full z-50 flex items-center justify-between px-2 p-1 transition-colors duration-300">
+<main class="flex-1 overflow-y-auto pt-24 pb-24 w-full no-scrollbar" id="main-scroll">
     
-    <!-- 1. Wallet Button -->
-    <button id="nav-home" class="flex-1 h-full rounded-full flex flex-col items-center justify-center gap-0.5 transition-all duration-300 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 shadow-sm" onclick="vibrate(20); switchTab('home')">
-        <i class="fas fa-wallet text-lg mb-0.5"></i>
-        <span class="text-[10px] font-bold">Wallet</span>
-    </button>
-    
-    <!-- 2. UTILITY Button (NEW ADDITION ⚡) -->
-    <button id="nav-utility" class="flex-1 h-full rounded-full flex flex-col items-center justify-center gap-0.5 transition-all duration-300 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50" onclick="vibrate(20); switchTab('utility')">
-        <i class="fas fa-bolt text-lg mb-0.5"></i>
-        <span class="text-[10px] font-bold">Utility</span>
-    </button>
-    
-    <!-- 3. Stats Button -->
-    <button id="nav-stats" class="flex-1 h-full rounded-full flex flex-col items-center justify-center gap-0.5 transition-all duration-300 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50" onclick="vibrate(20); switchTab('stats')">
-        <i class="fas fa-chart-pie text-lg mb-0.5"></i>
-        <span class="text-[10px] font-bold">Stats</span>
-    </button>
-
-</nav>
-
-        <!-- HOME TAB -->
-<!-- 3D FLIP CARD (Locked Layout) -->
-<!-- 🔥 Fix: 'aspect-[1.58/1]' yahan parent pe lagaya taaki jagah reserve rahe -->
-<div class="relative px-4 mb-6 w-full aspect-[1.58/1] perspective-1000 group z-20">
-    
-    <!-- Trigger -->
-    <div class="flip-card w-full h-full" onclick="vibrate(20); this.classList.toggle('flipped')">
-        <div class="flip-card-inner">
-            
-            <!-- FRONT CARD -->
-            <div class="flip-card-front flex flex-col bg-slate-900" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
-                
-                <!-- Texture -->
-                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 pointer-events-none mix-blend-overlay"></div>
-                
-                <div class="relative z-10 flex flex-col h-full p-6">
-                    
-                    <!-- TOP: Icons -->
-                    <div class="flex justify-between items-start shrink-0">
-                        <div class="flex items-center gap-3">
-                            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="45px" height="45px" viewBox="0 0 50 50" xml:space="preserve" class="drop-shadow-lg">
-                    <image id="image0" width="50" height="50" x="0" y="0" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
-                    AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAB6VBMVEUAAACNcTiVeUKVeUOY
-                    fEaafEeUeUSYfEWZfEaykleyklaXe0SWekSZZjOYfEWYe0WXfUWXe0WcgEicfkiXe0SVekSXekSW
-                    ekKYe0a9nF67m12ZfUWUeEaXfESVekOdgEmVeUWWekSniU+VeUKVeUOrjFKYfEWliE6WeESZe0GS
-                    e0WYfES7ml2Xe0WXeESUeEOWfEWcf0eWfESXe0SXfEWYekSVeUKXfEWxklawkVaZfEWWekOUekOW
-                    ekSYfESZe0eXekWYfEWZe0WZe0eVeUSWeETAnmDCoWLJpmbxy4P1zoXwyoLIpWbjvXjivnjgu3bf
-                    u3beunWvkFWxkle/nmDivXiWekTnwXvkwHrCoWOuj1SXe0TEo2TDo2PlwHratnKZfEbQrWvPrWua
-                    fUfbt3PJp2agg0v0zYX0zYSfgkvKp2frxX7mwHrlv3rsxn/yzIPgvHfduXWXe0XuyIDzzISsjVO1
-                    lVm0lFitjVPzzIPqxX7duna0lVncuHTLqGjvyIHeuXXxyYGZfUayk1iyk1e2lln1zYTEomO2llrb
-                    tnOafkjFpGSbfkfZtXLhvHfkv3nqxH3mwXujhU3KqWizlFilh06khk2fgkqsjlPHpWXJp2erjVOh
-                    g0yWe0SliE+XekShhEvAn2D///+gx8TWAAAARnRSTlMACVCTtsRl7Pv7+vxkBab7pZv5+ZlL/UnU
-                    /f3SJCVe+Fx39naA9/75XSMh0/3SSkia+pil/KRj7Pr662JPkrbP7OLQ0JFOijI1MwAAAAFiS0dE
-                    orDd34wAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfnAg0IDx2lsiuJAAACLElEQVRIx2Ng
-                    GAXkAUYmZhZWPICFmYkRVQcbOwenmzse4MbFzc6DpIGXj8PD04sA8PbhF+CFaxEU8iWkAQT8hEVg
-                    OkTF/InR4eUVICYO1SIhCRMLDAoKDvFDVhUaEhwUFAjjSUlDdMiEhcOEItzdI6OiYxA6YqODIt3d
-                    I2DcuDBZsBY5eVTr4xMSYcyk5BRUOXkFsBZFJTQnp6alQxgZmVloUkrKYC0qqmji2WE5EEZuWB6a
-                    lKoKdi35YQUQRkFYPpFaCouKIYzi6EDitJSUlsGY5RWVRGjJLyxNy4ZxqtIqqvOxaVELQwZFZdkI
-                    JVU1RSiSalAt6rUwUBdWG1CP6pT6gNqwOrgCdQyHNYR5YQFhDXj8MiK1IAeyN6aORiyBjByVTc0F
-                    qBoKWpqwRCVSgilOaY2OaUPw29qjOzqLvTAchpos47u6EZyYnngUSRwpuTe6D+6qaFQdOPNLRzOM
-                    1dzhRZyW+CZouHk3dWLXglFcFIflQhj9YWjJGlZcaKAVSvjyPrRQ0oQVKDAQHlYFYUwIm4gqExGm
-                    BSkutaVQJeomwViTJqPK6OhCy2Q9sQBk8cY0DxjTJw0lAQWK6cOKfgNhpKK7ZMpUeF3jPa28BCET
-                    amiEqJKM+X1gxvWXpoUjVIVPnwErw71nmpgiqiQGBjNzbgs3j1nus+fMndc+Cwm0T52/oNR9lsdC
-                    S24ra7Tq1cbWjpXV3sHRCb1idXZ0sGdltXNxRateRwHRAACYHutzk/2I5QAAACV0RVh0ZGF0ZTpj
-                    cmVhdGUAMjAyMy0wMi0xM1QwODoxNToyOSswMDowMEUnN7UAAAAldEVYdGRhdGU6bW9kaWZ5ADIw
-                    MjMtMDItMTNUMDg6MTU6MjkrMDA6MDA0eo8JAAAAKHRFWHRkYXRlOnRpbWVzdGFtcAAyMDIzLTAy
-                    LTEzVDA4OjE1OjI5KzAwOjAwY2+u1gAAAABJRU5ErkJggg=="></image>
-                </svg>
-                            <svg class="w-8 h-8 text-white/50 rotate-90 drop-shadow-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 0 1 7.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 0 1 1.06 0Z" /></svg>
-                        </div>
-                        <svg class="drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 48 48"><path fill="#ff9800" d="M32 10A14 14 0 1 0 32 38A14 14 0 1 0 32 10Z"></path><path fill="#d50000" d="M16 10A14 14 0 1 0 16 38A14 14 0 1 0 16 10Z"></path><path fill="#ff3d00" d="M18,24c0,4.755,2.376,8.95,6,11.48c3.624-2.53,6-6.725,6-11.48s-2.376-8.95-6-11.48 C20.376,15.05,18,19.245,18,24z"></path></svg>
-                    </div>
-
-                    <!-- MIDDLE: Big Balance -->
-                    <div class="flex-1 flex flex-col justify-center items-start pl-1">
-                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">Net Balance</p>
-                        <h2 class="text-5xl font-mono font-black tracking-widest text-white drop-shadow-md leading-none" id="net-balance">****</h2>
-                    </div>
-
-                    <!-- BOTTOM: Stats -->
-                    <div class="flex justify-between items-end shrink-0 pt-2">
-                        <div class="flex flex-col items-start">
-                            <p class="text-[7px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Card Holder</p>
-                            <p class="text-lg font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 uppercase font-sans truncate shadow-sm">VIKAS RAWAT</p>
-                        </div>
-                        <div class="flex items-center gap-3 text-right">
-                            <div class="flex flex-col items-end"><p class="text-[7px] font-bold text-slate-500 uppercase">INC</p><p class="text-[10px] font-mono font-bold text-emerald-400 tracking-wide" id="total-income">₹0</p></div>
-                            <div class="flex flex-col items-end"><p class="text-[7px] font-bold text-slate-500 uppercase">EXP</p><p class="text-[10px] font-mono font-bold text-rose-400 tracking-wide" id="total-expense">₹0</p></div>
-                            <div class="flex flex-col items-end"><p class="text-[7px] font-bold text-slate-500 uppercase">INV</p><p class="text-[10px] font-mono font-bold text-amber-400 tracking-wide" id="total-invest">₹0</p></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- BACK CARD -->
-            <div class="flip-card-back flex flex-col justify-between bg-slate-900" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
-                
-                <!-- 1. Magnetic Strip -->
-                <div class="w-full h-12 bg-black/90 mt-5 shadow-sm relative z-10"></div>
-
-                <!-- 2. Signature Panel -->
-                <div class="px-5 relative z-10 -mt-1">
-                    <div class="flex items-center gap-3">
-                        <div class="flex-1 h-9 bg-slate-600/30 flex items-center px-3 rounded-sm relative overflow-hidden border border-white/10">
-                            <div class="absolute inset-0 opacity-20" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 2px, #fff 2px, #fff 4px);"></div>
-                            <span class="relative z-10 text-[6px] text-white/40 font-serif italic mr-auto">AUTHORIZED SIGNATURE</span>
-                            <span id="bud-remaining" class="relative z-10 font-mono text-sm font-black text-white tracking-widest drop-shadow-md">₹44,635</span>
-                        </div>
-                        <div class="w-14 h-8 bg-white flex flex-col items-center justify-center rounded-sm shadow-lg transform rotate-1 border border-slate-200">
-                            <span class="text-[5px] text-slate-500 font-bold leading-none">VALID</span>
-                            <span id="budget-month-label" class="font-mono text-[10px] font-black text-slate-900 leading-none">JAN 26</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 3. Clean Stats -->
-                <div class="px-6 pb-6 pt-4 space-y-4 relative z-10 mt-auto">
-                    <!-- Needs -->
-                    <div class="relative">
-                        <div class="flex justify-between items-end mb-1">
-                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><i class="fas fa-home text-blue-400"></i> Needs</span>
-                            <span class="text-[9px] font-mono text-white"><span id="bud-needs-spent">0</span> / 23.7k</span>
-                        </div>
-                        <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden border border-white/5">
-                            <div id="bud-needs-bar" class="h-full bg-gradient-to-r from-blue-600 to-indigo-500 rounded-full shadow-[0_0_8px_rgba(79,70,229,0.6)]" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <!-- Wants -->
-                    <div class="relative">
-                        <div class="flex justify-between items-end mb-1">
-                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><i class="fas fa-heart text-rose-400"></i> Wants</span>
-                            <span class="text-[9px] font-mono text-white"><span id="bud-wants-spent">0</span> / 6.1k</span>
-                        </div>
-                        <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden border border-white/5">
-                            <div id="bud-wants-bar" class="h-full bg-gradient-to-r from-rose-500 to-pink-500 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.6)]" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <!-- Invest -->
-                    <div class="relative">
-                        <div class="flex justify-between items-end mb-1">
-                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><i class="fas fa-chart-line text-emerald-400"></i> Invest</span>
-                            <span class="text-[9px] font-mono text-white"><span id="bud-invest-spent">0</span> / 13.5k</span>
-                        </div>
-                        <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden border border-white/5">
-                            <div id="bud-invest-bar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.6)]" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- Footer -->
-                    <div class="flex justify-between items-center pt-2 border-t border-white/5">
-                         <p class="text-[7px] text-slate-500">ELECTRONIC USE ONLY</p>
-                         <div class="flex items-center gap-1.5">
-                             <span class="text-[8px] text-slate-400 uppercase">Status:</span>
-                             <span id="bud-status" class="text-[9px] font-black text-emerald-400 tracking-wide">Safe</span>
-                         </div>
-                    </div>
-                </div>
-                
-                <!-- Texture -->
-                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 pointer-events-none mix-blend-overlay"></div>
-            </div>
-
-        </div>
+    <!-- Pull to Refresh Spinner -->
+    <div id="pull-indicator" class="w-full bg-slate-50 dark:bg-slate-950">
+        <i class="fas fa-spinner fa-spin text-indigo-500 text-xl"></i>
     </div>
-</div>
 
+    <!-- FAB -->
+    <button class="fab" onclick="vibrate(50); handleFabClick()"><i class="fas fa-plus"></i></button>
+
+    <!-- FLOATING BOTTOM NAV -->
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[350px] h-[65px] bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.5)] rounded-full z-50 flex items-center justify-between px-2 p-1 transition-colors duration-300">
+        <!-- 1. Wallet Button -->
+        <button id="nav-home" class="flex-1 h-full rounded-full flex flex-col items-center justify-center gap-0.5 transition-all duration-300 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 shadow-sm" onclick="vibrate(20); switchTab('home')">
+            <i class="fas fa-wallet text-lg mb-0.5"></i>
+            <span class="text-[10px] font-bold">Wallet</span>
+        </button>
+        <!-- 2. UTILITY Button -->
+        <button id="nav-utility" class="flex-1 h-full rounded-full flex flex-col items-center justify-center gap-0.5 transition-all duration-300 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50" onclick="vibrate(20); switchTab('utility')">
+            <i class="fas fa-bolt text-lg mb-0.5"></i>
+            <span class="text-[10px] font-bold">Utility</span>
+        </button>
+        <!-- 3. Stats Button -->
+        <button id="nav-stats" class="flex-1 h-full rounded-full flex flex-col items-center justify-center gap-0.5 transition-all duration-300 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50" onclick="vibrate(20); switchTab('stats')">
+            <i class="fas fa-chart-pie text-lg mb-0.5"></i>
+            <span class="text-[10px] font-bold">Stats</span>
+        </button>
+    </nav>
+
+    <!-- 🔥 FIX START: Added Wrapper ID="tab-home" here -->
+    <div id="tab-home" class="tab-content active">
+        
+        <!-- HOME TAB -->
+        <!-- 3D FLIP CARD (Locked Layout) -->
+        <div class="relative px-4 mb-6 w-full aspect-[1.58/1] perspective-1000 group z-20">
+            <!-- Trigger -->
+            <div id="wallet-flip-card" class="flip-card w-full h-full" onclick="vibrate(20); this.classList.toggle('flipped')">
+                <div class="flip-card-inner">
+                    <!-- FRONT CARD -->
+                    <div class="flip-card-front flex flex-col bg-slate-900" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+                        <!-- Texture -->
+                        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 pointer-events-none mix-blend-overlay"></div>
+                        <div class="relative z-10 flex flex-col h-full p-6">
+                            <!-- TOP: Icons -->
+                            <div class="flex justify-between items-start shrink-0">
+                                <div class="flex items-center gap-3">
+                                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="45px" height="45px" viewBox="0 0 50 50" class="drop-shadow-lg">
+                                        <image id="image0" width="50" height="50" x="0" y="0" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAB6VBMVEUAAACNcTiVeUKVeUOYfEaafEeUeUSYfEWZfEaykleyklaXe0SWekSZZjOYfEWYe0WXfUWXe0WcgEicfkiXe0SVekSXekSWekKYe0a9nF67m12ZfUWUeEaXfESVekOdgEmVeUWWekSniU+VeUKVeUOrjFKYfEWliE6WeESZe0GSe0WYfES7ml2Xe0WXeESUeEOWfEWcf0eWfESXe0SXfEWYekSVeUKXfEWxklawkVaZfEWWekOUekOWekSYfESZe0eXekWYfEWZe0WZe0eVeUSWeETAnmDCoWLJpmbxy4P1zoXwyoLIpWbjvXjivnjgu3bfu3beunWvkFWxkle/nmDivXiWekTnwXvkwHrCoWOuj1SXe0TEo2TDo2PlwHratnKZfEbQrWvPrWuafUfbt3PJp2agg0v0zYX0zYSfgkvKp2frxX7mwHrlv3rsxn/yzIPgvHfduXWXe0XuyIDzzISsjVO1lVm0lFitjVPzzIPqxX7duna0lVncuHTLqGjvyIHeuXXxyYGZfUayk1iyk1e2lln1zYTEomO2llrbtnOafkjFpGSbfkfZtXLhvHfkv3nqxH3mwXujhU3KqWizlFilh06khk2fgkqsjlPHpWXJp2erjVOhg0yWe0SliE+XekShhEvAn2D///+gx8TWAAAARnRSTlMACVCTtsRl7Pv7+vxkBab7pZv5+ZlL/UnU/f3SJCVe+Fx39naA9/75XSMh0/3SSkia+pil/KRj7Pr662JPkrbP7OLQ0JFOijI1MwAAAAFiS0dEorDd34wAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfnAg0IDx2lsiuJAAACLElEQVRIx2NgGAXkAUYmZhZWPICFmYkRVQcbOwenmzse4MbFzc6DpIGXj8PD04sA8PbhF+CFaxEU8iWkAQT8hEVgOkTF/InR4eUVICYO1SIhCRMLDAoKDvFDVhUaEhwUFAjjSUlDdMiEhcOEItzdI6OiYxA6YqODIt3dI2DcuDBZsBY5eVTr4xMSYcyk5BRUOXkFsBZFJTQnp6alQxgZmVloUkrKYC0qqmji2WE5EEZuWB6alKoKdi35YQUQRkFYPpFaCouKIYzi6EDitJSUlsGY5RWVRGjJLyxNy4ZxqtIqqvOxaVELQwZFZdkIJVU1RSiSalAt6rUwUBdWG1CP6pT6gNqwOrgCdQyHNYR5YQFhDXj8MiK1IAeyN6aORiyBjByVTc0FqBoKWpqwRCVSgilOaY2OaUPw29qjOzqLvTAchpos47u6EZyYnngUSRwpuTe6D+6qaFQdOPNLRzOM1dzhRZyW+CZouHk3dWLXglFcFIflQhj9YWjJGlZcaKAVSvjyPrRQ0oQVKDAQHlYFYUwIm4gqExGmBSkutaVQJeomwViTJqPK6OhCy2Q9sQBk8cY0DxjTJw0lAQWK6cOKfgNhpKK7ZMpUeF3jPa28BCETamiEqJKM+X1gxvWXpoUjVIVPnwErw71nmpgiqiQGBjNzbgs3j1nus+fMndc+Cwm0T52/oNR9lsdCS24ra7Tq1cbWjpXV3sHRCb1idXZ0sGdltXNxRateRwHRAACYHutzk/2I5QAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMy0wMi0xM1QwODoxNToyOSswMDowMEUnN7UAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjMtMDItMTNUMDg6MTU6MjkrMDA6MDA0eo8JAAAAKHRFWHRkYXRlOnRpbWVzdGFtcAAyMDIzLTAyLTEzVDA4OjE1OjI5KzAwOjAwY2+u1gAAAABJRU5ErkJggg=="></image>
+                                    </svg>
+                                    <svg class="w-8 h-8 text-white/50 rotate-90 drop-shadow-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 0 1 7.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 0 1 1.06 0Z" /></svg>
+                                </div>
+                                <svg class="drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 48 48"><path fill="#ff9800" d="M32 10A14 14 0 1 0 32 38A14 14 0 1 0 32 10Z"></path><path fill="#d50000" d="M16 10A14 14 0 1 0 16 38A14 14 0 1 0 16 10Z"></path><path fill="#ff3d00" d="M18,24c0,4.755,2.376,8.95,6,11.48c3.624-2.53,6-6.725,6-11.48s-2.376-8.95-6-11.48 C20.376,15.05,18,19.245,18,24z"></path></svg>
+                            </div>
+                            <!-- MIDDLE: Big Balance -->
+                            <div class="flex-1 flex flex-col justify-center items-start pl-1">
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">Net Balance</p>
+                                <h2 class="text-5xl font-mono font-black tracking-widest text-white drop-shadow-md leading-none" id="net-balance">****</h2>
+                            </div>
+                            <!-- BOTTOM: Stats -->
+                            <div class="flex justify-between items-end shrink-0 pt-2">
+                                <div class="flex flex-col items-start">
+                                    <p class="text-[7px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Card Holder</p>
+                                    <p class="text-lg font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 uppercase font-sans truncate shadow-sm">VIKAS RAWAT</p>
+                                </div>
+                                <div class="flex items-center gap-3 text-right">
+                                    <div class="flex flex-col items-end"><p class="text-[7px] font-bold text-slate-500 uppercase">INC</p><p class="text-[10px] font-mono font-bold text-emerald-400 tracking-wide" id="total-income">₹0</p></div>
+                                    <div class="flex flex-col items-end"><p class="text-[7px] font-bold text-slate-500 uppercase">EXP</p><p class="text-[10px] font-mono font-bold text-rose-400 tracking-wide" id="total-expense">₹0</p></div>
+                                    <div class="flex flex-col items-end"><p class="text-[7px] font-bold text-slate-500 uppercase">INV</p><p class="text-[10px] font-mono font-bold text-amber-400 tracking-wide" id="total-invest">₹0</p></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BACK CARD -->
+                    <div class="flip-card-back flex flex-col justify-between bg-slate-900" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+                        <!-- 1. Magnetic Strip -->
+                        <div class="w-full h-12 bg-black/90 mt-5 shadow-sm relative z-10"></div>
+                        <!-- 2. Signature Panel -->
+                        <div class="px-5 relative z-10 -mt-1">
+                            <div class="flex items-center gap-3">
+                                <div class="flex-1 h-9 bg-slate-600/30 flex items-center px-3 rounded-sm relative overflow-hidden border border-white/10">
+                                    <div class="absolute inset-0 opacity-20" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 2px, #fff 2px, #fff 4px);"></div>
+                                    <span class="relative z-10 text-[6px] text-white/40 font-serif italic mr-auto">AUTHORIZED SIGNATURE</span>
+                                    <span id="bud-remaining" class="relative z-10 font-mono text-sm font-black text-white tracking-widest drop-shadow-md">₹44,635</span>
+                                </div>
+                                <div class="w-14 h-8 bg-white flex flex-col items-center justify-center rounded-sm shadow-lg transform rotate-1 border border-slate-200">
+                                    <span class="text-[5px] text-slate-500 font-bold leading-none">VALID</span>
+                                    <span id="budget-month-label" class="font-mono text-[10px] font-black text-slate-900 leading-none">JAN 26</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 3. Clean Stats -->
+                        <div class="px-6 pb-6 pt-4 space-y-4 relative z-10 mt-auto">
+                            <!-- Needs -->
+                            <div class="relative">
+                                <div class="flex justify-between items-end mb-1">
+                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><i class="fas fa-home text-blue-400"></i> Needs</span>
+                                    <span class="text-[9px] font-mono text-white"><span id="bud-needs-spent">0</span> / 23.7k</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden border border-white/5">
+                                    <div id="bud-needs-bar" class="h-full bg-gradient-to-r from-blue-600 to-indigo-500 rounded-full shadow-[0_0_8px_rgba(79,70,229,0.6)]" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <!-- Wants -->
+                            <div class="relative">
+                                <div class="flex justify-between items-end mb-1">
+                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><i class="fas fa-heart text-rose-400"></i> Wants</span>
+                                    <span class="text-[9px] font-mono text-white"><span id="bud-wants-spent">0</span> / 6.1k</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden border border-white/5">
+                                    <div id="bud-wants-bar" class="h-full bg-gradient-to-r from-rose-500 to-pink-500 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.6)]" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <!-- Invest -->
+                            <div class="relative">
+                                <div class="flex justify-between items-end mb-1">
+                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><i class="fas fa-chart-line text-emerald-400"></i> Invest</span>
+                                    <span class="text-[9px] font-mono text-white"><span id="bud-invest-spent">0</span> / 13.5k</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden border border-white/5">
+                                    <div id="bud-invest-bar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.6)]" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <!-- Footer -->
+                            <div class="flex justify-between items-center pt-2 border-t border-white/5">
+                                <p class="text-[7px] text-slate-500">ELECTRONIC USE ONLY</p>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-[8px] text-slate-400 uppercase">Status:</span>
+                                    <span id="bud-status" class="text-[9px] font-black text-emerald-400 tracking-wide">Safe</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Texture -->
+                        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 pointer-events-none mix-blend-overlay"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction List -->
+        <div id="transaction-container" class="relative z-10"></div>
+        <div id="no-data" class="hidden text-center py-10 opacity-50"><i class="fas fa-receipt text-3xl text-slate-300 mb-2"></i><p class="text-xs font-bold text-slate-400">No data found</p></div>
     
-    <!-- Transaction List -->
-    <div id="transaction-container" class="relative z-10"></div>
-    <div id="no-data" class="hidden text-center py-10 opacity-50"><i class="fas fa-receipt text-3xl text-slate-300 mb-2"></i><p class="text-xs font-bold text-slate-400">No data found</p></div>
-</div>
+    </div> <!-- 🔥 FIX END: Wrapper tab-home closed here -->
 
-        <!-- STATS TAB -->
-		<div id="tab-stats" class="tab-content px-5 -mt-4 pb-24">
-			
-			<!-- COMMAND DECK HEADER (Text Left + Buttons Right) -->
+    <!-- STATS TAB -->
+    <div id="tab-stats" class="tab-content px-5 -mt-4 pb-24 hidden">
+        <!-- (Stats Content same as your file) -->
+        <!-- COMMAND DECK HEADER -->
 			<div class="flex justify-between items-center mb-6 mt-2 relative z-10 px-1">
 				
 				<!-- LEFT: Modern Analytics Text -->
@@ -2025,7 +1985,7 @@
 					<h1 class="text-2xl font-black text-slate-800 dark:text-white leading-none tracking-tight">Analytics</h1>
 				</div>
 
-				<!-- RIGHT: Unified Utility Cluster (SAME AS BEFORE) -->
+				<!-- RIGHT: Unified Utility Cluster -->
 				<div class="flex items-center gap-1.5 bg-white dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
 					
 					<!-- 1. Month/Year Toggle (Single Button) -->
@@ -2047,21 +2007,16 @@
 
 					<!-- 4. AI Insight -->
 					<button onclick="showInsight()" class="group relative outline-0 [--sz-btn:25px] [--space:calc(var(--sz-btn)/5.5)] [--gen-sz:calc(var(--space)*2)] [--sz-text:calc(var(--sz-btn)-var(--gen-sz))] h-[var(--sz-btn)] w-[var(--sz-btn)] border border-solid border-transparent rounded-xl flex items-center justify-center aspect-square cursor-pointer transition-transform duration-200 active:scale-[0.95] bg-[linear-gradient(45deg,#efad21,#ffd60f)] shadow-sm hover:shadow-lg hover:shadow-amber-400/40">
-					  
-					  <!-- Star Icon (Animated) -->
 					  <svg class="animate-pulse absolute z-10 overflow-visible transition-all duration-300 text-[#ffea50] group-hover:text-white top-[calc(var(--sz-text)/7)] left-[calc(var(--sz-text)/7)] h-[var(--gen-sz)] w-[var(--gen-sz)] group-hover:h-[var(--sz-text)] group-hover:w-[var(--sz-text)] group-hover:left-[calc(var(--sz-text)/4)] group-hover:top-[calc(calc(var(--gen-sz))/2)]" stroke="none" viewBox="0 0 24 24" fill="currentColor">
 						<path fill-rule="evenodd" clip-rule="evenodd" d="M9 4.5a.75.75 0 01.721.544l.813 2.846a3.75 3.75 0 002.576 2.576l2.846.813a.75.75 0 010 1.442l-2.846.813a3.75 3.75 0 00-2.576 2.576l-.813 2.846a.75.75 0 01-1.442 0l-.813-2.846a3.75 3.75 0 00-2.576-2.576l-2.846-.813a.75.75 0 010-1.442l2.846-.813A3.75 3.75 0 007.466 7.89l.813-2.846A.75.75 0 019 4.5zM18 1.5a.75.75 0 01.728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 010 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 01-1.456 0l-.258-1.036a2.625 2.625 0 00-1.91-1.91l-1.036-.258a.75.75 0 010-1.456l1.036-.258a2.625 2.625 0 001.91-1.91l.258-1.036A.75.75 0 0118 1.5zM16.5 15a.75.75 0 01.712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 010 1.422l-1.183.395c-.447.15-.799.5-.948.948l-.395 1.183a.75.75 0 01-1.422 0l-.395-1.183a1.5 1.5 0 00-.948-.948l-1.183-.395a.75.75 0 010-1.422l1.183-.395c.447-.15.799-.5.948-.948l.395-1.183A.75.75 0 0116.5 15z"></path>
 					  </svg>
-					  
-					  <!-- Text Label -->
 					  <span class="[font-size:var(--sz-text)] font-extrabold leading-none text-white transition-all duration-200 group-hover:opacity-0 font-mono">AI</span>
 					</button>
 				</div>
 			</div>
 
-            <!-- HYBRID STATS CARDS (Trend + Smart Controller) -->
+            <!-- HYBRID STATS CARDS -->
 			<div class="grid grid-cols-2 gap-3 mb-6">
-				
 				<div id="card-trend" onclick="vibrate(20); openTrendModal()" class="relative bg-white dark:bg-slate-800 p-4 rounded-[24px] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col justify-between h-[110px] cursor-pointer transition-transform active:scale-95 group">
 			<div id="trend-bg" class="absolute bottom-0 left-0 w-full h-12 opacity-20 pointer-events-none transition-opacity group-hover:opacity-30"></div>
 			<div class="relative z-10">
@@ -2091,10 +2046,8 @@
 		</div>
 			</div>
 
-			<!-- ⚡ MODERN STATS TOGGLE (Expense vs Income) -->
+			<!-- EXPENSE VS INCOME TOGGLE -->
 			<div class="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl flex relative mb-4 shadow-inner border border-slate-200 dark:border-slate-700">
-				
-				<!-- EXPENSE BUTTON (Active: Red BG + White Text) -->
 				<label class="flex-1 cursor-pointer">
 					<input type="radio" name="statsType" class="peer sr-only" checked onclick="vibrate(20); statsState.type='Expense'; renderStats();">
 					<div class="flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold text-slate-500 transition-all duration-300 peer-checked:bg-rose-500 peer-checked:text-white peer-checked:shadow-lg peer-checked:shadow-rose-500/30">
@@ -2102,8 +2055,6 @@
 						<span>EXPENSE</span>
 					</div>
 				</label>
-
-				<!-- INCOME BUTTON (Active: Green BG + White Text) -->
 				<label class="flex-1 cursor-pointer">
 					<input type="radio" name="statsType" class="peer sr-only" onclick="vibrate(20); statsState.type='Income'; renderStats();">
 					<div class="flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold text-slate-500 transition-all duration-300 peer-checked:bg-emerald-500 peer-checked:text-white peer-checked:shadow-lg peer-checked:shadow-emerald-500/30">
@@ -2111,28 +2062,20 @@
 						<span>INCOME</span>
 					</div>
 				</label>
-
 			</div>
 
-			<!-- Row 2: Account Chips (Full Width Scrollable) -->
+			<!-- Account Chips -->
 			<div class="relative w-full mb-6">
 				<div class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-slate-50 to-transparent dark:from-slate-950 pointer-events-none z-20"></div>
 				<div id="account-filters" class="flex gap-2 overflow-x-auto no-scrollbar pb-1 pl-1 pr-14" style="scroll-behavior: smooth;"></div>
 			</div>
 
-			<!-- STATS CHART SECTION (Single Card Overlap Fix) -->
+			<!-- CHART -->
 			<div class="bg-white dark:bg-slate-800 p-4 rounded-[32px] shadow-xl border border-slate-100 dark:border-slate-700 mb-8 relative h-72 w-full flex items-center justify-center overflow-hidden">
-				
-				<!-- Layer 1: Chart (Upar rahega click ke liye: z-10) -->
 				<div class="relative z-10 w-full h-full flex items-center justify-center">
 					<canvas id="expenseChart"></canvas>
 				</div>
-
-				<!-- Layer 2: Text (Peeche rahega: z-0, Absolute Position se Center mein) -->
-				<div id="chartCenterText" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0">
-					<!-- JS will fill this automatically -->
-				</div>
-
+				<div id="chartCenterText" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0"></div>
 			</div>
 
             <!-- Heatmap -->
@@ -2143,15 +2086,14 @@
 
 			<h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 px-1">Breakdown</h3>
 			<div id="stats-list" class="space-y-3 pb-24"></div>
-		</div>
-		
-		<!-- UTILITY TAB (MODERN - CLEANED) -->
-		<div id="tab-utility" class="tab-content px-5 hidden">
-			<!-- Bas ye ek khaali dibba rahega, JS isme sab bharega -->
-			<div id="utility-container"></div>
-		</div>
-		
-    </main>
+    </div>
+    
+    <!-- UTILITY TAB -->
+    <div id="tab-utility" class="tab-content px-5 hidden">
+        <div id="utility-container"></div>
+    </div>
+    
+</main>
 
     <!-- TOAST CONTAINER -->
     <div id="toast-container"></div>
@@ -4317,16 +4259,24 @@ function switchTab(id) {
 
     // 3. Activate Target Tab
     const newTab = document.getElementById('tab-' + id);
-    newTab.classList.remove('hidden'); 
-    void newTab.offsetWidth; // Force Reflow
-    
-    // Animation Logic
-    if (id === 'stats' || id === 'utility') {
-        newTab.classList.add('anim-slide-right');
-    } else {
-        newTab.classList.add('anim-slide-left');
+    if(newTab) {
+        newTab.classList.remove('hidden'); 
+        void newTab.offsetWidth; // Force Reflow
+        
+        // Animation Logic
+        if (id === 'stats' || id === 'utility') {
+            newTab.classList.add('anim-slide-right');
+        } else {
+            newTab.classList.add('anim-slide-left');
+        }
+        newTab.classList.add('active');
     }
-    newTab.classList.add('active');
+
+    // 🔥 FIX: Reset Flip Card when leaving or returning to Home
+    const flipCard = document.querySelector('.flip-card');
+    if (id === 'home' && flipCard) {
+         flipCard.classList.remove('flipped'); // Hamesha Front dikhana chahiye
+    }
 
     // 4. Button Styling
     const homeBtn = document.getElementById('nav-home');
@@ -4357,7 +4307,7 @@ function switchTab(id) {
         }, 350); 
     }
 
-    // 🔥 UPDATE FAB COLOR HERE
+    // Update FAB Color
     updateFabStyle();
 }
     
